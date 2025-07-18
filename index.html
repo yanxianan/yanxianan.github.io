@@ -188,7 +188,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2025-07-18 10:04:55 / 修改时间：10:05:09" itemprop="dateCreated datePublished" datetime="2025-07-18T10:04:55+08:00">2025-07-18</time>
+              <time title="创建时间：2025-07-18 10:04:55 / 修改时间：10:18:15" itemprop="dateCreated datePublished" datetime="2025-07-18T10:04:55+08:00">2025-07-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -216,99 +216,14 @@
 <p>本教程适合从来没有用过 Git 和 GitHub 的朋友，一步步教你搭建开发环境、上传代码，并掌握最常用的命令。</p>
 </blockquote>
 <hr>
-<h2 id="🧠一、什么是-Git-和-GitHub？"><a href="#🧠一、什么是-Git-和-GitHub？" class="headerlink" title="🧠一、什么是 Git 和 GitHub？"></a>🧠一、什么是 Git 和 GitHub？</h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>简要说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>Git</strong></td>
-<td>本地的版本控制工具，能记录文件修改历史，就像“时间机器”</td>
-</tr>
-<tr>
-<td><strong>GitHub</strong></td>
-<td>一个远程代码托管平台，让你把 Git 项目上传到云端，并支持协作开发</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="🛠️-二、安装-Git"><a href="#🛠️-二、安装-Git" class="headerlink" title="🛠️ 二、安装 Git"></a>🛠️ 二、安装 Git</h2><h3 id="1-下载并安装-Git"><a href="#1-下载并安装-Git" class="headerlink" title="1. 下载并安装 Git"></a>1. 下载并安装 Git</h3><ul>
-<li>打开官网：<a target="_blank" rel="noopener" href="https://git-scm.com/">https://git-scm.com/</a></li>
-<li>点击 <strong>Download</strong> 按钮，下载安装程序</li>
-<li>一路点击“下一步”，保持默认设置即可</li>
-</ul>
-<h3 id="2-验证安装"><a href="#2-验证安装" class="headerlink" title="2. 验证安装"></a>2. 验证安装</h3><p>打开终端或命令行输入：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git --version</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">看到如下类似内容说明安装成功：</span><br><span class="line">git version 2.xx.x</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="👤-三、注册-GitHub-账号"><a href="#👤-三、注册-GitHub-账号" class="headerlink" title="👤 三、注册 GitHub 账号"></a>👤 三、注册 GitHub 账号</h2><ol>
-<li>打开 <a target="_blank" rel="noopener" href="https://github.com/">https://github.com</a></li>
-<li>点击右上角 <strong>Sign up</strong></li>
-<li>填写用户名、邮箱和密码，完成注册</li>
-<li>登录成功后可以访问你的主页：<a target="_blank" rel="noopener" href="https://github.com/%E4%BD%A0%E7%9A%84%E7%94%A8%E6%88%B7%E5%90%8D">https://github.com/你的用户名</a></li>
-</ol>
-<hr>
-<h2 id="📁-四、本地创建第一个-Git-项目"><a href="#📁-四、本地创建第一个-Git-项目" class="headerlink" title="📁 四、本地创建第一个 Git 项目"></a>📁 四、本地创建第一个 Git 项目</h2><h3 id="1-创建文件夹并进入"><a href="#1-创建文件夹并进入" class="headerlink" title="1. 创建文件夹并进入"></a>1. 创建文件夹并进入</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> my-first-git</span><br><span class="line"><span class="built_in">cd</span> my-first-git</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-初始化仓库"><a href="#2-初始化仓库" class="headerlink" title="2. 初始化仓库"></a>2. 初始化仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-添加一个文件"><a href="#3-添加一个文件" class="headerlink" title="3. 添加一个文件"></a>3. 添加一个文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello, Git!&quot;</span> &gt; readme.txt</span><br></pre></td></tr></table></figure>
-
-<h3 id="4-查看当前状态"><a href="#4-查看当前状态" class="headerlink" title="4. 查看当前状态"></a>4. 查看当前状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-添加到暂存区"><a href="#5-添加到暂存区" class="headerlink" title="5. 添加到暂存区"></a>5. 添加到暂存区</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git add readme.txt</span><br></pre></td></tr></table></figure>
-
-<h3 id="6-提交到仓库"><a href="#6-提交到仓库" class="headerlink" title="6. 提交到仓库"></a>6. 提交到仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">&quot;第一次提交：添加了 readme.txt&quot;</span></span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="☁️-五、将项目上传到-GitHub"><a href="#☁️-五、将项目上传到-GitHub" class="headerlink" title="☁️ 五、将项目上传到 GitHub"></a>☁️ 五、将项目上传到 GitHub</h2><h3 id="1-创建远程仓库"><a href="#1-创建远程仓库" class="headerlink" title="1. 创建远程仓库"></a>1. 创建远程仓库</h3><ul>
-<li>登录 GitHub</li>
-<li>点击右上角 ➕ &gt; <strong>New repository</strong></li>
-<li>仓库名填入：<code>my-first-git</code></li>
-<li>点击 “Create repository”</li>
-</ul>
-<h3 id="2-将本地项目关联到-GitHub"><a href="#2-将本地项目关联到-GitHub" class="headerlink" title="2. 将本地项目关联到 GitHub"></a>2. 将本地项目关联到 GitHub</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin https://github.com/你的用户名/my-first-git.git</span><br><span class="line">git branch -M main</span><br><span class="line">git push -u origin main</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>⚠️ 注意：第一次 push 可能需要登录 GitHub 账户或使用 Token，可以使用 GitHub Desktop 简化这个过程。</p>
-</blockquote>
-<hr>
-<h2 id="🔁-六、日常操作流程（记住这三步）"><a href="#🔁-六、日常操作流程（记住这三步）" class="headerlink" title="🔁 六、日常操作流程（记住这三步）"></a>🔁 六、日常操作流程（记住这三步）</h2><p>每次改完文件后，执行这三步即可：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;你修改了什么&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="🖼️-七、图形化工具推荐（不写命令也能用）"><a href="#🖼️-七、图形化工具推荐（不写命令也能用）" class="headerlink" title="🖼️ 七、图形化工具推荐（不写命令也能用）"></a>🖼️ 七、图形化工具推荐（不写命令也能用）</h2><table>
-<thead>
-<tr>
-<th>工具</th>
-<th>官网</th>
-<th>简介</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>GitHub Desktop</td>
-<td><a target="_blank" rel="noopener" href="https://desktop.github.com/">https://desktop.github.com</a></td>
-<td>官方图形客户端</td>
-</tr>
-<tr>
-<td>Sourcetree</td>
-<td><a target="_blank" rel="noopener" href="https://www.sourcetreeapp.com/">https://www.sourcetreeapp.com</a></td>
-<td>专业 Git 可视化工具</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="📚-八、可以继续学习的内容"><a href="#📚-八、可以继续学习的内容" class="headerlink" title="📚 八、可以继续学习的内容"></a>📚 八、可以继续学习的内容</h2><ul>
-<li>Git 分支（branch）和合并（merge）</li>
-<li>GitHub 的 Pull Request 协作流程</li>
-<li>使用 <code>.gitignore</code> 忽略不必要的文件</li>
-<li>VS Code 中的 Git 集成操作</li>
-</ul>
-<hr>
-<h2 id="✅-九、常用命令总结"><a href="#✅-九、常用命令总结" class="headerlink" title="✅ 九、常用命令总结"></a>✅ 九、常用命令总结</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git init              <span class="comment"># 初始化仓库</span></span><br><span class="line">git add .             <span class="comment"># 添加所有更改</span></span><br><span class="line">git commit -m <span class="string">&quot;说明&quot;</span>  <span class="comment"># 提交更改</span></span><br><span class="line">git status            <span class="comment"># 查看当前状态</span></span><br><span class="line">git push              <span class="comment"># 推送到 GitHub</span></span><br><span class="line">git pull              <span class="comment"># 拉取远程更新</span></span><br></pre></td></tr></table></figure>
-
-<hr>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/07/18/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -358,7 +273,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-18 10:16:20" itemprop="dateModified" datetime="2025-07-18T10:16:20+08:00">2025-07-18</time>
+                <time title="修改时间：2025-07-18 10:18:01" itemprop="dateModified" datetime="2025-07-18T10:18:01+08:00">2025-07-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -382,136 +297,14 @@
 
       
           <h2 id="你好，世界！"><a href="#你好，世界！" class="headerlink" title="你好，世界！"></a>你好，世界！</h2><p>欢迎来到我的小小自留地！<br>敲下这篇文字的时候，窗外的知了刚刚唱到第三遍，而我终于把博客的域名解析折腾完毕。于是就有了你正在看的这篇——<strong>既当作开站宣言，也当作技术笔记，更当作写给未来自己的一张明信片</strong>。</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- more --&gt;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="为什么开博客？"><a href="#为什么开博客？" class="headerlink" title="为什么开博客？"></a>为什么开博客？</h2><table>
-<thead>
-<tr>
-<th>理由</th>
-<th>一句话解释</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>记录</td>
-<td>好记性不如烂键盘</td>
-</tr>
-<tr>
-<td>分享</td>
-<td>一人踩坑不如众人填坑</td>
-</tr>
-<tr>
-<td>复盘</td>
-<td>让成长有迹可循</td>
-</tr>
-<tr>
-<td>交友</td>
-<td>评论区蹲一个同频的你</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="我会写什么？"><a href="#我会写什么？" class="headerlink" title="我会写什么？"></a>我会写什么？</h2><ul>
-<li>📓 <strong>学习笔记</strong>：算法、前端、Python、随笔</li>
-<li>🛠️ <strong>踩坑实录</strong>：环境配置、Bug 修复、工具推荐</li>
-<li>🌱 <strong>生活碎碎念</strong>：阅读、摄影、咖啡、猫</li>
-<li>🗂️ <strong>月度&#x2F;年度总结</strong>：把时间切片，再重新拼成故事</li>
-</ul>
-<hr>
-<h2 id="技术栈"><a href="#技术栈" class="headerlink" title="技术栈"></a>技术栈</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">博客框架：Hexo</span><br><span class="line">主题：NexT</span><br><span class="line">部署：GitHub Pages</span><br><span class="line">评论：Utterances</span><br><span class="line">写作：Typora + VS Code</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="彩蛋环节"><a href="#彩蛋环节" class="headerlink" title="彩蛋环节"></a>彩蛋环节</h2><p>如果你读到这里，送你三句话：</p>
-<ol>
-<li>“种一棵树最好的时间是十年前，其次是现在。”</li>
-<li>“写博客最难的是第一行，其次是第二行。”</li>
-<li>“看到这里的人，祝你今天也有好事发生。”</li>
-</ol>
-<hr>
-<h2 id="保持联系"><a href="#保持联系" class="headerlink" title="保持联系"></a>保持联系</h2><ul>
-<li>📧 邮箱：<a href="mailto:&#x79;&#97;&#110;&#120;&#x69;&#97;&#x6f;&#97;&#x6e;&#x34;&#x32;&#x39;&#64;&#49;&#x36;&#x33;&#46;&#99;&#x6f;&#x6d;">yanxiaoan429@163.com</a>  </li>
-<li>🐙 GitHub：<a target="_blank" rel="noopener" href="https://github.com/yanxianan">github.com&#x2F;yanxianan</a></li>
-</ul>
-<blockquote>
-<p><strong>评论区见！</strong><br>期待你的第一条留言，让这篇处女作不再孤独。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/17/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Yxa">
-      <meta itemprop="description" content="DO SOMETHING COOL！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蛋的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/07/17/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-07-17 16:50:29" itemprop="dateCreated datePublished" datetime="2025-07-17T16:50:29+08:00">2025-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-01-03 10:53:34" itemprop="dateModified" datetime="2025-01-03T10:53:34+08:00">2025-01-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/07/17/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -594,7 +387,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
