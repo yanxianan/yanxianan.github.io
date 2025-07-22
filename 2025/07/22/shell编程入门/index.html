@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文系统介绍 Shell 编程的基础知识，包括脚本结构、变量、常用命令、流程控制及函数，帮助初学者快速掌握 Shell 脚本的编写与应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell 编程入门">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/22/shell%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文系统介绍 Shell 编程的基础知识，包括脚本结构、变量、常用命令、流程控制及函数，帮助初学者快速掌握 Shell 脚本的编写与应用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-22T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-07-22T07:10:00.000Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Shell">
+<meta property="article:tag" content="脚本">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/22/shell%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Shell 编程入门 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/22/shell%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Shell 编程入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-22 14:30:00 / 修改时间：15:10:00" itemprop="dateCreated datePublished" datetime="2025-07-22T14:30:00+08:00">2025-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文系统介绍 Shell 编程的基础知识，包括脚本结构、变量、常用命令、流程控制及函数，帮助初学者快速掌握 Shell 脚本的编写与应用。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 Linux&#x2F;Unix 系统中，Shell 不仅是命令行解释器，更是一种强大的脚本编程语言。通过 Shell 脚本，我们可以将一系列命令组合起来实现自动化任务，从简单的文件批量处理到复杂的系统管理均可胜任。本文将从基础语法到实际应用，全面讲解 Shell 编程的入门知识，为自动化运维和开发效率提升奠定基础。</p>
+<h3 id="一、Shell-与-Shell-脚本基础"><a href="#一、Shell-与-Shell-脚本基础" class="headerlink" title="一、Shell 与 Shell 脚本基础"></a>一、Shell 与 Shell 脚本基础</h3><h4 id="1-什么是-Shell？"><a href="#1-什么是-Shell？" class="headerlink" title="1. 什么是 Shell？"></a>1. 什么是 Shell？</h4><p>Shell 是用户与操作系统内核交互的接口，它接收用户输入的命令并传递给内核执行。常见的 Shell 解释器包括：</p>
+<ul>
+<li><p><strong>Bash（Bourne Again SHell）</strong>：Linux 系统默认 Shell，兼容 Bourne Shell 并扩展了诸多功能；</p>
+</li>
+<li><p><strong>Zsh</strong>：增强了交互体验，支持更多插件和主题，适合终端爱好者；</p>
+</li>
+<li><p><strong>Dash</strong>：轻量级 Shell，注重执行效率，常用于脚本执行而非交互。</p>
+</li>
+</ul>
+<p>Shell 脚本是包含一系列 Shell 命令的文本文件，通过解释器逐行执行，无需编译，具有跨平台（在兼容 Shell 的系统中）和易用性特点。</p>
+<h4 id="2-第一个-Shell-脚本"><a href="#2-第一个-Shell-脚本" class="headerlink" title="2. 第一个 Shell 脚本"></a>2. 第一个 Shell 脚本</h4><p>创建一个简单的脚本文件（<a target="_blank" rel="noopener" href="http://hello.sh/">hello.sh</a>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># 这是一个注释，输出Hello World</span><br><span class="line">echo &quot;Hello, Shell Programming!&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>第一行#!&#x2F;bin&#x2F;bash称为<strong>shebang</strong>，指定脚本使用 Bash 解释器执行；</p>
+</li>
+<li><p>#用于单行注释，echo命令用于输出字符串。</p>
+</li>
+</ul>
+<p>执行脚本需先赋予执行权限：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x hello.sh  # 添加可执行权限</span><br><span class="line">./hello.sh         # 执行脚本</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：Hello, Shell Programming!</p>
+<h3 id="二、Shell-变量与参数传递"><a href="#二、Shell-变量与参数传递" class="headerlink" title="二、Shell 变量与参数传递"></a>二、Shell 变量与参数传递</h3><p>变量是 Shell 脚本存储数据的基本单元，其语法规则与其他编程语言存在差异。</p>
+<h4 id="1-变量定义与使用"><a href="#1-变量定义与使用" class="headerlink" title="1. 变量定义与使用"></a>1. 变量定义与使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">name=&quot;Shell&quot;          # 定义变量，等号两侧无空格</span><br><span class="line">version=5.1           # 数值变量无需引号</span><br><span class="line">echo &quot;Name: $name&quot;    # 使用$引用变量</span><br><span class="line">echo &quot;Version: $&#123;version&#125;&quot;  # 变量名与其他字符相邻时用$&#123;&#125;包裹</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>变量名由字母、数字和下划线组成，区分大小写；</p>
+</li>
+<li><p>字符串变量建议用双引号包裹，允许包含空格和特殊字符（单引号会禁用变量扩展）。</p>
+</li>
+</ul>
+<h4 id="2-环境变量与内置变量"><a href="#2-环境变量与内置变量" class="headerlink" title="2. 环境变量与内置变量"></a>2. 环境变量与内置变量</h4><p>环境变量是全局可见的变量，用于配置系统环境，常见的有：</p>
+<ul>
+<li><p>PATH：命令搜索路径，新增路径需执行export PATH&#x3D;$PATH:&#x2F;new&#x2F;path；</p>
+</li>
+<li><p>HOME：当前用户主目录；</p>
+</li>
+<li><p>$0：脚本文件名；</p>
+</li>
+<li><p>$n：传递给脚本的第 n 个参数（n≥1）；</p>
+</li>
+<li><p>$#：参数总数；</p>
+</li>
+<li><p>$?：上一条命令的退出状态（0 表示成功，非 0 表示失败）。</p>
+</li>
+</ul>
+<p>示例：接收并输出参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">echo &quot;脚本名：$0&quot;</span><br><span class="line">echo &quot;参数1：$1&quot;</span><br><span class="line">echo &quot;参数2：$2&quot;</span><br><span class="line">echo &quot;参数总数：$#&quot;</span><br></pre></td></tr></table></figure>
+
+<p>执行.&#x2F;<a target="_blank" rel="noopener" href="http://params.sh/">params.sh</a> first second，输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">脚本名：./params.sh</span><br><span class="line">参数1：first</span><br><span class="line">参数2：second</span><br><span class="line">参数总数：2</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、常用-Shell-命令与文本处理"><a href="#三、常用-Shell-命令与文本处理" class="headerlink" title="三、常用 Shell 命令与文本处理"></a>三、常用 Shell 命令与文本处理</h3><p>Shell 脚本的强大之处在于对系统命令的灵活调用，以下为高频使用的命令及示例。</p>
+<h4 id="1-文件操作"><a href="#1-文件操作" class="headerlink" title="1. 文件操作"></a>1. 文件操作</h4><ul>
+<li><p>ls：列出目录内容，ls -l显示详细信息；</p>
+</li>
+<li><p>cp：复制文件，cp src.txt dest.txt；</p>
+</li>
+<li><p>mv：移动 &#x2F; 重命名文件，mv old.txt new.txt；</p>
+</li>
+<li><p>rm：删除文件，rm -f file.txt（强制删除，无提示）；</p>
+</li>
+<li><p>mkdir&#x2F;rmdir：创建 &#x2F; 删除目录。</p>
+</li>
+</ul>
+<h4 id="2-文本处理三剑客"><a href="#2-文本处理三剑客" class="headerlink" title="2. 文本处理三剑客"></a>2. 文本处理三剑客</h4><ul>
+<li><p><strong>grep</strong>：文本搜索，grep “error” log.txt查找包含 error 的行；</p>
+</li>
+<li><p><strong>sed</strong>：流编辑器，sed ‘s&#x2F;old&#x2F;new&#x2F;g’ file.txt替换文件中所有 old 为 new；</p>
+</li>
+<li><p><strong>awk</strong>：数据处理工具，awk ‘{print $1}’ data.txt打印每行第一个字段（默认空格分隔）。</p>
+</li>
+</ul>
+<p>示例：统计日志中错误行数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">log_file=&quot;app.log&quot;</span><br><span class="line">error_count=$(grep -c &quot;ERROR&quot; $log_file)  # 使用$(...)捕获命令输出</span><br><span class="line">echo &quot;错误行数：$error_count&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、流程控制语句"><a href="#四、流程控制语句" class="headerlink" title="四、流程控制语句"></a>四、流程控制语句</h3><p>Shell 支持条件判断、循环等流程控制结构，语法与 C 语言类似但存在细节差异。</p>
+<h4 id="1-条件判断（if-语句）"><a href="#1-条件判断（if-语句）" class="headerlink" title="1. 条件判断（if 语句）"></a>1. 条件判断（if 语句）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">num=10</span><br><span class="line">if [ $num -gt 5 ]; then  # [ ] 为条件表达式，与内容间需空格</span><br><span class="line">    echo &quot;$num 大于5&quot;</span><br><span class="line">elif [ $num -eq 5 ]; then</span><br><span class="line">    echo &quot;$num 等于5&quot;</span><br><span class="line">else</span><br><span class="line">    echo &quot;$num 小于5&quot;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<p>常用比较运算符：</p>
+<ul>
+<li><p>数值比较：-eq（等于）、-ne（不等于）、-gt（大于）、-lt（小于）；</p>
+</li>
+<li><p>字符串比较：&#x3D;&#x3D;（等于）、!&#x3D;（不等于）、-z（空字符串）；</p>
+</li>
+<li><p>文件判断：-f（普通文件）、-d（目录）、-r（可读）。</p>
+</li>
+</ul>
+<h4 id="2-循环语句"><a href="#2-循环语句" class="headerlink" title="2. 循环语句"></a>2. 循环语句</h4><ul>
+<li><strong>for 循环</strong>：遍历列表或范围</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># 遍历参数</span><br><span class="line">for arg in &quot;$@&quot;; do  # $@表示所有参数</span><br><span class="line">    echo &quot;参数：$arg&quot;</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 数值范围循环</span><br><span class="line">for i in &#123;1..5&#125;; do</span><br><span class="line">    echo &quot;计数：$i&quot;</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>while 循环</strong>：条件满足时执行</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">count=1</span><br><span class="line">while [ $count -le 3 ]; do</span><br><span class="line">    echo &quot;循环次数：$count&quot;</span><br><span class="line">    count=$((count + 1))  # 算术运算用$((...))</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、函数定义与调用"><a href="#五、函数定义与调用" class="headerlink" title="五、函数定义与调用"></a>五、函数定义与调用</h3><p>函数用于封装重复执行的代码块，提高脚本可读性和复用性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># 定义函数</span><br><span class="line">sum() &#123;</span><br><span class="line">    local a=$1  # local声明局部变量</span><br><span class="line">    local b=$2</span><br><span class="line">    echo $((a + b))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 调用函数并接收返回值</span><br><span class="line">result=$(sum 3 5)</span><br><span class="line">echo &quot;3 + 5 = $result&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>函数定义无需指定参数类型，通过$1、$2获取参数；</p>
+</li>
+<li><p>函数返回值通过echo输出，调用时用$(函数名 参数)捕获。</p>
+</li>
+</ul>
+<h3 id="六、Shell-脚本调试与优化"><a href="#六、Shell-脚本调试与优化" class="headerlink" title="六、Shell 脚本调试与优化"></a>六、Shell 脚本调试与优化</h3><h4 id="1-调试方法"><a href="#1-调试方法" class="headerlink" title="1. 调试方法"></a>1. 调试方法</h4><ul>
+<li><p>执行脚本时添加-x参数：bash -x <a target="_blank" rel="noopener" href="http://script.sh/">script.sh</a>，打印执行的每一条命令及参数；</p>
+</li>
+<li><p>在脚本中使用set -x开启调试，set +x关闭调试。</p>
+</li>
+</ul>
+<h4 id="2-优化建议"><a href="#2-优化建议" class="headerlink" title="2. 优化建议"></a>2. 优化建议</h4><ul>
+<li><p>避免使用ls解析文件名（如for file in $(ls *.txt)），直接用for file in *.txt；</p>
+</li>
+<li><p>处理大文件时优先使用awk或sed，减少管道操作（|）的使用；</p>
+</li>
+<li><p>敏感操作前添加确认提示，如read -p “确认删除？[y&#x2F;n]” -n 1 -r。</p>
+</li>
+</ul>
+<h3 id="七、实战案例：日志清理脚本"><a href="#七、实战案例：日志清理脚本" class="headerlink" title="七、实战案例：日志清理脚本"></a>七、实战案例：日志清理脚本</h3><p>结合上述知识，编写一个自动清理指定天数前日志的脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># 日志清理脚本，保留最近N天的日志</span><br><span class="line"></span><br><span class="line">LOG_DIR=&quot;/var/log/myapp&quot;</span><br><span class="line">RETENTION_DAYS=7  # 保留天数</span><br><span class="line"></span><br><span class="line"># 检查日志目录是否存在</span><br><span class="line">if [ ! -d &quot;$LOG_DIR&quot; ]; then</span><br><span class="line">    echo &quot;错误：日志目录 $LOG_DIR 不存在&quot;</span><br><span class="line">    exit 1  # 非0退出表示失败</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"># 删除过期日志</span><br><span class="line">find &quot;$LOG_DIR&quot; -name &quot;*.log&quot; -type f -mtime +$RETENTION_DAYS -delete</span><br><span class="line"></span><br><span class="line">if [ $? -eq 0 ]; then</span><br><span class="line">    echo &quot;日志清理完成，保留最近$RETENTION_DAYS天的文件&quot;</span><br><span class="line">else</span><br><span class="line">    echo &quot;日志清理失败&quot;</span><br><span class="line">    exit 1</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<h3 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h3><p>Shell 编程是 Linux 系统管理和自动化任务的必备技能，本文涵盖了脚本基础、变量、流程控制、函数等核心知识点。入门阶段需重点掌握命令组合与语法细节（如空格、引号的使用），通过实际案例练习逐步提升。</p>
+<p>进阶学习可关注：正则表达式在 Shell 中的应用、信号处理（trap 命令）、与其他编程语言（如 Python）的混合编程等方向。建议结合man bash手册和实际需求，深入理解 Shell 的特性与局限。</p>
+<p>若有脚本编写中的具体问题，欢迎在评论区交流讨论。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Shell/" rel="tag"># Shell</a>
+              <a href="/tags/%E8%84%9A%E6%9C%AC/" rel="tag"># 脚本</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/22/Win11%E5%8F%B3%E9%94%AE%E6%B7%BB%E5%8A%A0md%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6/" rel="prev" title="Windows右键新建添加md文件">
+      <i class="fa fa-chevron-left"></i> Windows右键新建添加md文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/22/MMU%E5%85%A5%E9%97%A8/" rel="next" title="MMU 深度解析：内存管理单元的工作原理与实践">
+      MMU 深度解析：内存管理单元的工作原理与实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Shell-%E4%B8%8E-Shell-%E8%84%9A%E6%9C%AC%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">一、Shell 与 Shell 脚本基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF-Shell%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1. 什么是 Shell？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%AC%AC%E4%B8%80%E4%B8%AA-Shell-%E8%84%9A%E6%9C%AC"><span class="nav-number">1.2.</span> <span class="nav-text">2. 第一个 Shell 脚本</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Shell-%E5%8F%98%E9%87%8F%E4%B8%8E%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="nav-number">2.</span> <span class="nav-text">二、Shell 变量与参数传递</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E4%B8%8E%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">1. 变量定义与使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="nav-number">2.2.</span> <span class="nav-text">2. 环境变量与内置变量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E7%94%A8-Shell-%E5%91%BD%E4%BB%A4%E4%B8%8E%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">三、常用 Shell 命令与文本处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">3.1.</span> <span class="nav-text">1. 文件操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%89%E5%89%91%E5%AE%A2"><span class="nav-number">3.2.</span> <span class="nav-text">2. 文本处理三剑客</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5"><span class="nav-number">4.</span> <span class="nav-text">四、流程控制语句</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD%EF%BC%88if-%E8%AF%AD%E5%8F%A5%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">1. 条件判断（if 语句）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5"><span class="nav-number">4.2.</span> <span class="nav-text">2. 循环语句</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89%E4%B8%8E%E8%B0%83%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">五、函数定义与调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81Shell-%E8%84%9A%E6%9C%AC%E8%B0%83%E8%AF%95%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">六、Shell 脚本调试与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95"><span class="nav-number">6.1.</span> <span class="nav-text">1. 调试方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.2.</span> <span class="nav-text">2. 优化建议</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%EF%BC%9A%E6%97%A5%E5%BF%97%E6%B8%85%E7%90%86%E8%84%9A%E6%9C%AC"><span class="nav-number">7.</span> <span class="nav-text">七、实战案例：日志清理脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">八、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
