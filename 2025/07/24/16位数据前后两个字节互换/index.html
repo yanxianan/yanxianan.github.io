@@ -20,17 +20,21 @@
     var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="DO SOMETHING COOL！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="蛋的博客">
-<meta property="og:url" content="https://yanxianan.github.io/archives/2025/page/2/index.html">
+  <meta name="description" content="本文介绍如何交换16位数据的两个字节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="16位数据两字节交换顺序">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/24/16%E4%BD%8D%E6%95%B0%E6%8D%AE%E5%89%8D%E5%90%8E%E4%B8%A4%E4%B8%AA%E5%AD%97%E8%8A%82%E4%BA%92%E6%8D%A2/index.html">
 <meta property="og:site_name" content="蛋的博客">
-<meta property="og:description" content="DO SOMETHING COOL！">
+<meta property="og:description" content="本文介绍如何交换16位数据的两个字节">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-24T01:41:55.000Z">
+<meta property="article:modified_time" content="2025-07-24T03:18:12.345Z">
 <meta property="article:author" content="Yxa">
+<meta property="article:tag" content="字节交换">
+<meta property="article:tag" content="数据处理">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://yanxianan.github.io/archives/2025/page/2/">
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/24/16%E4%BD%8D%E6%95%B0%E6%8D%AE%E5%89%8D%E5%90%8E%E4%B8%A4%E4%B8%AA%E5%AD%97%E8%8A%82%E4%BA%92%E6%8D%A2/">
 
 
 <script id="page-configurations">
@@ -38,12 +42,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | 蛋的博客</title>
+  <title>16位数据两字节交换顺序 | 蛋的博客</title>
   
 
 
@@ -157,114 +161,111 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 14 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/24/16%E4%BD%8D%E6%95%B0%E6%8D%AE%E5%89%8D%E5%90%8E%E4%B8%A4%E4%B8%AA%E5%AD%97%E8%8A%82%E4%BA%92%E6%8D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          16位数据两字节交换顺序
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-24 09:41:55 / 修改时间：11:18:12" itemprop="dateCreated datePublished" datetime="2025-07-24T09:41:55+08:00">2025-07-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BB%8F%E9%AA%8C/" itemprop="url" rel="index"><span itemprop="name">经验</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍如何交换16位数据的两个字节</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
-    </div>
+        <h2 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h2><p>在使用串口通过labwindows&#x2F;cvi的ViRead函数接受数据的时候遇到接受的16位数据是相反的，比如发送0x010F会收到0x0F01.</p>
+<h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>在使用LabWindows&#x2F;CVI的<code>ViRead</code>函数时遇到数据字节顺序相反的问题（如发送<code>0x010F</code>收到<code>0x0F01</code>），这是由于<strong>主机与设备的字节序（Endianness）不一致</strong>导致的。以下是原因和解决方案：</p>
+<ol>
+<li><strong>字节序差异</strong>：<ul>
+<li><strong>大端序（Big-Endian）</strong>：高位字节在前（如 <code>0x01</code> 在前，<code>0x0F</code> 在后）。</li>
+<li><strong>小端序（Little-Endian）</strong>：低位字节在前（如 <code>0x0F</code> 在前，<code>0x01</code> 在后）。</li>
+<li>主机（x86&#x2F;x64 CPU）通常使用<strong>小端序</strong>，而许多仪器设备（如串口设备、网络协议）可能采用<strong>大端序</strong>。</li>
+</ul>
+</li>
+<li><strong>数据处理方式</strong>：<ul>
+<li>当仪器以大端序发送数据 <code>0x010F</code>（字节流 <code>0x01, 0x0F</code>）时，主机用小端序解读会将其解释为 <code>0x0F01</code>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for(int i = 0;i&lt;DataCount;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		data16[i] = (data16[i]&lt;&lt;8 | data16[i] &gt;&gt;8);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-07-19T11:41:55+08:00"
-              content="2025-07-19">
-          07-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/07/19/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0%E4%BA%8C/" itemprop="url">
-            <span itemprop="name">Git与GitHub入门学习（二）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-07-18T10:35:55+08:00"
-              content="2025-07-18">
-          07-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/07/18/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">Git与GitHub入门学习（一）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-07-18T10:22:00+08:00"
-              content="2025-07-18">
-          07-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/07/18/hexo%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%92%B0%E5%86%99%E6%95%99%E7%A8%8B/" itemprop="url">
-            <span itemprop="name">hexo个人博客撰写教程</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-07-17T20:49:22+08:00"
-              content="2025-07-17">
-          07-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/07/17/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/" itemprop="url">
-            <span itemprop="name">我的第一篇文章</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<p>通过以上for循环即可将收到的16位数据的两个字节顺序交换，发送0x010F保存的数据也为0x010F。</p>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%97%E8%8A%82%E4%BA%A4%E6%8D%A2/" rel="tag"># 字节交换</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/" rel="tag"># 数据处理</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/22/static%E5%85%B3%E9%94%AE%E5%AD%97/" rel="prev" title="C/C++ 中的 static 关键字">
+      <i class="fa fa-chevron-left"></i> C/C++ 中的 static 关键字
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/24/ViRead%E9%81%87%E5%88%B00A%E7%BB%93%E6%9D%9F%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%8F%96/" rel="next" title="串口通信读取数据遇到0x0A停止读取数据">
+      串口通信读取数据遇到0x0A停止读取数据 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
   
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/2025/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/2025/">1</a><span class="page-number current">2</span>
-  </nav>
+  
+  
 
 
 
@@ -316,6 +317,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">问题：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E5%9B%A0%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">原因：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
