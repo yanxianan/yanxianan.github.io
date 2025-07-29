@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细解析 C&#x2F;C++ 中 const 和 static 关键字的作用、使用场景，并深入对比两者的区别，帮助开发者准确理解和运用这两个重要关键字。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 中 const 与 static 的作用及区别详解">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/29/const%E5%92%8Cstatic/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细解析 C&#x2F;C++ 中 const 和 static 关键字的作用、使用场景，并深入对比两者的区别，帮助开发者准确理解和运用这两个重要关键字。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-29T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-07-29T07:05:00.000Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="static">
+<meta property="article:tag" content="const">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/29/const%E5%92%8Cstatic/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C/C++ 中 const 与 static 的作用及区别详解 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/29/const%E5%92%8Cstatic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++ 中 const 与 static 的作用及区别详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-29 14:30:00 / 修改时间：15:05:00" itemprop="dateCreated datePublished" datetime="2025-07-29T14:30:00+08:00">2025-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E4%BB%B6/" itemprop="url" rel="index"><span itemprop="name">软件</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E4%BB%B6/C%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">C语言</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细解析 C/C++ 中 const 和 static 关键字的作用、使用场景，并深入对比两者的区别，帮助开发者准确理解和运用这两个重要关键字。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 C&#x2F;C++ 编程中，const和static是两个常用且重要的关键字，它们各自承担着独特的功能，却又容易被混淆。本文将从作用、使用场景和核心区别三个维度，全面解析这两个关键字，帮助开发者在实际编程中正确运用。</p>
+<h3 id="一、const-关键字：定义常量与只读特性"><a href="#一、const-关键字：定义常量与只读特性" class="headerlink" title="一、const 关键字：定义常量与只读特性"></a>一、const 关键字：定义常量与只读特性</h3><p>const（constant 的缩写）的核心作用是<strong>定义不可修改的实体</strong>，即常量或只读对象，其本质是为变量或函数加上 “只读” 属性，防止意外修改，提高代码的安全性和可读性。</p>
+<h4 id="1-const-的主要作用"><a href="#1-const-的主要作用" class="headerlink" title="1. const 的主要作用"></a>1. const 的主要作用</h4><ul>
+<li><strong>定义常量</strong>：声明变量为常量，初始化后不可修改。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">const int MAX_SIZE = 100; // 常量，不可修改</span><br><span class="line">MAX_SIZE = 200; // 编译错误：常量不可赋值</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰指针</strong>：有三种形式，分别限制指针本身、指针指向的内容，或两者都限制。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">const int* p1; // 指向常量的指针（内容不可改，指针可改）</span><br><span class="line">int* const p2; // 常量指针（指针不可改，内容可改）</span><br><span class="line">const int* const p3; // 指向常量的常量指针（两者都不可改）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰函数参数</strong>：防止函数内部修改参数值，尤其适用于传递大型对象（避免拷贝且保证安全）。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void printStr(const string&amp; str) &#123;</span><br><span class="line">    str = &quot;new&quot;; // 编译错误：参数为const引用，不可修改</span><br><span class="line">    cout &lt;&lt; str &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰函数返回值</strong>：限制返回值不可被修改（常用于返回指针或引用时）。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const int* getArray() &#123;</span><br><span class="line">    static int arr[5] = &#123;1,2,3,4,5&#125;;</span><br><span class="line">    return arr;</span><br><span class="line">&#125;</span><br><span class="line">// 调用时</span><br><span class="line">const int* ptr = getArray();</span><br><span class="line">*ptr = 10; // 编译错误：返回值为const指针</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰类成员</strong>：在类中，const成员变量必须在初始化列表中初始化；const成员函数不能修改类的成员变量（mutable 修饰的除外）。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class MyClass &#123;</span><br><span class="line">private:</span><br><span class="line">    const int value; // const成员变量</span><br><span class="line">public:</span><br><span class="line">    MyClass(int v) : value(v) &#123;&#125; // 必须在初始化列表初始化</span><br><span class="line">    int getValue() const &#123; // const成员函数</span><br><span class="line">        // value = 10; // 编译错误：const函数不可修改成员变量</span><br><span class="line">        return value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-const-的核心特性"><a href="#2-const-的核心特性" class="headerlink" title="2. const 的核心特性"></a>2. const 的核心特性</h4><ul>
+<li><p><strong>不可修改性</strong>：被const修饰的实体，其值或状态在初始化后不可修改。</p>
+</li>
+<li><p><strong>编译期检查</strong>：const的约束在编译阶段生效，试图修改会导致编译错误。</p>
+</li>
+<li><p><strong>提高代码可读性</strong>：明确告诉开发者 “这个实体不应该被修改”。</p>
+</li>
+</ul>
+<h3 id="二、static-关键字：控制存储周期与作用域"><a href="#二、static-关键字：控制存储周期与作用域" class="headerlink" title="二、static 关键字：控制存储周期与作用域"></a>二、static 关键字：控制存储周期与作用域</h3><p>static的核心作用是<strong>控制变量或函数的存储周期、作用域和链接属性</strong>，其行为在不同场景（全局、局部、类中）有所差异，但都与 “静态” 特性相关。</p>
+<h4 id="1-static-的主要作用"><a href="#1-static-的主要作用" class="headerlink" title="1. static 的主要作用"></a>1. static 的主要作用</h4><ul>
+<li><strong>修饰全局变量</strong>：限制全局变量的作用域为当前文件（内部链接），避免不同文件中同名变量的冲突。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// file1.cpp</span><br><span class="line">static int globalVar = 10; // 仅在file1.cpp中可见</span><br><span class="line"></span><br><span class="line">// file2.cpp</span><br><span class="line">int globalVar = 20; // 合法，与file1.cpp中的变量不冲突</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰局部变量</strong>：改变局部变量的存储周期为整个程序运行期间（静态存储），但作用域仍为当前函数。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void count() &#123;</span><br><span class="line">    static int cnt = 0; // 仅初始化一次，程序结束时释放</span><br><span class="line">    cnt++;</span><br><span class="line">    cout &lt;&lt; cnt &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    count(); // 输出1</span><br><span class="line">    count(); // 输出2</span><br><span class="line">    count(); // 输出3</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰函数</strong>：限制函数的作用域为当前文件（内部链接），避免与其他文件的同名函数冲突。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// file1.cpp</span><br><span class="line">static void func() &#123; ... &#125; // 仅在file1.cpp中可见</span><br><span class="line"></span><br><span class="line">// file2.cpp</span><br><span class="line">void func() &#123; ... &#125; // 合法，与file1.cpp中的函数不冲突</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修饰类成员</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class Counter &#123;</span><br><span class="line">private:</span><br><span class="line">    static int total; // 静态成员变量</span><br><span class="line">public:</span><br><span class="line">    static void add() &#123; total++; &#125; // 静态成员函数</span><br><span class="line">    static int getTotal() &#123; return total; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int Counter::total = 0; // 类外初始化</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Counter::add();</span><br><span class="line">    Counter::add();</span><br><span class="line">    cout &lt;&lt; Counter::getTotal() &lt;&lt; endl; // 输出2</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><ul>
+<li><strong>静态成员变量</strong>：属于类本身，而非类的实例，所有对象共享同一变量，需在类外初始化。</li>
+</ul>
+</li>
+<li><ul>
+<li><strong>静态成员函数</strong>：属于类本身，不含this指针，只能访问静态成员变量和静态成员函数。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-static-的核心特性"><a href="#2-static-的核心特性" class="headerlink" title="2. static 的核心特性"></a>2. static 的核心特性</h4><ul>
+<li><p><strong>存储周期</strong>：静态变量在程序启动时分配内存，程序结束时释放（全局生命周期）。</p>
+</li>
+<li><p><strong>作用域控制</strong>：限制全局变量 &#x2F; 函数的作用域为当前文件，局部静态变量作用域仍为函数内。</p>
+</li>
+<li><p><strong>类共享性</strong>：类的静态成员被所有实例共享，无需创建对象即可访问。</p>
+</li>
+</ul>
+<h3 id="三、const-与-static-的核心区别"><a href="#三、const-与-static-的核心区别" class="headerlink" title="三、const 与 static 的核心区别"></a>三、const 与 static 的核心区别</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>const</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心功能</td>
+<td>定义不可修改的实体（只读特性）</td>
+<td>控制存储周期、作用域和链接属性</td>
+</tr>
+<tr>
+<td>内存管理</td>
+<td>变量存储位置取决于场景（栈、全局区等）</td>
+<td>变量存储在静态存储区（全局生命周期）</td>
+</tr>
+<tr>
+<td>类中使用</td>
+<td>const 成员属于对象，每个对象有独立副本</td>
+<td>static 成员属于类，所有对象共享一个副本</td>
+</tr>
+<tr>
+<td>初始化要求</td>
+<td>必须在定义时或构造函数初始化列表中初始化</td>
+<td>静态成员变量需在类外单独初始化</td>
+</tr>
+<tr>
+<td>修饰函数</td>
+<td>限制函数不能修改成员变量（类中）</td>
+<td>函数属于类，不依赖对象实例</td>
+</tr>
+<tr>
+<td>编译期检查</td>
+<td>主要检查 “是否被修改”</td>
+<td>主要检查 “作用域和链接属性”</td>
+</tr>
+</tbody></table>
+<p><strong>典型误用示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 错误：const和static在类中修饰成员变量的初始化方式不同</span><br><span class="line">class Test &#123;</span><br><span class="line">    const static int a; // 合法：静态常量，可在类内声明，类外初始化</span><br><span class="line">    static const int b = 10; // 合法：C++11后允许类内初始化静态常量</span><br><span class="line">    const int c = 20; // 错误：非静态const成员不能在类内直接初始化（需在初始化列表）</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h3><p>const和static是 C&#x2F;C++ 中功能截然不同的关键字：</p>
+<ul>
+<li><p>const的核心是 <strong>“只读”</strong>，用于保护数据不被意外修改，强调数据的不可变性，在编译期生效。</p>
+</li>
+<li><p>static的核心是 <strong>“静态管理”</strong>，用于控制变量 &#x2F; 函数的存储周期和作用域，强调资源的共享性和生命周期，在运行期体现效果。</p>
+</li>
+</ul>
+<p>在实际编程中，两者可以结合使用（如static const修饰类的静态常量），但需明确各自的职责：const保证数据安全，static优化资源管理。理解它们的区别，能帮助我们写出更健壮、更高效的代码。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/static/" rel="tag"># static</a>
+              <a href="/tags/const/" rel="tag"># const</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/29/gdb%E7%9A%84%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E6%8C%87%E5%8D%97/" rel="prev" title="gdb调试技巧">
+      <i class="fa fa-chevron-left"></i> gdb调试技巧
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/29/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E6%89%80%E5%8D%A0%E5%AD%97%E8%8A%82%E6%95%B0/" rel="next" title="C语言变量所占字节数">
+      C语言变量所占字节数 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81const-%E5%85%B3%E9%94%AE%E5%AD%97%EF%BC%9A%E5%AE%9A%E4%B9%89%E5%B8%B8%E9%87%8F%E4%B8%8E%E5%8F%AA%E8%AF%BB%E7%89%B9%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">一、const 关键字：定义常量与只读特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-const-%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BD%9C%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1. const 的主要作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-const-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">2. const 的核心特性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81static-%E5%85%B3%E9%94%AE%E5%AD%97%EF%BC%9A%E6%8E%A7%E5%88%B6%E5%AD%98%E5%82%A8%E5%91%A8%E6%9C%9F%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-number">2.</span> <span class="nav-text">二、static 关键字：控制存储周期与作用域</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-static-%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BD%9C%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">1. static 的主要作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-static-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">2. static 的核心特性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81const-%E4%B8%8E-static-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">三、const 与 static 的核心区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
