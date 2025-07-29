@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍GCC&#x2F;G++（gdb）调试技巧指南。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gdb调试技巧">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/29/gdb%E7%9A%84%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍GCC&#x2F;G++（gdb）调试技巧指南。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-29T02:40:00.000Z">
+<meta property="article:modified_time" content="2025-07-29T02:42:10.343Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="调试">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/29/gdb%E7%9A%84%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>gdb调试技巧 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/29/gdb%E7%9A%84%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gdb调试技巧
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-29 10:40:00 / 修改时间：10:42:10" itemprop="dateCreated datePublished" datetime="2025-07-29T10:40:00+08:00">2025-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍GCC/G++（gdb）调试技巧指南。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="GCC-G-调试技巧指南"><a href="#GCC-G-调试技巧指南" class="headerlink" title="GCC&#x2F;G++ 调试技巧指南"></a>GCC&#x2F;G++ 调试技巧指南</h1><p>在程序开发过程中，调试是定位和解决问题的关键环节。GCC&#x2F;G++ 配合 GDB（GNU 调试器）提供了强大的调试能力，能够帮助开发者追踪程序执行流程、查看变量状态、分析内存问题等。本文将详细介绍基于 GCC&#x2F;G++ 和 GDB 的调试技巧，涵盖从编译准备到高级调试的全流程。</p>
+<h2 id="一、调试前的编译准备"><a href="#一、调试前的编译准备" class="headerlink" title="一、调试前的编译准备"></a>一、调试前的编译准备</h2><p>要使用 GDB 调试程序，需在编译阶段生成包含调试信息的可执行文件。GCC&#x2F;G++ 通过 -g 选项添加调试信息（如变量名、行号、函数信息等），常用的调试级别如下：</p>
+<ul>
+<li><p>-g：生成基本调试信息（推荐默认使用）。</p>
+</li>
+<li><p>-g3：包含更多调试信息（如宏定义、注释等），适合复杂项目。</p>
+</li>
+<li><p>-ggdb：生成 GDB 专用的调试信息，优化调试体验。</p>
+</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p>编译包含调试信息的可执行文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -g test.c -o test  # 基本调试信息</span><br><span class="line">g++ -g3 main.cpp func.cpp -o main  # 高级调试信息（多文件）</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>：调试时建议关闭代码优化（如 -O0，默认不优化），避免优化导致的代码逻辑与源码不一致（如变量被优化掉、循环展开等）。若需同时优化和调试，可使用 -Og 选项（专为调试设计的轻度优化）。</p>
+</blockquote>
+<h2 id="二、GDB-基本操作流程"><a href="#二、GDB-基本操作流程" class="headerlink" title="二、GDB 基本操作流程"></a>二、GDB 基本操作流程</h2><h3 id="1-启动-GDB"><a href="#1-启动-GDB" class="headerlink" title="1. 启动 GDB"></a>1. 启动 GDB</h3><p>在终端中通过以下命令启动 GDB 并加载可执行文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb ./test  # 直接启动并加载test</span><br><span class="line">gdb -args ./test arg1 arg2  # 带命令行参数启动（arg1、arg2为程序参数）</span><br></pre></td></tr></table></figure>
+
+<p>启动后进入 GDB 交互界面，提示符为 (gdb)，可输入调试命令。</p>
+<h3 id="2-常用基础命令"><a href="#2-常用基础命令" class="headerlink" title="2. 常用基础命令"></a>2. 常用基础命令</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>简化形式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>run</td>
+<td>启动程序（可带参数，如 run arg1）</td>
+<td>r</td>
+</tr>
+<tr>
+<td>quit</td>
+<td>退出 GDB</td>
+<td>q</td>
+</tr>
+<tr>
+<td>help &lt;命令&gt;</td>
+<td>查看命令帮助（如 help break）</td>
+<td>h</td>
+</tr>
+<tr>
+<td>list &lt;文件名:行号&gt;</td>
+<td>显示源码（默认显示当前位置附近）</td>
+<td>l</td>
+</tr>
+<tr>
+<td>set args &lt;参数&gt;</td>
+<td>设置程序运行参数（如 set args 10 20）</td>
+<td>-</td>
+</tr>
+<tr>
+<td>show args</td>
+<td>查看当前设置的运行参数</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h2 id="三、断点调试：控制程序执行流程"><a href="#三、断点调试：控制程序执行流程" class="headerlink" title="三、断点调试：控制程序执行流程"></a>三、断点调试：控制程序执行流程</h2><p>断点是调试的核心工具，用于在指定位置暂停程序执行，以便查看变量状态、调用栈等。GDB 支持多种类型的断点，满足不同场景需求。</p>
+<h3 id="1-基本断点（按行号-函数）"><a href="#1-基本断点（按行号-函数）" class="headerlink" title="1. 基本断点（按行号 &#x2F; 函数）"></a>1. 基本断点（按行号 &#x2F; 函数）</h3><ul>
+<li><strong>按行号设置断点</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) break test.c:10  # 在test.c的第10行设置断点</span><br><span class="line">(gdb) b main.cpp:25    # 简化命令（b = break）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>按函数名设置断点</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) break add  # 在函数add()入口设置断点（适用于全局函数）</span><br><span class="line">(gdb) b MyClass::method  # C++类成员函数（需带类名）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>查看所有断点</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info breakpoints  # 显示断点编号、位置、状态</span><br><span class="line">(gdb) i b  # 简化形式</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>删除断点</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) delete 1  # 删除编号为1的断点</span><br><span class="line">(gdb) d 2       # 简化形式（d = delete）</span><br><span class="line">(gdb) clear test.c:10  # 删除指定行的断点</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>临时禁用 &#x2F; 启用断点</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disable 1  # 禁用编号1的断点（不删除，状态为n）</span><br><span class="line">(gdb) enable 1   # 启用编号1的断点（状态为y）</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-条件断点：满足条件时暂停"><a href="#2-条件断点：满足条件时暂停" class="headerlink" title="2. 条件断点：满足条件时暂停"></a>2. 条件断点：满足条件时暂停</h3><p>当需要在特定条件下暂停程序（如变量达到某个值、表达式为真），可使用条件断点，避免无意义的暂停。</p>
+<p><strong>示例</strong>：</p>
+<p>在循环中，当 i &#x3D;&#x3D; 100 时暂停：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) break loop.c:5 if i == 100  # loop.c第5行，i等于100时触发</span><br></pre></td></tr></table></figure>
+
+<p>修改已有断点的条件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) condition 1 (x &gt; 100 &amp;&amp; y &lt; 50)  # 为编号1的断点设置新条件</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-监视断点：跟踪变量-表达式变化"><a href="#3-监视断点：跟踪变量-表达式变化" class="headerlink" title="3. 监视断点：跟踪变量 &#x2F; 表达式变化"></a>3. 监视断点：跟踪变量 &#x2F; 表达式变化</h3><p>监视断点（watch）用于在变量或表达式的值发生变化时自动暂停程序，适合追踪变量被意外修改的场景。</p>
+<ul>
+<li><p>watch &lt;变量&#x2F;表达式&gt;：当值被修改时暂停（写监视）。</p>
+</li>
+<li><p>rwatch &lt;变量&#x2F;表达式&gt;：当值被读取时暂停（读监视）。</p>
+</li>
+<li><p>awatch &lt;变量&#x2F;表达式&gt;：当值被读取或修改时暂停（读写监视）。</p>
+</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) watch count  # 当count被修改时暂停</span><br><span class="line">(gdb) rwatch array[0]  # 当array[0]被读取时暂停</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>：监视断点仅在程序运行时生效，且可能影响性能（频繁修改的变量会多次触发暂停）。</p>
+</blockquote>
+<h3 id="4-执行控制：单步调试与继续运行"><a href="#4-执行控制：单步调试与继续运行" class="headerlink" title="4. 执行控制：单步调试与继续运行"></a>4. 执行控制：单步调试与继续运行</h3><p>程序暂停后，可通过以下命令控制执行流程：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>简化形式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>next</td>
+<td>执行下一行（跳过函数调用，视为一步）</td>
+<td>n</td>
+</tr>
+<tr>
+<td>step</td>
+<td>执行下一行（进入函数调用，逐语句执行）</td>
+<td>s</td>
+</tr>
+<tr>
+<td>continue</td>
+<td>继续执行到下一个断点</td>
+<td>c</td>
+</tr>
+<tr>
+<td>finish</td>
+<td>执行完当前函数并返回（跳出函数）</td>
+<td>fin</td>
+</tr>
+<tr>
+<td>until &lt;行号&gt;</td>
+<td>执行到指定行（常用于跳出循环）</td>
+<td>u</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n  # 单步执行，不进入函数</span><br><span class="line">(gdb) s  # 单步执行，进入当前行的函数</span><br><span class="line">(gdb) c  # 继续运行到下一个断点</span><br><span class="line">(gdb) fin  # 执行完当前函数后暂停</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、变量与内存查看技巧"><a href="#四、变量与内存查看技巧" class="headerlink" title="四、变量与内存查看技巧"></a>四、变量与内存查看技巧</h2><p>程序暂停时，需查看变量值、内存状态等信息以定位问题。GDB 提供了丰富的命令用于检查数据。</p>
+<h3 id="1-查看变量值"><a href="#1-查看变量值" class="headerlink" title="1. 查看变量值"></a>1. 查看变量值</h3><ul>
+<li><strong>基本变量查看</strong>：</li>
+</ul>
+<p>使用 print 命令打印变量或表达式的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) print x  # 打印变量x的值</span><br><span class="line">(gdb) p sum + 10  # 简化命令（p = print），打印表达式sum+10</span><br><span class="line">(gdb) p array[0..5]  # 打印数组array的前6个元素（0到5索引）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>自动刷新变量</strong>：</li>
+</ul>
+<p>使用 display 命令设置自动显示的变量（程序暂停时自动打印）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) display i  # 每次暂停自动显示i的值</span><br><span class="line">(gdb) undisplay 1  # 取消编号1的自动显示（通过info display查看编号）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>查看字符串与结构体</strong>：</li>
+</ul>
+<p>GDB 会自动解析数据类型，直接打印即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p str  # 打印字符串（char*类型）</span><br><span class="line">(gdb) p student  # 打印结构体student的所有成员（如name、age）</span><br><span class="line">(gdb) p student.name  # 打印结构体成员name</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-内存查看与修改"><a href="#2-内存查看与修改" class="headerlink" title="2. 内存查看与修改"></a>2. 内存查看与修改</h3><ul>
+<li><strong>查看内存内容</strong>：</li>
+</ul>
+<p>使用 x 命令（examine）查看指定内存地址的内容，格式为 x&#x2F;<n><f><u>：</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x/10xw 0x7fffffffde40  # 以16进制（x）、4字节（w）显示从0x7fffffffde40开始的10个单元</span><br><span class="line">(gdb) x/s str  # 以字符串格式显示变量str指向的内存</span><br><span class="line">(gdb) x/5i $pc  # 显示当前程序计数器（$pc）指向的5条汇编指令</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><ul>
+<li>n：显示的单元数</li>
+</ul>
+</li>
+<li><ul>
+<li>f：格式（x&#x3D; 十六进制，d&#x3D; 十进制，s&#x3D; 字符串，i&#x3D; 指令）</li>
+</ul>
+</li>
+<li><ul>
+<li>u：单元大小（b&#x3D;1 字节，h&#x3D;2 字节，w&#x3D;4 字节，g&#x3D;8 字节）</li>
+</ul>
+</li>
+<li><p><strong>修改内存值</strong>：</p>
+</li>
+</ul>
+<p>使用 set 命令修改变量或内存地址的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) set x = 100  # 将变量x的值改为100</span><br><span class="line">(gdb) set *0x7fffffffde40 = 200  # 直接修改内存地址的值为200</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-查看调用栈"><a href="#3-查看调用栈" class="headerlink" title="3. 查看调用栈"></a>3. 查看调用栈</h3><p>调用栈（Call Stack）记录了函数调用关系（从当前函数到 main 函数的层级），通过 backtrace 命令查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) backtrace  # 显示完整调用栈</span><br><span class="line">(gdb) bt  # 简化命令</span><br><span class="line">(gdb) bt 3  # 只显示最内层的3个函数</span><br></pre></td></tr></table></figure>
+
+<p>切换调用栈帧（查看上层函数的变量）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) frame 1  # 切换到编号1的栈帧（上层函数）</span><br><span class="line">(gdb) f 0  # 简化命令（f = frame），切换到当前函数（编号0）</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、多文件与多线程调试"><a href="#五、多文件与多线程调试" class="headerlink" title="五、多文件与多线程调试"></a>五、多文件与多线程调试</h2><h3 id="1-多文件调试"><a href="#1-多文件调试" class="headerlink" title="1. 多文件调试"></a>1. 多文件调试</h3><p>当程序包含多个源文件时，需通过文件名定位代码或设置断点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) list func.c:15  # 显示func.c的第15行</span><br><span class="line">(gdb) break utils.h:init  # 在头文件utils.h中定义的init函数处设断点</span><br><span class="line">(gdb) p &#x27;file.c::global_var&#x27;  # 访问其他文件的全局变量（避免重名）</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-多线程调试"><a href="#2-多线程调试" class="headerlink" title="2. 多线程调试"></a>2. 多线程调试</h3><p>GDB 支持多线程程序的调试，核心命令如下：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>info threads</td>
+<td>显示所有线程（包含线程 ID、状态、所在函数）</td>
+</tr>
+<tr>
+<td>thread <ID></td>
+<td>切换到指定 ID 的线程</td>
+</tr>
+<tr>
+<td>break &lt;位置&gt; thread <ID></td>
+<td>仅在指定线程设置断点</td>
+</tr>
+<tr>
+<td>set scheduler-locking on</td>
+<td>调试当前线程时，暂停其他线程（避免干扰）</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info threads  # 查看所有线程</span><br><span class="line">  1 Thread 0x7ffff7fc1700 (LWP 1234)  main() at test.c:5</span><br><span class="line">* 2 Thread 0x7ffff77c0700 (LWP 1235)  worker() at func.c:20</span><br><span class="line"># 带*的为当前线程（ID=2）</span><br><span class="line"></span><br><span class="line">(gdb) thread 1  # 切换到线程1</span><br><span class="line">(gdb) b test.c:10 thread 1  # 仅在线程1的test.c第10行设断点</span><br><span class="line">(gdb) set scheduler-locking on  # 锁定当前线程，其他线程暂停</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、调试核心转储文件（Core-Dump）"><a href="#六、调试核心转储文件（Core-Dump）" class="headerlink" title="六、调试核心转储文件（Core Dump）"></a>六、调试核心转储文件（Core Dump）</h2><p>当程序崩溃（如段错误 Segmentation fault）时，可通过核心转储文件（core dump）记录崩溃瞬间的内存状态，事后分析原因。</p>
+<h3 id="1-开启核心转储"><a href="#1-开启核心转储" class="headerlink" title="1. 开启核心转储"></a>1. 开启核心转储</h3><p>默认情况下，系统可能关闭核心转储功能，需先开启：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ulimit -c unlimited  # 临时开启核心转储（当前终端有效）</span><br><span class="line"># 永久开启：在/etc/security/limits.conf中添加</span><br><span class="line"># * soft core unlimited</span><br></pre></td></tr></table></figure>
+
+<p>程序崩溃后会生成名为 core.<PID> 的文件（如 core.1234）。</p>
+<h3 id="2-分析核心转储文件"><a href="#2-分析核心转储文件" class="headerlink" title="2. 分析核心转储文件"></a>2. 分析核心转储文件</h3><p>使用 GDB 加载核心文件和可执行文件，重现崩溃状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb ./test core.1234  # 加载可执行文件test和核心文件core.1234</span><br></pre></td></tr></table></figure>
+
+<p>加载后，GDB 会显示崩溃位置（如函数、行号、信号类型），结合 bt 命令查看调用栈即可定位问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt  # 查看崩溃时的调用栈，快速找到错误函数</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、实用调试技巧与注意事项"><a href="#七、实用调试技巧与注意事项" class="headerlink" title="七、实用调试技巧与注意事项"></a>七、实用调试技巧与注意事项</h2><ol>
+<li><strong>忽略信号</strong>：</li>
+</ol>
+<p>程序可能因某些信号（如 SIGPIPE）退出，可通过 handle 命令忽略或捕获信号：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) handle SIGPIPE nostop noprint  # 忽略SIGPIPE信号（不暂停、不打印）</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>宏调试</strong>：</li>
+</ol>
+<p>若使用 -g3 编译，可通过 info macro 查看宏定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info macro MAX  # 查看宏MAX的定义和位置</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>保存调试会话</strong>：</li>
+</ol>
+<p>通过 save commands &lt;文件&gt; 保存当前调试命令，下次通过 source &lt;文件&gt; 加载，避免重复输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) save commands debug_cmds.txt  # 保存命令</span><br><span class="line">(gdb) source debug_cmds.txt  # 加载命令</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>避免常见陷阱</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>优化导致的变量不可见：若变量被 -O2 等优化掉，需改用 -O0 或 -Og 编译。</li>
+</ul>
+</li>
+<li><ul>
+<li>多线程竞争：使用 scheduler-locking 锁定线程，逐步调试竞争条件。</li>
+</ul>
+</li>
+<li><ul>
+<li>动态库调试：确保动态库也包含调试信息（编译时加 -g），否则可能无法查看库内函数。</li>
+</ul>
+</li>
+</ul>
+<h2 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h2><p>GCC&#x2F;G++ 与 GDB 结合提供了强大的调试能力，核心流程可概括为：</p>
+<ol>
+<li><p>用 -g 编译含调试信息的程序；</p>
+</li>
+<li><p>通过 GDB 启动程序，设置断点控制执行；</p>
+</li>
+<li><p>利用 print、backtrace 等命令查看变量和调用栈；</p>
+</li>
+<li><p>结合多线程调试、核心转储分析等高级功能解决复杂问题。</p>
+</li>
+</ol>
+<p>掌握这些技巧能显著提升调试效率，尤其在定位逻辑错误、内存泄漏、多线程竞争等问题时不可或缺。实际开发中，可根据项目复杂度灵活选择调试命令，逐步积累调试经验。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/29/gccg++%E7%9A%84%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" rel="prev" title="GCC/G++ 基础使用">
+      <i class="fa fa-chevron-left"></i> GCC/G++ 基础使用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCC-G-%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E6%8C%87%E5%8D%97"><span class="nav-number">1.</span> <span class="nav-text">GCC&#x2F;G++ 调试技巧指南</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%B0%83%E8%AF%95%E5%89%8D%E7%9A%84%E7%BC%96%E8%AF%91%E5%87%86%E5%A4%87"><span class="nav-number">1.1.</span> <span class="nav-text">一、调试前的编译准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81GDB-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">二、GDB 基本操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%90%AF%E5%8A%A8-GDB"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 启动 GDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B8%B8%E7%94%A8%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 常用基础命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%96%AD%E7%82%B9%E8%B0%83%E8%AF%95%EF%BC%9A%E6%8E%A7%E5%88%B6%E7%A8%8B%E5%BA%8F%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">三、断点调试：控制程序执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E6%96%AD%E7%82%B9%EF%BC%88%E6%8C%89%E8%A1%8C%E5%8F%B7-%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 基本断点（按行号 &#x2F; 函数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9D%A1%E4%BB%B6%E6%96%AD%E7%82%B9%EF%BC%9A%E6%BB%A1%E8%B6%B3%E6%9D%A1%E4%BB%B6%E6%97%B6%E6%9A%82%E5%81%9C"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 条件断点：满足条件时暂停</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%9B%91%E8%A7%86%E6%96%AD%E7%82%B9%EF%BC%9A%E8%B7%9F%E8%B8%AA%E5%8F%98%E9%87%8F-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8F%98%E5%8C%96"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 监视断点：跟踪变量 &#x2F; 表达式变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%89%A7%E8%A1%8C%E6%8E%A7%E5%88%B6%EF%BC%9A%E5%8D%95%E6%AD%A5%E8%B0%83%E8%AF%95%E4%B8%8E%E7%BB%A7%E7%BB%AD%E8%BF%90%E8%A1%8C"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. 执行控制：单步调试与继续运行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%8F%98%E9%87%8F%E4%B8%8E%E5%86%85%E5%AD%98%E6%9F%A5%E7%9C%8B%E6%8A%80%E5%B7%A7"><span class="nav-number">1.4.</span> <span class="nav-text">四、变量与内存查看技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9F%A5%E7%9C%8B%E5%8F%98%E9%87%8F%E5%80%BC"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. 查看变量值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%86%85%E5%AD%98%E6%9F%A5%E7%9C%8B%E4%B8%8E%E4%BF%AE%E6%94%B9"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. 内存查看与修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9F%A5%E7%9C%8B%E8%B0%83%E7%94%A8%E6%A0%88"><span class="nav-number">1.4.3.</span> <span class="nav-text">3. 查看调用栈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%A4%9A%E6%96%87%E4%BB%B6%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%B0%83%E8%AF%95"><span class="nav-number">1.5.</span> <span class="nav-text">五、多文件与多线程调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A4%9A%E6%96%87%E4%BB%B6%E8%B0%83%E8%AF%95"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 多文件调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%B0%83%E8%AF%95"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. 多线程调试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E8%B0%83%E8%AF%95%E6%A0%B8%E5%BF%83%E8%BD%AC%E5%82%A8%E6%96%87%E4%BB%B6%EF%BC%88Core-Dump%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">六、调试核心转储文件（Core Dump）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%BC%80%E5%90%AF%E6%A0%B8%E5%BF%83%E8%BD%AC%E5%82%A8"><span class="nav-number">1.6.1.</span> <span class="nav-text">1. 开启核心转储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%86%E6%9E%90%E6%A0%B8%E5%BF%83%E8%BD%AC%E5%82%A8%E6%96%87%E4%BB%B6"><span class="nav-number">1.6.2.</span> <span class="nav-text">2. 分析核心转储文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%AE%9E%E7%94%A8%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7%E4%B8%8E%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.7.</span> <span class="nav-text">七、实用调试技巧与注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">1.8.</span> <span class="nav-text">八、总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
