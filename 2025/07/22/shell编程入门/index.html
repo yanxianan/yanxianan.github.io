@@ -237,7 +237,7 @@
 </li>
 </ul>
 <p>执行脚本需先赋予执行权限：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x hello.sh  # 添加可执行权限</span><br><span class="line">./hello.sh         # 执行脚本</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">chmod +x hello.sh  # 添加可执行权限</span><br><span class="line">（#默认是给「所有用户」添加可执行权限</span><br><span class="line">#等价于chmod u+x,g+x,o+x hello.sh</span><br><span class="line">#给特定身份加权限可以</span><br><span class="line">chmod u+x hello.sh   # 仅拥有者可执行</span><br><span class="line">chmod g+x hello.sh   # 仅同组用户可执行</span><br><span class="line">chmod o+x hello.sh   # 仅其他用户可执行）</span><br><span class="line"></span><br><span class="line">./hello.sh         # 执行脚本</span><br></pre></td></tr></table></figure>
 
 <p>输出结果：Hello, Shell Programming!</p>
 <h3 id="二、Shell-变量与参数传递"><a href="#二、Shell-变量与参数传递" class="headerlink" title="二、Shell 变量与参数传递"></a>二、Shell 变量与参数传递</h3><p>变量是 Shell 脚本存储数据的基本单元，其语法规则与其他编程语言存在差异。</p>
@@ -246,9 +246,19 @@
 <ul>
 <li><p>变量名由字母、数字和下划线组成，区分大小写；</p>
 </li>
+<li><p><strong>变量赋值时，等号 <code>=</code> 前后不能有空格</strong>（Shell 的设计哲学是：<strong>以空格作为命令与参数的分隔符</strong>。）</p>
+</li>
 <li><p>字符串变量建议用双引号包裹，允许包含空格和特殊字符（单引号会禁用变量扩展）。</p>
 </li>
+<li><p>不加引号内容里有空格特殊变量或变量就会出现问题（如：</p>
+<p>多个空格被压缩成一个、变量中有空格被拆分、通配符*被展开等等）。</p>
+</li>
+<li><p>单引号原样输出，不解析变量。</p>
+</li>
+<li><p>双引号保留空格、支持变量展开。</p>
+</li>
 </ul>
+<p><strong>总结：如果你不确定内容里有没有空格、变量或特殊字符，就加双引号 <code>&quot; &quot;</code>，这是最安全、最通用的做法。</strong></p>
 <h4 id="2-环境变量与内置变量"><a href="#2-环境变量与内置变量" class="headerlink" title="2. 环境变量与内置变量"></a>2. 环境变量与内置变量</h4><p>环境变量是全局可见的变量，用于配置系统环境，常见的有：</p>
 <ul>
 <li><p>PATH：命令搜索路径，新增路径需执行export PATH&#x3D;$PATH:&#x2F;new&#x2F;path；</p>
@@ -278,7 +288,7 @@
 </li>
 <li><p>mv：移动 &#x2F; 重命名文件，mv old.txt new.txt；</p>
 </li>
-<li><p>rm：删除文件，rm -f file.txt（强制删除，无提示）；</p>
+<li><p>rm：删除文件，rm -f file.txt（强制删除，无提示），rm -r dictionary(删除文件夹必须加，r是递归删除)；</p>
 </li>
 <li><p>mkdir&#x2F;rmdir：创建 &#x2F; 删除目录。</p>
 </li>
