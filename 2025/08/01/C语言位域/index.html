@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍 C 语言中位域的概念、定义方法、内存分配规则、使用场景及注意事项，帮助开发者掌握位域在内存优化和数据处理中的应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C 语言中的位域（Bit-fields）">
+<meta property="og:url" content="https://yanxianan.github.io/2025/08/01/C%E8%AF%AD%E8%A8%80%E4%BD%8D%E5%9F%9F/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍 C 语言中位域的概念、定义方法、内存分配规则、使用场景及注意事项，帮助开发者掌握位域在内存优化和数据处理中的应用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-01T01:40:00.000Z">
+<meta property="article:modified_time" content="2025-08-01T02:23:34.311Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C 语言，位域， 内存优化">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/08/01/C%E8%AF%AD%E8%A8%80%E4%BD%8D%E5%9F%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C 语言中的位域（Bit-fields） | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/08/01/C%E8%AF%AD%E8%A8%80%E4%BD%8D%E5%9F%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C 语言中的位域（Bit-fields）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-08-01 09:40:00 / 修改时间：10:23:34" itemprop="dateCreated datePublished" datetime="2025-08-01T09:40:00+08:00">2025-08-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E4%BB%B6%EF%BC%8CC%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">软件，C语言</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍 C 语言中位域的概念、定义方法、内存分配规则、使用场景及注意事项，帮助开发者掌握位域在内存优化和数据处理中的应用。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 C 语言编程中，当面对内存资源受限的场景（如嵌入式系统、底层驱动开发），如何高效利用内存空间成为关键问题。位域（Bit-fields）作为一种特殊的数据结构，允许开发者按位分配内存，精确控制数据所占的二进制位数，从而显著节省内存。本文将从基础到进阶，全面解析 C 语言位域的特性与应用。</p>
+<h3 id="一、位域的基本概念"><a href="#一、位域的基本概念" class="headerlink" title="一、位域的基本概念"></a>一、位域的基本概念</h3><p>位域是一种通过结构体定义的特殊成员，它指定了成员变量所占用的二进制位数。通常情况下，C 语言的基本数据类型（如int、char）占用固定的字节数（如int占 4 字节），但在位域中，我们可以为成员分配更少的位数（如 2 位、3 位），仅保留存储所需数据的最小空间。</p>
+<p>例如，一个表示颜色的变量可能只需要 3 位（红、绿、蓝各 1 位），一个表示星期的变量只需 3 位（可表示 0-7，足够覆盖周一到周日）。使用位域存储这类数据，能避免内存浪费。</p>
+<h3 id="二、位域的定义与声明"><a href="#二、位域的定义与声明" class="headerlink" title="二、位域的定义与声明"></a>二、位域的定义与声明</h3><h4 id="1-基本语法"><a href="#1-基本语法" class="headerlink" title="1. 基本语法"></a>1. 基本语法</h4><p>位域通过结构体定义，语法格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct 结构体名 &#123;</span><br><span class="line">    数据类型 成员名 : 位数;</span><br><span class="line">    [数据类型 成员名 : 位数;]</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>数据类型</strong>：通常为unsigned int（无符号整数）或int，部分编译器支持char、short等类型。</p>
+</li>
+<li><p><strong>位数</strong>：表示该成员占用的二进制位数，必须是非负整数，且不能超过对应数据类型的总位数（如unsigned int为 32 位系统下最大 32 位）。</p>
+</li>
+</ul>
+<h4 id="2-示例：定义位域结构体"><a href="#2-示例：定义位域结构体" class="headerlink" title="2. 示例：定义位域结构体"></a>2. 示例：定义位域结构体</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 定义一个存储日期的位域结构体</span><br><span class="line">struct Date &#123;</span><br><span class="line">    unsigned int day : 5;    // 日（1-31，需5位：2^5=32）</span><br><span class="line">    unsigned int month : 4;  // 月（1-12，需4位：2^4=16）</span><br><span class="line">    unsigned int year : 12;  // 年（假设范围0-4095，需12位：2^12=4096）</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>上述结构体中，day、month、year分别占用 5 位、4 位、12 位，总位数为 21 位，仅需 3 字节（24 位）即可存储，而若使用普通int成员（各 4 字节），则需 12 字节，内存占用减少 75%。</p>
+<h4 id="3-无名位域与填充位"><a href="#3-无名位域与填充位" class="headerlink" title="3. 无名位域与填充位"></a>3. 无名位域与填充位</h4><ul>
+<li><p><strong>无名位域</strong>：可用于预留空位，格式为数据类型 : 位数;（无成员名）。</p>
+</li>
+<li><p><strong>填充位</strong>：当位域成员总位数不足一个数据类型的字节数时，编译器可能自动填充空位，也可手动指定0长度的无名位域强制对齐（如unsigned int : 0;）。</p>
+</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">struct Flags &#123;</span><br><span class="line">    unsigned int flag1 : 1;</span><br><span class="line">    unsigned int : 2;       // 无名位域，预留2位</span><br><span class="line">    unsigned int flag2 : 1;</span><br><span class="line">    unsigned int : 0;       // 强制对齐到下一个存储单元</span><br><span class="line">    unsigned int flag3 : 1; // 从新的存储单元开始</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、位域的内存分配规则"><a href="#三、位域的内存分配规则" class="headerlink" title="三、位域的内存分配规则"></a>三、位域的内存分配规则</h3><p>位域的内存分配由编译器决定，但遵循以下通用规则：</p>
+<ol>
+<li><strong>同类型成员合并</strong>：同一类型的位域成员优先打包到同一个存储单元（如unsigned int的位域成员会共用 4 字节空间），若总位数超过存储单元大小，则剩余部分存入下一个单元。</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">struct Bits &#123;</span><br><span class="line">    unsigned int a : 16;  // 占用前16位</span><br><span class="line">    unsigned int b : 16;  // 与a共用4字节（16+16=32）</span><br><span class="line">    unsigned int c : 8;   // 存入下一个4字节单元</span><br><span class="line">&#125;;</span><br><span class="line">// 总大小为8字节（4+4）</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><strong>不同类型成员分离</strong>：不同数据类型的位域成员通常分配到不同的存储单元（具体取决于编译器，如 GCC 允许不同类型合并，而 MSVC 可能分离）。</p>
+</li>
+<li><p><strong>对齐方式</strong>：位域的起始地址按其数据类型的对齐要求对齐（如int位域按 4 字节对齐），填充位会被计入结构体总大小。</p>
+</li>
+</ol>
+<p>通过sizeof可验证位域结构体的大小：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">struct Date &#123;</span><br><span class="line">    unsigned int day : 5;</span><br><span class="line">    unsigned int month : 4;</span><br><span class="line">    unsigned int year : 12;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    printf(&quot;Date结构体大小：%zu字节\n&quot;, sizeof(struct Date));  // 输出：4字节（因21位需向上对齐到4字节）</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、位域的使用方法"><a href="#四、位域的使用方法" class="headerlink" title="四、位域的使用方法"></a>四、位域的使用方法</h3><h4 id="1-赋值与访问"><a href="#1-赋值与访问" class="headerlink" title="1. 赋值与访问"></a>1. 赋值与访问</h4><p>位域成员的赋值和访问与普通结构体成员类似，但需注意<strong>不能超过其位数限制</strong>，否则会发生溢出（高位被截断）。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">struct Date &#123;</span><br><span class="line">    unsigned int day : 5;    // 最大存储31（0b11111）</span><br><span class="line">    unsigned int month : 4;  // 最大存储15（0b1111）</span><br><span class="line">    unsigned int year : 12;  // 最大存储4095</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    struct Date d;</span><br><span class="line">    d.day = 31;    // 合法：31 ≤ 31</span><br><span class="line">    d.month = 12;  // 合法：12 ≤ 15</span><br><span class="line">    d.year = 2025; // 合法：2025 ≤ 4095</span><br><span class="line">    </span><br><span class="line">    printf(&quot;日期：%d-%d-%d\n&quot;, d.year, d.month, d.day);  // 输出：2025-12-31</span><br><span class="line">    </span><br><span class="line">    d.day = 32;    // 溢出：32的二进制为100000，截断后为0（仅保留低5位）</span><br><span class="line">    printf(&quot;溢出后day：%d\n&quot;, d.day);  // 输出：0</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-位域与指针"><a href="#2-位域与指针" class="headerlink" title="2. 位域与指针"></a>2. 位域与指针</h4><p>位域成员<strong>不能直接取地址</strong>（&amp;d.day为非法操作），因为其地址可能不是字节对齐的，不符合指针的地址要求。若需通过指针操作，需先获取结构体的地址，再通过成员访问符操作。</p>
+<h3 id="五、位域的应用场景"><a href="#五、位域的应用场景" class="headerlink" title="五、位域的应用场景"></a>五、位域的应用场景</h3><h4 id="1-硬件编程与嵌入式系统"><a href="#1-硬件编程与嵌入式系统" class="headerlink" title="1. 硬件编程与嵌入式系统"></a>1. 硬件编程与嵌入式系统</h4><p>在嵌入式开发中，寄存器操作常需精确控制特定位（如控制寄存器的某几位表示使能、中断等状态）。位域可直接映射硬件寄存器的位结构，使代码更直观。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 映射一个8位控制寄存器</span><br><span class="line">struct ControlReg &#123;</span><br><span class="line">    unsigned int enable : 1;    // 第0位：使能</span><br><span class="line">    unsigned int mode : 2;      // 第1-2位：模式（0-3）</span><br><span class="line">    unsigned int reserved : 5;  // 第3-7位：保留</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-数据压缩与存储优化"><a href="#2-数据压缩与存储优化" class="headerlink" title="2. 数据压缩与存储优化"></a>2. 数据压缩与存储优化</h4><p>当需要存储大量小范围数据（如状态标志、枚举值）时，位域能大幅减少内存占用。例如，存储 100 万个Date结构体，使用位域（4 字节）比普通int成员（12 字节）节省 800 万字节（约 7.6MB）。</p>
+<h4 id="3-协议解析"><a href="#3-协议解析" class="headerlink" title="3. 协议解析"></a>3. 协议解析</h4><p>网络协议或文件格式中，数据常按位定义（如 IP 头部的版本号占 4 位、服务类型占 8 位）。位域可直接解析这类按位划分的数据，简化代码逻辑。</p>
+<h3 id="六、使用位域的注意事项"><a href="#六、使用位域的注意事项" class="headerlink" title="六、使用位域的注意事项"></a>六、使用位域的注意事项</h3><ol>
+<li><p><strong>可移植性问题</strong>：位域的内存分配方式（如成员是否跨存储单元、填充位数量）因编译器而异，不同平台可能存在差异，需谨慎使用于跨平台代码。</p>
+</li>
+<li><p><strong>位数限制</strong>：位域的位数不能为 0（除非是无名填充位），且不能超过其数据类型的总位数（如char位域最大 8 位）。</p>
+</li>
+<li><p><strong>符号问题</strong>：若使用signed int定义位域，其最高位为符号位，可能导致非预期结果（如 3 位signed int的范围为 - 4~3），建议优先使用unsigned int。</p>
+</li>
+<li><p><strong>性能权衡</strong>：位域的读写需要额外的位运算操作，可能比普通变量稍慢，在内存充足但对性能敏感的场景中需权衡使用。</p>
+</li>
+</ol>
+<h3 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h3><p>位域是 C 语言中一种高效的内存优化工具，通过精确控制数据的二进制位数，在嵌入式开发、硬件交互、数据压缩等场景中发挥着重要作用。它的核心价值在于<strong>用最小的内存存储必要数据</strong>，但同时也需注意其可移植性限制和性能开销。</p>
+<p>掌握位域的使用，不仅能提升代码的内存效率，更能深入理解计算机底层的位操作逻辑。在实际开发中，应根据具体场景合理选择：当内存紧张且数据范围明确时，位域是理想选择；而当追求跨平台兼容性或极致性能时，普通数据类型可能更合适。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C-%E8%AF%AD%E8%A8%80%EF%BC%8C%E4%BD%8D%E5%9F%9F%EF%BC%8C-%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96/" rel="tag"># C 语言，位域， 内存优化</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/01/C%E8%AF%AD%E8%A8%80%E5%85%B1%E5%90%8C%E4%BD%93/" rel="prev" title="深入理解 C 语言中的共用体（Union）">
+      <i class="fa fa-chevron-left"></i> 深入理解 C 语言中的共用体（Union）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BD%8D%E5%9F%9F%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、位域的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BD%8D%E5%9F%9F%E7%9A%84%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%A3%B0%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">二、位域的定义与声明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">1. 基本语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%AE%9A%E4%B9%89%E4%BD%8D%E5%9F%9F%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">2.2.</span> <span class="nav-text">2. 示例：定义位域结构体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%97%A0%E5%90%8D%E4%BD%8D%E5%9F%9F%E4%B8%8E%E5%A1%AB%E5%85%85%E4%BD%8D"><span class="nav-number">2.3.</span> <span class="nav-text">3. 无名位域与填充位</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%8D%E5%9F%9F%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E8%A7%84%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">三、位域的内存分配规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BD%8D%E5%9F%9F%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">四、位域的使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%B5%8B%E5%80%BC%E4%B8%8E%E8%AE%BF%E9%97%AE"><span class="nav-number">4.1.</span> <span class="nav-text">1. 赋值与访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BD%8D%E5%9F%9F%E4%B8%8E%E6%8C%87%E9%92%88"><span class="nav-number">4.2.</span> <span class="nav-text">2. 位域与指针</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%BD%8D%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">五、位域的应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.1.</span> <span class="nav-text">1. 硬件编程与嵌入式系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9%E4%B8%8E%E5%AD%98%E5%82%A8%E4%BC%98%E5%8C%96"><span class="nav-number">5.2.</span> <span class="nav-text">2. 数据压缩与存储优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90"><span class="nav-number">5.3.</span> <span class="nav-text">3. 协议解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E4%BD%BF%E7%94%A8%E4%BD%8D%E5%9F%9F%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">6.</span> <span class="nav-text">六、使用位域的注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">七、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
