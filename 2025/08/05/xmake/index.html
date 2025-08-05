@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍 xmake 这一现代化 C&#x2F;C++ 构建工具的基本概念、安装方法、常用命令及项目管理方式，助力开发者快速掌握其使用，提升开发效率。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xmake 入门指南">
+<meta property="og:url" content="https://yanxianan.github.io/2025/08/05/xmake/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍 xmake 这一现代化 C&#x2F;C++ 构建工具的基本概念、安装方法、常用命令及项目管理方式，助力开发者快速掌握其使用，提升开发效率。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-05T01:30:00.000Z">
+<meta property="article:modified_time" content="2025-08-05T02:05:03.947Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="xmake">
+<meta property="article:tag" content="构建工具，C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/08/05/xmake/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>xmake 入门指南 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/08/05/xmake/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          xmake 入门指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-08-05 09:30:00 / 修改时间：10:05:03" itemprop="dateCreated datePublished" datetime="2025-08-05T09:30:00+08:00">2025-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍 xmake 这一现代化 C/C++ 构建工具的基本概念、安装方法、常用命令及项目管理方式，助力开发者快速掌握其使用，提升开发效率。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 C&#x2F;C++ 开发领域，构建工具的选择直接影响开发效率。除了经典的 Makefile 和 CMake，xmake 作为一款新兴的现代化构建工具，凭借其简洁的语法、强大的跨平台能力和丰富的功能，逐渐受到开发者的青睐。本文将带你走进 xmake 的世界，从入门到熟练使用，感受它带来的便捷与高效。</p>
+<h3 id="一、xmake-的优势与特点"><a href="#一、xmake-的优势与特点" class="headerlink" title="一、xmake 的优势与特点"></a>一、xmake 的优势与特点</h3><p>xmake 是一个基于 Lua 的跨平台构建工具，专注于 C&#x2F;C++ 项目的构建与管理，相比传统工具，它具有以下显著优势：</p>
+<ol>
+<li><p><strong>简洁直观的语法</strong>：采用 Lua 脚本作为配置语言，语法简洁易懂，比 Makefile 的复杂规则和 CMake 的冗余配置更易于上手和维护。</p>
+</li>
+<li><p><strong>强大的跨平台支持</strong>：无缝支持 Windows、Linux、macOS、Android、iOS 等多种操作系统，无需编写平台特定的适配代码。</p>
+</li>
+<li><p><strong>自动依赖管理</strong>：能够自动检测源文件依赖关系，实现增量编译，大大缩短编译时间。</p>
+</li>
+<li><p><strong>丰富的内置功能</strong>：集成了包管理、测试框架、调试支持等功能，一站式解决项目构建中的各种需求。</p>
+</li>
+<li><p><strong>与主流工具兼容</strong>：可以生成 Makefile、Visual Studio 项目、Xcode 项目等，方便与现有开发流程集成。</p>
+</li>
+</ol>
+<h3 id="二、xmake-的安装"><a href="#二、xmake-的安装" class="headerlink" title="二、xmake 的安装"></a>二、xmake 的安装</h3><p>xmake 的安装过程简单快捷，支持多种安装方式，适用于不同的操作系统。</p>
+<h4 id="1-Windows-系统"><a href="#1-Windows-系统" class="headerlink" title="1. Windows 系统"></a>1. Windows 系统</h4><ul>
+<li><p><strong>使用 Chocolatey</strong>：如果已经安装了 Chocolatey 包管理器，只需在命令行中执行choco install xmake即可。</p>
+</li>
+<li><p><strong>手动安装</strong>：从 xmake 的官方 GitHub 仓库（<a target="_blank" rel="noopener" href="https://github.com/xmake-io/xmake/releases%EF%BC%89%E4%B8%8B%E8%BD%BD%E6%9C%80%E6%96%B0%E7%9A%84">https://github.com/xmake-io/xmake/releases）下载最新的</a> Windows 安装包（.exe 文件），双击运行并按照提示完成安装。</p>
+</li>
+</ul>
+<h4 id="2-Linux-系统"><a href="#2-Linux-系统" class="headerlink" title="2. Linux 系统"></a>2. Linux 系统</h4><ul>
+<li><p><strong>使用包管理器</strong>：对于 Ubuntu&#x2F;Debian 系统，可执行sudo apt install xmake；对于 Fedora 系统，可执行sudo dnf install xmake。</p>
+</li>
+<li><p><strong>脚本安装</strong>：在终端中执行bash &lt;(curl -fsSL <a target="_blank" rel="noopener" href="https://xmake.io/shget.text)%EF%BC%8C%E8%AF%A5%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%87%AA%E5%8A%A8%E4%B8%8B%E8%BD%BD%E5%B9%B6%E5%AE%89%E8%A3%85%E9%80%82%E5%90%88%E5%BD%93%E5%89%8D%E7%B3%BB%E7%BB%9F%E7%9A%84">https://xmake.io/shget.text)，该脚本会自动下载并安装适合当前系统的</a> xmake 版本。</p>
+</li>
+</ul>
+<h4 id="3-macOS-系统"><a href="#3-macOS-系统" class="headerlink" title="3. macOS 系统"></a>3. macOS 系统</h4><ul>
+<li><strong>使用 Homebrew</strong>：执行brew install xmake即可完成安装。</li>
+</ul>
+<p>安装完成后，在命令行中输入xmake –version，如果能显示出 xmake 的版本信息，说明安装成功。</p>
+<h3 id="三、xmake-的基本使用"><a href="#三、xmake-的基本使用" class="headerlink" title="三、xmake 的基本使用"></a>三、xmake 的基本使用</h3><h4 id="1-初始化项目"><a href="#1-初始化项目" class="headerlink" title="1. 初始化项目"></a>1. 初始化项目</h4><p>在命令行中进入项目所在的目录，执行以下命令初始化一个 xmake 项目：</p>
+<p>xmake create -l c myproject</p>
+<p>其中，-l c指定项目语言为 C 语言，myproject是项目名称。执行后，会在当前目录下创建一个名为myproject的文件夹，里面包含了 xmake 的配置文件xmake.lua和基本的源文件结构。</p>
+<p>进入项目目录：cd myproject</p>
+<h4 id="2-配置项目"><a href="#2-配置项目" class="headerlink" title="2. 配置项目"></a>2. 配置项目</h4><p>xmake 项目的配置主要通过xmake.lua文件实现。打开该文件，初始内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;myproject&quot;)</span><br><span class="line">    set_kind(&quot;binary&quot;)</span><br><span class="line">    add_files(&quot;src/*.c&quot;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>target(“myproject”)：定义一个名为myproject的目标。</p>
+</li>
+<li><p>set_kind(“binary”)：指定目标类型为可执行文件。</p>
+</li>
+<li><p>add_files(“src&#x2F;*.c”)：添加源文件，这里表示添加src目录下所有的.c文件。</p>
+</li>
+</ul>
+<p>如果需要添加头文件搜索路径、链接库等，可以在xmake.lua中进行配置。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;myproject&quot;)</span><br><span class="line">    set_kind(&quot;binary&quot;)</span><br><span class="line">    add_files(&quot;src/*.c&quot;)</span><br><span class="line">    add_includedirs(&quot;include&quot;)  -- 添加头文件搜索目录</span><br><span class="line">    add_links(&quot;m&quot;)  -- 链接数学库</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-构建项目"><a href="#3-构建项目" class="headerlink" title="3. 构建项目"></a>3. 构建项目</h4><p>配置完成后，执行xmake命令即可开始构建项目。xmake 会自动检测源文件的变化，只编译修改过的文件，实现增量编译。</p>
+<p>如果需要重新构建整个项目，可以执行xmake -r。</p>
+<h4 id="4-运行程序"><a href="#4-运行程序" class="headerlink" title="4. 运行程序"></a>4. 运行程序</h4><p>项目构建成功后，执行xmake run命令可以运行生成的可执行文件。如果需要传递命令行参数，可以在xmake run后添加参数，例如xmake run – arg1 arg2。</p>
+<h4 id="5-清理构建产物"><a href="#5-清理构建产物" class="headerlink" title="5. 清理构建产物"></a>5. 清理构建产物</h4><p>执行xmake clean命令可以清理构建过程中生成的目标文件、可执行文件等中间产物。如果需要彻底清理，包括配置缓存等，可以执行xmake clean -a。</p>
+<h3 id="四、xmake-的进阶用法"><a href="#四、xmake-的进阶用法" class="headerlink" title="四、xmake 的进阶用法"></a>四、xmake 的进阶用法</h3><h4 id="1-多目标构建"><a href="#1-多目标构建" class="headerlink" title="1. 多目标构建"></a>1. 多目标构建</h4><p>xmake 支持在一个项目中定义多个目标，例如同时构建可执行文件和静态库。在xmake.lua中可以这样配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- 定义可执行文件目标</span><br><span class="line">target(&quot;app&quot;)</span><br><span class="line">    set_kind(&quot;binary&quot;)</span><br><span class="line">    add_files(&quot;src/main.c&quot;)</span><br><span class="line">    add_deps(&quot;mylib&quot;)  -- 依赖静态库目标</span><br><span class="line"></span><br><span class="line">-- 定义静态库目标</span><br><span class="line">target(&quot;mylib&quot;)</span><br><span class="line">    set_kind(&quot;static&quot;)</span><br><span class="line">    add_files(&quot;src/lib/*.c&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>执行xmake会同时构建这两个目标，执行xmake build app可以只构建app目标。</p>
+<h4 id="2-包管理"><a href="#2-包管理" class="headerlink" title="2. 包管理"></a>2. 包管理</h4><p>xmake 内置了包管理功能，可以方便地引入第三方库。例如，要引入zlib库，可以在xmake.lua中添加：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;myapp&quot;)</span><br><span class="line">    set_kind(&quot;binary&quot;)</span><br><span class="line">    add_files(&quot;src/*.c&quot;)</span><br><span class="line">    add_requires(&quot;zlib&quot;)  -- 声明依赖zlib</span><br><span class="line">    add_packages(&quot;zlib&quot;)  -- 链接zlib库</span><br></pre></td></tr></table></figure>
+
+<p>执行xmake时，xmake 会自动下载并编译zlib库，并将其链接到目标程序中。</p>
+<h4 id="3-构建模式切换"><a href="#3-构建模式切换" class="headerlink" title="3. 构建模式切换"></a>3. 构建模式切换</h4><p>xmake 支持多种构建模式，如调试模式（debug）和发布模式（release）。默认情况下为调试模式，执行xmake f -m release可以切换到发布模式，然后执行xmake进行构建。其中f是config的缩写，用于配置构建选项。</p>
+<h4 id="4-生成-IDE-项目"><a href="#4-生成-IDE-项目" class="headerlink" title="4. 生成 IDE 项目"></a>4. 生成 IDE 项目</h4><p>xmake 可以生成主流 IDE 的项目文件，方便在 IDE 中进行开发。例如，生成 Visual Studio 项目：xmake project -k vs2022；生成 Xcode 项目：xmake project -k xcode。</p>
+<h3 id="五、xmake-与其他构建工具的对比"><a href="#五、xmake-与其他构建工具的对比" class="headerlink" title="五、xmake 与其他构建工具的对比"></a>五、xmake 与其他构建工具的对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>xmake</th>
+<th>Makefile</th>
+<th>CMake</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置语法</td>
+<td>Lua 脚本，简洁灵活</td>
+<td>自定义规则，复杂</td>
+<td>专用语法，较冗余</td>
+</tr>
+<tr>
+<td>跨平台性</td>
+<td>优秀，原生支持多平台</td>
+<td>较差，需额外适配</td>
+<td>良好，生成平台特定文件</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>平缓，易于上手</td>
+<td>陡峭，规则复杂</td>
+<td>中等，需掌握大量命令</td>
+</tr>
+<tr>
+<td>包管理</td>
+<td>内置支持</td>
+<td>无，需手动处理</td>
+<td>需配合外部包管理器</td>
+</tr>
+<tr>
+<td>增量编译</td>
+<td>自动支持</td>
+<td>需手动定义依赖</td>
+<td>自动支持</td>
+</tr>
+</tbody></table>
+<h3 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h3><p>xmake 作为一款现代化的 C&#x2F;C++ 构建工具，以其简洁的语法、强大的功能和出色的跨平台性，为开发者提供了高效便捷的项目构建体验。无论是小型项目的快速构建，还是大型复杂项目的管理，xmake 都能胜任。</p>
+<p>通过本文的介绍，相信你已经对 xmake 有了基本的了解，并能进行简单的项目构建。在实际使用中，还可以深入探索 xmake 的更多高级功能，如自定义任务、远程构建等，让它更好地服务于你的开发工作。</p>
+<p>如果你正在寻找一款易于学习、功能强大的构建工具，不妨尝试一下 xmake，它可能会给你带来意想不到的惊喜。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/xmake/" rel="tag"># xmake</a>
+              <a href="/tags/%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%EF%BC%8CC-C/" rel="tag"># 构建工具，C/C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/04/Makefile%E4%B8%8Ecmake%E5%85%A5%E9%97%A8/" rel="prev" title="Makefile与CMake入门指南：从手动构建到自动化编译">
+      <i class="fa fa-chevron-left"></i> Makefile与CMake入门指南：从手动构建到自动化编译
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81xmake-%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E7%89%B9%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">一、xmake 的优势与特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81xmake-%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">二、xmake 的安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Windows-%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.</span> <span class="nav-text">1. Windows 系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Linux-%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.2.</span> <span class="nav-text">2. Linux 系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-macOS-%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.3.</span> <span class="nav-text">3. macOS 系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81xmake-%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">三、xmake 的基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.1.</span> <span class="nav-text">1. 初始化项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2. 配置项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%9E%84%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3. 构建项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.4.</span> <span class="nav-text">4. 运行程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E6%B8%85%E7%90%86%E6%9E%84%E5%BB%BA%E4%BA%A7%E7%89%A9"><span class="nav-number">3.5.</span> <span class="nav-text">5. 清理构建产物</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81xmake-%E7%9A%84%E8%BF%9B%E9%98%B6%E7%94%A8%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">四、xmake 的进阶用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%A4%9A%E7%9B%AE%E6%A0%87%E6%9E%84%E5%BB%BA"><span class="nav-number">4.1.</span> <span class="nav-text">1. 多目标构建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%8C%85%E7%AE%A1%E7%90%86"><span class="nav-number">4.2.</span> <span class="nav-text">2. 包管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%9E%84%E5%BB%BA%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2"><span class="nav-number">4.3.</span> <span class="nav-text">3. 构建模式切换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E7%94%9F%E6%88%90-IDE-%E9%A1%B9%E7%9B%AE"><span class="nav-number">4.4.</span> <span class="nav-text">4. 生成 IDE 项目</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81xmake-%E4%B8%8E%E5%85%B6%E4%BB%96%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">5.</span> <span class="nav-text">五、xmake 与其他构建工具的对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
