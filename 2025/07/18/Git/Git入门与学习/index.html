@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文为Git与Github的入门使用技巧，主要包括简单介绍、账号的注册以及项目的创建以及上传。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git与GitHub入门学习（一）">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/18/Git/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为Git与Github的入门使用技巧，主要包括简单介绍、账号的注册以及项目的创建以及上传。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-18T02:35:55.000Z">
+<meta property="article:modified_time" content="2025-08-01T03:12:57.717Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="GitHub">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/18/Git/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Git与GitHub入门学习（一） | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/18/Git/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git与GitHub入门学习（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-07-18 10:35:55" itemprop="dateCreated datePublished" datetime="2025-07-18T10:35:55+08:00">2025-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-08-01 11:12:57" itemprop="dateModified" datetime="2025-08-01T11:12:57+08:00">2025-08-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文为Git与Github的入门使用技巧，主要包括简单介绍、账号的注册以及项目的创建以及上传。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="🧰-Git-和-GitHub-零基础入门教程"><a href="#🧰-Git-和-GitHub-零基础入门教程" class="headerlink" title="🧰 Git 和 GitHub 零基础入门教程"></a>🧰 Git 和 GitHub 零基础入门教程</h1><blockquote>
+<p>本教程适合从来没有用过 Git 和 GitHub 的朋友，一步步教你搭建开发环境、上传代码，并掌握最常用的命令。</p>
+</blockquote>
+<hr>
+<h2 id="🧠一、什么是-Git-和-GitHub？"><a href="#🧠一、什么是-Git-和-GitHub？" class="headerlink" title="🧠一、什么是 Git 和 GitHub？"></a>🧠一、什么是 Git 和 GitHub？</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>简要说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Git</strong></td>
+<td>本地的版本控制工具，能记录文件修改历史，就像“时间机器”</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td>一个远程代码托管平台，让你把 Git 项目上传到云端，并支持协作开发</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🛠️-二、安装-Git"><a href="#🛠️-二、安装-Git" class="headerlink" title="🛠️ 二、安装 Git"></a>🛠️ 二、安装 Git</h2><h3 id="1-下载并安装-Git"><a href="#1-下载并安装-Git" class="headerlink" title="1. 下载并安装 Git"></a>1. 下载并安装 Git</h3><ul>
+<li>打开官网：<a target="_blank" rel="noopener" href="https://git-scm.com/">https://git-scm.com/</a></li>
+<li>点击 <strong>Download</strong> 按钮，下载安装程序</li>
+<li>一路点击“下一步”，保持默认设置即可</li>
+</ul>
+<h3 id="2-验证安装"><a href="#2-验证安装" class="headerlink" title="2. 验证安装"></a>2. 验证安装</h3><p>打开终端或命令行输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git --version</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">看到如下类似内容说明安装成功：</span><br><span class="line">git version 2.xx.x</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="👤-三、注册-GitHub-账号"><a href="#👤-三、注册-GitHub-账号" class="headerlink" title="👤 三、注册 GitHub 账号"></a>👤 三、注册 GitHub 账号</h2><ol>
+<li>打开 <a target="_blank" rel="noopener" href="https://github.com/">https://github.com</a></li>
+<li>点击右上角 <strong>Sign up</strong></li>
+<li>填写用户名、邮箱和密码，完成注册</li>
+<li>登录成功后可以访问你的主页：<a target="_blank" rel="noopener" href="https://github.com/%E4%BD%A0%E7%9A%84%E7%94%A8%E6%88%B7%E5%90%8D">https://github.com/你的用户名</a></li>
+</ol>
+<hr>
+<h2 id="📁-四、本地创建第一个-Git-项目"><a href="#📁-四、本地创建第一个-Git-项目" class="headerlink" title="📁 四、本地创建第一个 Git 项目"></a>📁 四、本地创建第一个 Git 项目</h2><h3 id="1-创建文件夹并进入"><a href="#1-创建文件夹并进入" class="headerlink" title="1. 创建文件夹并进入"></a>1. 创建文件夹并进入</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> my-first-git</span><br><span class="line"><span class="built_in">cd</span> my-first-git</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-初始化仓库"><a href="#2-初始化仓库" class="headerlink" title="2. 初始化仓库"></a>2. 初始化仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-添加一个文件"><a href="#3-添加一个文件" class="headerlink" title="3. 添加一个文件"></a>3. 添加一个文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello, Git!&quot;</span> &gt; readme.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-查看当前状态"><a href="#4-查看当前状态" class="headerlink" title="4. 查看当前状态"></a>4. 查看当前状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-添加到暂存区"><a href="#5-添加到暂存区" class="headerlink" title="5. 添加到暂存区"></a>5. 添加到暂存区</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git add readme.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-提交到仓库"><a href="#6-提交到仓库" class="headerlink" title="6. 提交到仓库"></a>6. 提交到仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">&quot;第一次提交：添加了 readme.txt&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="☁️-五、将项目上传到-GitHub"><a href="#☁️-五、将项目上传到-GitHub" class="headerlink" title="☁️ 五、将项目上传到 GitHub"></a>☁️ 五、将项目上传到 GitHub</h2><h3 id="1-创建远程仓库"><a href="#1-创建远程仓库" class="headerlink" title="1. 创建远程仓库"></a>1. 创建远程仓库</h3><ul>
+<li>登录 GitHub</li>
+<li>点击右上角 ➕ &gt; <strong>New repository</strong></li>
+<li>仓库名填入：<code>my-first-git</code></li>
+<li>点击 “Create repository”</li>
+</ul>
+<h3 id="2-将本地项目关联到-GitHub"><a href="#2-将本地项目关联到-GitHub" class="headerlink" title="2. 将本地项目关联到 GitHub"></a>2. 将本地项目关联到 GitHub</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin https://github.com/你的用户名/my-first-git.git</span><br><span class="line">git branch -M main</span><br><span class="line">git push -u origin main</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ 注意：第一次 push 可能需要登录 GitHub 账户或使用 Token，可以使用 GitHub Desktop 简化这个过程。</p>
+</blockquote>
+<hr>
+<h2 id="🔁-六、日常操作流程（记住这三步）"><a href="#🔁-六、日常操作流程（记住这三步）" class="headerlink" title="🔁 六、日常操作流程（记住这三步）"></a>🔁 六、日常操作流程（记住这三步）</h2><p>每次改完文件后，执行这三步即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;你修改了什么&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🖼️-七、图形化工具推荐（不写命令也能用）"><a href="#🖼️-七、图形化工具推荐（不写命令也能用）" class="headerlink" title="🖼️ 七、图形化工具推荐（不写命令也能用）"></a>🖼️ 七、图形化工具推荐（不写命令也能用）</h2><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>官网</th>
+<th>简介</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GitHub Desktop</td>
+<td><a target="_blank" rel="noopener" href="https://desktop.github.com/">https://desktop.github.com</a></td>
+<td>官方图形客户端</td>
+</tr>
+<tr>
+<td>Sourcetree</td>
+<td><a target="_blank" rel="noopener" href="https://www.sourcetreeapp.com/">https://www.sourcetreeapp.com</a></td>
+<td>专业 Git 可视化工具</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="📚-八、可以继续学习的内容"><a href="#📚-八、可以继续学习的内容" class="headerlink" title="📚 八、可以继续学习的内容"></a>📚 八、可以继续学习的内容</h2><ul>
+<li>Git 分支（branch）和合并（merge）</li>
+<li>GitHub 的 Pull Request 协作流程</li>
+<li>使用 <code>.gitignore</code> 忽略不必要的文件</li>
+<li>VS Code 中的 Git 集成操作</li>
+</ul>
+<hr>
+<h2 id="✅-九、常用命令总结"><a href="#✅-九、常用命令总结" class="headerlink" title="✅ 九、常用命令总结"></a>✅ 九、常用命令总结</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git init              <span class="comment"># 初始化仓库</span></span><br><span class="line">git add .             <span class="comment"># 添加所有更改</span></span><br><span class="line">git commit -m <span class="string">&quot;说明&quot;</span>  <span class="comment"># 提交更改</span></span><br><span class="line">git status            <span class="comment"># 查看当前状态</span></span><br><span class="line">git push              <span class="comment"># 推送到 GitHub</span></span><br><span class="line">git pull              <span class="comment"># 拉取远程更新</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/GitHub/" rel="tag"># GitHub</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/18/%E5%85%B6%E4%BB%96/hexo%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%92%B0%E5%86%99%E6%95%99%E7%A8%8B/" rel="prev" title="hexo个人博客撰写教程">
+      <i class="fa fa-chevron-left"></i> hexo个人博客撰写教程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/19/Git/Git%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AD%A6%E4%B9%A0%E4%BA%8C/" rel="next" title="Git与GitHub入门学习（二）">
+      Git与GitHub入门学习（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%A7%B0-Git-%E5%92%8C-GitHub-%E9%9B%B6%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">🧰 Git 和 GitHub 零基础入门教程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-Git-%E5%92%8C-GitHub%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">🧠一、什么是 Git 和 GitHub？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85-Git"><span class="nav-number">1.2.</span> <span class="nav-text">🛠️ 二、安装 Git</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E5%B9%B6%E5%AE%89%E8%A3%85-Git"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 下载并安装 Git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 验证安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%91%A4-%E4%B8%89%E3%80%81%E6%B3%A8%E5%86%8C-GitHub-%E8%B4%A6%E5%8F%B7"><span class="nav-number">1.3.</span> <span class="nav-text">👤 三、注册 GitHub 账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%81-%E5%9B%9B%E3%80%81%E6%9C%AC%E5%9C%B0%E5%88%9B%E5%BB%BA%E7%AC%AC%E4%B8%80%E4%B8%AA-Git-%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.4.</span> <span class="nav-text">📁 四、本地创建第一个 Git 项目</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9%E5%B9%B6%E8%BF%9B%E5%85%A5"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. 创建文件夹并进入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%BB%93%E5%BA%93"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. 初始化仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A0%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6"><span class="nav-number">1.4.3.</span> <span class="nav-text">3. 添加一个文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81"><span class="nav-number">1.4.4.</span> <span class="nav-text">4. 查看当前状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B7%BB%E5%8A%A0%E5%88%B0%E6%9A%82%E5%AD%98%E5%8C%BA"><span class="nav-number">1.4.5.</span> <span class="nav-text">5. 添加到暂存区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%8F%90%E4%BA%A4%E5%88%B0%E4%BB%93%E5%BA%93"><span class="nav-number">1.4.6.</span> <span class="nav-text">6. 提交到仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%98%81%EF%B8%8F-%E4%BA%94%E3%80%81%E5%B0%86%E9%A1%B9%E7%9B%AE%E4%B8%8A%E4%BC%A0%E5%88%B0-GitHub"><span class="nav-number">1.5.</span> <span class="nav-text">☁️ 五、将项目上传到 GitHub</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 创建远程仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B0%86%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE%E5%85%B3%E8%81%94%E5%88%B0-GitHub"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. 将本地项目关联到 GitHub</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%81-%E5%85%AD%E3%80%81%E6%97%A5%E5%B8%B8%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%EF%BC%88%E8%AE%B0%E4%BD%8F%E8%BF%99%E4%B8%89%E6%AD%A5%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">🔁 六、日常操作流程（记住这三步）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%96%BC%EF%B8%8F-%E4%B8%83%E3%80%81%E5%9B%BE%E5%BD%A2%E5%8C%96%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90%EF%BC%88%E4%B8%8D%E5%86%99%E5%91%BD%E4%BB%A4%E4%B9%9F%E8%83%BD%E7%94%A8%EF%BC%89"><span class="nav-number">1.7.</span> <span class="nav-text">🖼️ 七、图形化工具推荐（不写命令也能用）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%9A-%E5%85%AB%E3%80%81%E5%8F%AF%E4%BB%A5%E7%BB%A7%E7%BB%AD%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">1.8.</span> <span class="nav-text">📚 八、可以继续学习的内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E4%B9%9D%E3%80%81%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93"><span class="nav-number">1.9.</span> <span class="nav-text">✅ 九、常用命令总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文系统讲解 C++ 内存四区（代码区、全局区、栈区、堆区）的存储内容、生命周期及特性，结合实例分析四区的交互机制与内存管理要点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 内存四区深度解析">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/22/C_C++/%E5%86%85%E5%AD%98%E5%9B%9B%E5%8C%BA/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文系统讲解 C++ 内存四区（代码区、全局区、栈区、堆区）的存储内容、生命周期及特性，结合实例分析四区的交互机制与内存管理要点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-22T02:30:00.000Z">
+<meta property="article:modified_time" content="2025-07-22T03:20:00.000Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/22/C_C++/%E5%86%85%E5%AD%98%E5%9B%9B%E5%8C%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++ 内存四区深度解析 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/22/C_C++/%E5%86%85%E5%AD%98%E5%9B%9B%E5%8C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++ 内存四区深度解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-22 10:30:00 / 修改时间：11:20:00" itemprop="dateCreated datePublished" datetime="2025-07-22T10:30:00+08:00">2025-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E4%BB%B6/" itemprop="url" rel="index"><span itemprop="name">软件</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文系统讲解 C++ 内存四区（代码区、全局区、栈区、堆区）的存储内容、生命周期及特性，结合实例分析四区的交互机制与内存管理要点。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>C++ 程序运行时，内存被划分为四个逻辑区域 —— 代码区、全局区、栈区和堆区，每个区域承担不同的功能，遵循不同的管理规则。理解内存四区的特性是掌握 C++ 内存管理的基础，也是排查内存泄漏、野指针等问题的关键。本文将从底层机制到实战案例，全面解析内存四区的运作原理。</p>
+<h3 id="一、内存四区的基本划分与特性"><a href="#一、内存四区的基本划分与特性" class="headerlink" title="一、内存四区的基本划分与特性"></a>一、内存四区的基本划分与特性</h3><p>C++ 程序加载到内存后，操作系统会将其划分为四个逻辑区域，各区域的存储内容、生命周期和管理方式截然不同：</p>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>存储内容</th>
+<th>生命周期</th>
+<th>管理方式</th>
+<th>典型大小</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>代码区</strong></td>
+<td>二进制指令、常量字符串（部分）</td>
+<td>程序启动至退出</td>
+<td>操作系统自动管理</td>
+<td>随代码量增长</td>
+</tr>
+<tr>
+<td><strong>全局区</strong></td>
+<td>全局变量、静态变量、常量（全局）</td>
+<td>程序启动至退出</td>
+<td>操作系统自动管理</td>
+<td>通常几 MB 至数十 MB</td>
+</tr>
+<tr>
+<td><strong>栈区</strong></td>
+<td>局部变量、函数参数、返回地址</td>
+<td>函数调用至返回</td>
+<td>编译器自动分配 &#x2F; 释放</td>
+<td>通常 8MB（可配置）</td>
+</tr>
+<tr>
+<td><strong>堆区</strong></td>
+<td>动态分配的内存（new&#x2F;malloc）</td>
+<td>手动分配至手动释放</td>
+<td>程序员通过 delete&#x2F;free 管理</td>
+<td>理论上可达系统内存上限</td>
+</tr>
+</tbody></table>
+<h3 id="二、代码区（Code-Area）"><a href="#二、代码区（Code-Area）" class="headerlink" title="二、代码区（Code Area）"></a>二、代码区（Code Area）</h3><p>代码区是程序运行的基础，存储 CPU 可执行的二进制指令（机器码）及部分常量数据，具有以下特性：</p>
+<h4 id="1-只读属性"><a href="#1-只读属性" class="headerlink" title="1. 只读属性"></a>1. 只读属性</h4><p>为防止程序意外修改指令，代码区通常被标记为 “只读”（read-only）。若试图通过指针修改代码区内容，会触发内存访问错误（如 Linux 下的 Segmentation Fault）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    const char* str = &quot;hello&quot;;  // &quot;hello&quot;存储在代码区（只读）</span><br><span class="line">    char* ptr = const_cast&lt;char*&gt;(str);</span><br><span class="line">    *ptr = &#x27;H&#x27;;  // 错误：修改只读内存，触发段错误</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-共享性"><a href="#2-共享性" class="headerlink" title="2. 共享性"></a>2. 共享性</h4><p>多个运行实例（进程）可共享同一份代码区数据，例如同时运行两个记事本程序，它们的代码区是共享的，仅数据区独立，节省内存开销。</p>
+<h4 id="3-常量字符串存储"><a href="#3-常量字符串存储" class="headerlink" title="3. 常量字符串存储"></a>3. 常量字符串存储</h4><p>C 风格字符串常量（如”hello”）通常存储在代码区的常量段（.rodata），而 C++ 的std::string对象的内容在 C++11 后可能存储在堆区或栈区（短字符串优化）。</p>
+<h3 id="三、全局区（Global-Area）"><a href="#三、全局区（Global-Area）" class="headerlink" title="三、全局区（Global Area）"></a>三、全局区（Global Area）</h3><p>全局区（又称静态存储区）存储具有全局生命周期的变量和常量，在程序编译阶段即完成分配，可细分为以下子区域：</p>
+<h4 id="1-全局变量与静态变量区"><a href="#1-全局变量与静态变量区" class="headerlink" title="1. 全局变量与静态变量区"></a>1. 全局变量与静态变量区</h4><ul>
+<li><p><strong>全局变量</strong>：定义在函数外的变量（如int global_var &#x3D; 10;），未初始化的全局变量默认值为 0，存储在.bss 段；已初始化的存储在.data 段。</p>
+</li>
+<li><p><strong>静态变量</strong>：包括static修饰的全局变量（static int static_global;）和局部静态变量（void func() { static int stat; }），无论定义位置，均存储在全局区。</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 全局变量：存储在全局区.data段（已初始化）</span><br><span class="line">int global_init = 20;</span><br><span class="line"></span><br><span class="line">// 全局变量：存储在全局区.bss段（未初始化，默认0）</span><br><span class="line">int global_uninit;</span><br><span class="line"></span><br><span class="line">void func() &#123;</span><br><span class="line">    // 静态局部变量：存储在全局区，生命周期与程序一致</span><br><span class="line">    static int static_local = 30;</span><br><span class="line">    static_local++;</span><br><span class="line">    cout &lt;&lt; static_local &lt;&lt; endl;  // 每次调用自增</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    func();  // 31（首次初始化）</span><br><span class="line">    func();  // 32（全局区变量未被释放）</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-全局常量区"><a href="#2-全局常量区" class="headerlink" title="2. 全局常量区"></a>2. 全局常量区</h4><p>全局常量包括const修饰的全局变量和extern const变量，存储在全局区的只读段，其值在编译期确定且不可修改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const int GLOBAL_CONST = 100;  // 全局常量，存储在全局区只读段</span><br><span class="line">void func() &#123;</span><br><span class="line">    const int LOCAL_CONST = 200;  // 局部常量，存储在栈区（C++17后可能优化）</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：局部常量（如LOCAL_CONST）存储在栈区，其 “只读” 属性由编译器在编译期检查保障，可通过指针强制修改（不推荐），而全局常量的只读性由内存属性保障，无法修改。</p>
+<h3 id="四、栈区（Stack-Area）"><a href="#四、栈区（Stack-Area）" class="headerlink" title="四、栈区（Stack Area）"></a>四、栈区（Stack Area）</h3><p>栈区是函数调用的临时数据存储区，遵循 “先进后出”（FILO）原则，由编译器自动管理，效率极高（通常仅需几条汇编指令完成分配）。</p>
+<h4 id="1-栈帧结构"><a href="#1-栈帧结构" class="headerlink" title="1. 栈帧结构"></a>1. 栈帧结构</h4><p>每次函数调用时，编译器会在栈区创建一个 “栈帧”（Stack Frame），包含：</p>
+<ul>
+<li><p>函数参数；</p>
+</li>
+<li><p>返回地址（函数执行完毕后跳转的位置）；</p>
+</li>
+<li><p>局部变量；</p>
+</li>
+<li><p>栈底指针（ebp&#x2F;rbp）和栈顶指针（esp&#x2F;rsp）维护的栈帧边界。</p>
+</li>
+</ul>
+<p>函数返回时，栈帧被自动销毁，局部变量随之释放，这也是局部变量生命周期仅限于函数调用的原因：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">int* func() &#123;</span><br><span class="line">    int a = 10;  // a存储在栈区，函数返回后释放</span><br><span class="line">    return &amp;a;   // 警告：返回栈区地址（野指针）</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    int* p = func();</span><br><span class="line">    cout &lt;&lt; *p &lt;&lt; endl;  // 未定义行为：可能输出10（脏数据）或崩溃</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，a在func()返回后被释放，p成为 “野指针”，访问其指向的内存会导致不可预测的结果。</p>
+<h4 id="2-栈的大小限制与栈溢出"><a href="#2-栈的大小限制与栈溢出" class="headerlink" title="2. 栈的大小限制与栈溢出"></a>2. 栈的大小限制与栈溢出</h4><p>栈区大小通常由操作系统预先分配（Linux 默认 8MB，Windows 默认 1MB），若函数递归过深或局部变量过大，会导致 “栈溢出”（Stack Overflow）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 递归过深导致栈溢出</span><br><span class="line">void recursion() &#123;</span><br><span class="line">    char big_array[1024 * 1024];  // 1MB局部数组，快速耗尽栈空间</span><br><span class="line">    recursion();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    recursion();  // 栈溢出，程序崩溃</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解决栈溢出的方法：</p>
+<ul>
+<li><p>减少局部变量大小，改用堆区动态分配；</p>
+</li>
+<li><p>调整栈大小（如 Linux 下通过ulimit -s命令）；</p>
+</li>
+<li><p>避免过深递归，改用迭代实现。</p>
+</li>
+</ul>
+<h3 id="五、堆区（Heap-Area）"><a href="#五、堆区（Heap-Area）" class="headerlink" title="五、堆区（Heap Area）"></a>五、堆区（Heap Area）</h3><p>堆区是程序中最灵活的内存区域，由程序员手动管理，用于存储动态大小的数据（如链表节点、动态数组），具有以下特性：</p>
+<h4 id="1-动态分配与释放"><a href="#1-动态分配与释放" class="headerlink" title="1. 动态分配与释放"></a>1. 动态分配与释放</h4><p>C++ 中通过new&#x2F;delete操作堆区内存，C 语言使用malloc&#x2F;free，两者需配对使用，否则会导致内存泄漏：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 正确用法：new与delete配对</span><br><span class="line">int* ptr = new int(10);  // 堆区分配int，初始化10</span><br><span class="line">delete ptr;              // 释放堆区内存</span><br><span class="line">ptr = nullptr;           // 避免野指针</span><br><span class="line"></span><br><span class="line">// 错误用法：内存泄漏</span><br><span class="line">void leak() &#123;</span><br><span class="line">    int* p = new int[100];  // 分配数组</span><br><span class="line">    // 未调用delete[]，函数返回后p被销毁，堆区内存无法释放</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：new[]分配的数组需用delete[]释放，否则会导致部分内存泄漏（仅释放首元素）。</p>
+<h4 id="2-碎片化问题"><a href="#2-碎片化问题" class="headerlink" title="2. 碎片化问题"></a>2. 碎片化问题</h4><p>频繁分配和释放不同大小的堆内存会导致 “内存碎片”—— 堆区存在大量无法利用的小空闲块。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 导致碎片的操作</span><br><span class="line">for (int i = 0; i &lt; 1000; i++) &#123;</span><br><span class="line">    int* p = new int;    // 分配4字节</span><br><span class="line">    delete p;</span><br><span class="line">    char* q = new char[100];  // 分配100字节</span><br><span class="line">    delete[] q;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内存碎片会导致 “虽然总空闲内存足够，但无法分配连续大内存块” 的问题，可通过内存池（Memory Pool）技术缓解。</p>
+<h4 id="3-堆与栈的性能对比"><a href="#3-堆与栈的性能对比" class="headerlink" title="3. 堆与栈的性能对比"></a>3. 堆与栈的性能对比</h4><p>堆区分配 &#x2F; 释放的开销远大于栈区：</p>
+<ul>
+<li><p>栈区操作仅需移动栈指针（如sub rsp, 0x10），耗时约 1~2 个 CPU 周期；</p>
+</li>
+<li><p>堆区操作需遍历空闲链表（new&#x2F;malloc）或标记回收（delete&#x2F;free），耗时通常为栈区的 100 倍以上。</p>
+</li>
+</ul>
+<p>因此，小内存、短生命周期的变量优先使用栈区，大内存、长生命周期的变量使用堆区。</p>
+<h3 id="六、四区交互：变量传递与内存流转"><a href="#六、四区交互：变量传递与内存流转" class="headerlink" title="六、四区交互：变量传递与内存流转"></a>六、四区交互：变量传递与内存流转</h3><p>程序运行时，四区并非孤立存在，而是通过指针 &#x2F; 引用相互交互，以下为典型场景：</p>
+<h4 id="1-栈区变量地址传递到堆区"><a href="#1-栈区变量地址传递到堆区" class="headerlink" title="1. 栈区变量地址传递到堆区"></a>1. 栈区变量地址传递到堆区</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;string&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">// 堆区分配字符串，接收栈区的const char*</span><br><span class="line">char* copy_str(const char* src) &#123;  // src是栈区指针（指向代码区或栈区）</span><br><span class="line">    int len = strlen(src);</span><br><span class="line">    char* dest = new char[len + 1];  // 堆区分配</span><br><span class="line">    strcpy(dest, src);</span><br><span class="line">    return dest;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    char stack_str[] = &quot;stack&quot;;  // 存储在栈区（可修改）</span><br><span class="line">    char* heap_str = copy_str(stack_str);</span><br><span class="line">    cout &lt;&lt; heap_str;  // 输出：stack</span><br><span class="line">    delete[] heap_str;  // 释放堆区内存</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-堆区数据返回给栈区"><a href="#2-堆区数据返回给栈区" class="headerlink" title="2. 堆区数据返回给栈区"></a>2. 堆区数据返回给栈区</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 堆区创建对象，返回指针给栈区</span><br><span class="line">class Object &#123;</span><br><span class="line">public:</span><br><span class="line">    int data;</span><br><span class="line">    Object(int d) : data(d) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Object* create_obj(int d) &#123;</span><br><span class="line">    return new Object(d);  // 堆区分配对象</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Object* obj = create_obj(100);  // 栈区指针指向堆区对象</span><br><span class="line">    cout &lt;&lt; obj-&gt;data;  // 100</span><br><span class="line">    delete obj;  // 必须手动释放</span><br><span class="line">    obj = nullptr;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="七、实战：内存四区相关问题排查"><a href="#七、实战：内存四区相关问题排查" class="headerlink" title="七、实战：内存四区相关问题排查"></a>七、实战：内存四区相关问题排查</h3><p>理解内存四区是解决常见内存问题的基础，以下为三个典型案例：</p>
+<h4 id="1-野指针（栈区释放后访问）"><a href="#1-野指针（栈区释放后访问）" class="headerlink" title="1. 野指针（栈区释放后访问）"></a>1. 野指针（栈区释放后访问）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int* get_ptr() &#123;</span><br><span class="line">    int x = 10;  // 栈区变量</span><br><span class="line">    return &amp;x;   // 返回栈区地址</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    int* p = get_ptr();  // p为野指针（x已释放）</span><br><span class="line">    *p = 20;  // 未定义行为：可能修改其他栈数据，导致程序崩溃</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决</strong>：避免返回局部变量地址，如需返回动态数据，使用堆区分配并由调用者释放。</p>
+<h4 id="2-内存泄漏（堆区未释放）"><a href="#2-内存泄漏（堆区未释放）" class="headerlink" title="2. 内存泄漏（堆区未释放）"></a>2. 内存泄漏（堆区未释放）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void func() &#123;</span><br><span class="line">    int* p = new int[1000];  // 堆区分配</span><br><span class="line">    // 未调用delete[]，函数返回后p被销毁，内存无法释放</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    for (int i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">        func();  // 持续泄漏内存，最终可能导致程序崩溃</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决</strong>：使用智能指针（std::unique_ptr&#x2F;shared_ptr）自动管理堆区内存：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;memory&gt;</span><br><span class="line">void func() &#123;</span><br><span class="line">    auto p = std::make_unique&lt;int[]&gt;(1000);  // 智能指针自动释放</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-常量修改错误（代码区只读）"><a href="#3-常量修改错误（代码区只读）" class="headerlink" title="3. 常量修改错误（代码区只读）"></a>3. 常量修改错误（代码区只读）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char* str = &quot;hello&quot;;  // &quot;hello&quot;在代码区（只读）</span><br><span class="line">str[0] = &#x27;H&#x27;;  // 段错误</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决</strong>：若需修改字符串，使用栈区数组或堆区分配：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char str[] = &quot;hello&quot;;  // 栈区拷贝，可修改</span><br><span class="line">str[0] = &#x27;H&#x27;;  // 正确：str变为&quot;Hello&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h3><p>内存四区是 C++ 程序运行的基础框架，其核心差异在于<strong>生命周期</strong>和<strong>管理方式</strong>：</p>
+<ul>
+<li><p>代码区和全局区由操作系统管理，生命周期与程序一致；</p>
+</li>
+<li><p>栈区由编译器自动管理，生命周期与函数调用绑定；</p>
+</li>
+<li><p>堆区由程序员手动管理，灵活性最高但风险也最大。</p>
+</li>
+</ul>
+<p>掌握内存四区的特性，不仅能写出更高效的代码，更能快速定位内存泄漏、野指针等疑难问题。在实际开发中，应根据数据的生命周期和大小选择合适的存储区域，并善用智能指针等工具减少手动管理负担。</p>
+<p>你在内存四区使用中遇到过哪些问题？欢迎在评论区分享你的排查经验～</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/22/%E5%85%B6%E4%BB%96/Win11%E5%8F%B3%E9%94%AE%E6%B7%BB%E5%8A%A0md%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6/" rel="prev" title="Windows右键新建添加md文件">
+      <i class="fa fa-chevron-left"></i> Windows右键新建添加md文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/22/Shell_powershell/shell%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" rel="next" title="Shell 编程入门">
+      Shell 编程入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%86%85%E5%AD%98%E5%9B%9B%E5%8C%BA%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%88%92%E5%88%86%E4%B8%8E%E7%89%B9%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">一、内存四区的基本划分与特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%A3%E7%A0%81%E5%8C%BA%EF%BC%88Code-Area%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、代码区（Code Area）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8F%AA%E8%AF%BB%E5%B1%9E%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">1. 只读属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%85%B1%E4%BA%AB%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">2. 共享性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%B8%B8%E9%87%8F%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AD%98%E5%82%A8"><span class="nav-number">2.3.</span> <span class="nav-text">3. 常量字符串存储</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%85%A8%E5%B1%80%E5%8C%BA%EF%BC%88Global-Area%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、全局区（Global Area）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E4%B8%8E%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F%E5%8C%BA"><span class="nav-number">3.1.</span> <span class="nav-text">1. 全局变量与静态变量区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%85%A8%E5%B1%80%E5%B8%B8%E9%87%8F%E5%8C%BA"><span class="nav-number">3.2.</span> <span class="nav-text">2. 全局常量区</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A0%88%E5%8C%BA%EF%BC%88Stack-Area%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、栈区（Stack Area）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A0%88%E5%B8%A7%E7%BB%93%E6%9E%84"><span class="nav-number">4.1.</span> <span class="nav-text">1. 栈帧结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%A0%88%E7%9A%84%E5%A4%A7%E5%B0%8F%E9%99%90%E5%88%B6%E4%B8%8E%E6%A0%88%E6%BA%A2%E5%87%BA"><span class="nav-number">4.2.</span> <span class="nav-text">2. 栈的大小限制与栈溢出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%A0%86%E5%8C%BA%EF%BC%88Heap-Area%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、堆区（Heap Area）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8A%A8%E6%80%81%E5%88%86%E9%85%8D%E4%B8%8E%E9%87%8A%E6%94%BE"><span class="nav-number">5.1.</span> <span class="nav-text">1. 动态分配与释放</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%A2%8E%E7%89%87%E5%8C%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">2. 碎片化问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%A0%86%E4%B8%8E%E6%A0%88%E7%9A%84%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="nav-number">5.3.</span> <span class="nav-text">3. 堆与栈的性能对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%9B%9B%E5%8C%BA%E4%BA%A4%E4%BA%92%EF%BC%9A%E5%8F%98%E9%87%8F%E4%BC%A0%E9%80%92%E4%B8%8E%E5%86%85%E5%AD%98%E6%B5%81%E8%BD%AC"><span class="nav-number">6.</span> <span class="nav-text">六、四区交互：变量传递与内存流转</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A0%88%E5%8C%BA%E5%8F%98%E9%87%8F%E5%9C%B0%E5%9D%80%E4%BC%A0%E9%80%92%E5%88%B0%E5%A0%86%E5%8C%BA"><span class="nav-number">6.1.</span> <span class="nav-text">1. 栈区变量地址传递到堆区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%A0%86%E5%8C%BA%E6%95%B0%E6%8D%AE%E8%BF%94%E5%9B%9E%E7%BB%99%E6%A0%88%E5%8C%BA"><span class="nav-number">6.2.</span> <span class="nav-text">2. 堆区数据返回给栈区</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%AE%9E%E6%88%98%EF%BC%9A%E5%86%85%E5%AD%98%E5%9B%9B%E5%8C%BA%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">7.</span> <span class="nav-text">七、实战：内存四区相关问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E9%87%8E%E6%8C%87%E9%92%88%EF%BC%88%E6%A0%88%E5%8C%BA%E9%87%8A%E6%94%BE%E5%90%8E%E8%AE%BF%E9%97%AE%EF%BC%89"><span class="nav-number">7.1.</span> <span class="nav-text">1. 野指针（栈区释放后访问）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%EF%BC%88%E5%A0%86%E5%8C%BA%E6%9C%AA%E9%87%8A%E6%94%BE%EF%BC%89"><span class="nav-number">7.2.</span> <span class="nav-text">2. 内存泄漏（堆区未释放）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%B8%B8%E9%87%8F%E4%BF%AE%E6%94%B9%E9%94%99%E8%AF%AF%EF%BC%88%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%8F%AA%E8%AF%BB%EF%BC%89"><span class="nav-number">7.3.</span> <span class="nav-text">3. 常量修改错误（代码区只读）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">八、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
