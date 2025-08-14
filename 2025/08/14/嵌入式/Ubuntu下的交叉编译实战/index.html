@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍交叉编译实战相关知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu下的交叉编译实战">
+<meta property="og:url" content="https://yanxianan.github.io/2025/08/14/%E5%B5%8C%E5%85%A5%E5%BC%8F/Ubuntu%E4%B8%8B%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍交叉编译实战相关知识。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-14T01:40:00.000Z">
+<meta property="article:modified_time" content="2025-08-14T09:00:31.446Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/08/14/%E5%B5%8C%E5%85%A5%E5%BC%8F/Ubuntu%E4%B8%8B%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%AE%9E%E6%88%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Ubuntu下的交叉编译实战 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/08/14/%E5%B5%8C%E5%85%A5%E5%BC%8F/Ubuntu%E4%B8%8B%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu下的交叉编译实战
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-08-14 09:40:00 / 修改时间：17:00:31" itemprop="dateCreated datePublished" datetime="2025-08-14T09:40:00+08:00">2025-08-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%8E%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">工具使用与环境配置</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍交叉编译实战相关知识。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>arm-linux-gcc交叉编译工具链的安装：</p>
+<p>首先更新软件列表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure>
+
+<p>安装 <strong>ARM 32 位 hard-float</strong> 工具链：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf</span><br></pre></td></tr></table></figure>
+
+<p>安装 <strong>ARM 64 位 (AArch64)</strong> 工具链：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu</span><br></pre></td></tr></table></figure>
+
+<p>验证是否安装成功：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gnueabihf-gcc -v      <span class="comment"># 32 位</span></span><br><span class="line">aarch64-linux-gnu-gcc -v        <span class="comment"># 64 位</span></span><br></pre></td></tr></table></figure>
+
+<p>能看到 gcc version 即成功</p>
+<p>卸载<strong>ARM 32 位 hard-float</strong> 工具链：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf</span><br></pre></td></tr></table></figure>
+
+<p>卸载 <strong>ARM 64 位 (AArch64)</strong> 工具链：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove gcc-aarch64-linux-gnu g++-aarch64-linux-gnu</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看本机硬件 CPU 架构&#x2F;指令集</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -m</span><br></pre></td></tr></table></figure>
+
+<p><code>uname -m</code> 是 <strong>“查看本机硬件 CPU 架构&#x2F;指令集”</strong> 的最简命令。<br>它把内核检测到的 <strong>机器硬件名称</strong> 原样打印出来，不做任何转换。<br>常见返回值一览（按出现频率排序）</p>
+<table>
+<thead>
+<tr>
+<th align="left">返回值示例</th>
+<th align="left">含义</th>
+<th align="left">常见场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>x86_64</code> &#x2F; <code>amd64</code></td>
+<td align="left">64 位 Intel&#x2F;AMD PC、服务器、笔记本、虚拟机</td>
+<td align="left">绝大多数桌面&#x2F;服务器 Linux</td>
+</tr>
+<tr>
+<td align="left"><code>aarch64</code></td>
+<td align="left">64 位 ARMv8-A（AArch64）</td>
+<td align="left">树莓派 3&#x2F;4&#x2F;5、RK3399、苹果 M 系列、安卓手机刷 Linux</td>
+</tr>
+<tr>
+<td align="left"><code>armv7l</code></td>
+<td align="left">32 位 ARMv7（Little-endian）</td>
+<td align="left">树莓派 2 早期版、某些嵌入式板、老手机</td>
+</tr>
+<tr>
+<td align="left"><code>armv6l</code></td>
+<td align="left">32 位 ARMv6</td>
+<td align="left">树莓派 1&#x2F;Zero、旧款路由器</td>
+</tr>
+<tr>
+<td align="left"><code>i686</code> &#x2F; <code>i386</code></td>
+<td align="left">32 位 x86</td>
+<td align="left">老旧 PC、极小容器镜像</td>
+</tr>
+<tr>
+<td align="left"><code>mips</code> &#x2F; <code>mips64</code></td>
+<td align="left">MIPS32 &#x2F; MIPS64</td>
+<td align="left">路由器、龙芯</td>
+</tr>
+<tr>
+<td align="left"><code>ppc64le</code></td>
+<td align="left">64 位 PowerPC Little-endian</td>
+<td align="left">IBM POWER 服务器、OpenPOWER</td>
+</tr>
+<tr>
+<td align="left"><code>s390x</code></td>
+<td align="left">IBM z&#x2F;Architecture</td>
+<td align="left">大型机、LinuxONE</td>
+</tr>
+<tr>
+<td align="left"><code>riscv64</code></td>
+<td align="left">64 位 RISC-V</td>
+<td align="left">新兴开发板、SiFive</td>
+</tr>
+</tbody></table>
+<p>────────────────<br>与 <code>uname -a</code> 的区别</p>
+<ul>
+<li><code>-m</code> 只看“硬件架构”；</li>
+<li><code>-a</code> 会把内核名称、节点名、内核版本、架构等全部打出来，内容更长。</li>
+<li><code>uname -m</code> 返回的就是 <strong>“CPU 身份证”</strong>；看到 <code>x86_64</code> 就是 PC，<code>aarch64</code> 就是 ARM64 板。</li>
+</ul>
+<p>对程序进行交叉编译：</p>
+<p>本机64位可执行文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc hello.c -o hello.x64          <span class="comment"># 默认就是 x86_64</span></span><br></pre></td></tr></table></figure>
+
+<p>查看可执行文件信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file hello.x64</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello.x64: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=1234f2d2c59244aae4b4a8cc4015da1ee68ba2dd, not stripped</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./hello.x64</span><br></pre></td></tr></table></figure>
+
+<p>可以正常运行</p>
+<p>ARM32位可执行文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gnueabihf-gcc hello.c -o hello.arm32   <span class="comment"># ARM32</span></span><br></pre></td></tr></table></figure>
+
+<p>查看可执行文件信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file hello.x64</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello.arm32: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 3.2.0, BuildID[sha1]=71501e52207455e36f5e2df3ca9beef3229858f8, not stripped</span><br></pre></td></tr></table></figure>
+
+<p>运行<code>./hello.arm32</code>会显示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/lib/ld-linux-armhf.so.3: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>ARM64位可执行文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aarch64-linux-gnu-gcc   hello.c -o hello.arm64   <span class="comment"># ARM64</span></span><br></pre></td></tr></table></figure>
+
+<p>查看可执行文件信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file hello.x64</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello.arm64: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, BuildID[sha1]=1e9a9503efe79366a8c4f51bba5d20cc65f9a7fe, not stripped</span><br></pre></td></tr></table></figure>
+
+<p>运行<code>./hello.arm64</code>会显示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/lib/ld-linux-aarch64.so.1: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>只想运行单个可执行文件可以使用QEMU 的user-mode，如果交叉编译的程序依赖很多系统库，就需要启动一个虚拟机镜像运行。</p>
+<p>常用的 QEMU user-mode 运行器：</p>
+<table>
+<thead>
+<tr>
+<th>目标架构</th>
+<th>QEMU 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x86_64</td>
+<td>qemu-x86_64</td>
+</tr>
+<tr>
+<td>arm</td>
+<td>qemu-arm</td>
+</tr>
+<tr>
+<td>aarch64</td>
+<td>qemu-aarch64</td>
+</tr>
+<tr>
+<td>riscv64</td>
+<td>qemu-riscv64</td>
+</tr>
+<tr>
+<td>mips</td>
+<td>qemu-mips</td>
+</tr>
+</tbody></table>
+<p>这种方式只模拟用户空间，不需要虚拟机系统，速度比系统仿真快。</p>
+<p>上述交叉编译默认的是动态链接，无法通过QEMU user-mode直接运行，若想要通过QEMU user-mode直接运行，可以选择静态链接的交叉编译，具体方式是编译的时候加<code>-static</code></p>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gcc hello.c -static -o hello.x64   </span><br><span class="line">arm-linux-gnueabihf-gcc hello.c -static -o hello.arm32</span><br><span class="line">aarch64-linux-gnu-gcc   hello.c -static -o hello.arm64 </span><br></pre></td></tr></table></figure>
+
+<p>此时使用file查看可以看到可执行文件变成了静态链接的方式（以hello.arm32为例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello.arm32: ELF 32-bit LSB executable, ARM, EABI5 version 1 (GNU/Linux), statically linked, for GNU/Linux 3.2.0, BuildID[sha1]=daf059fd2211eccfde2c445552f5442b724bbe70, not stripped</span><br></pre></td></tr></table></figure>
+
+<p>然后再使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-arm ./hello.arm32</span><br></pre></td></tr></table></figure>
+
+<p>可以看到程序正常运行。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/12/JavaScript_HTML_CSS/HTML%E3%80%81CSS%20%E4%B8%8E%20JavaScript%20%E7%9A%84%E5%8D%8F%E5%90%8C%E4%B9%8B%E9%81%93/" rel="prev" title="前端三剑客：HTML、CSS 与 JavaScript 的协同之道">
+      <i class="fa fa-chevron-left"></i> 前端三剑客：HTML、CSS 与 JavaScript 的协同之道
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
