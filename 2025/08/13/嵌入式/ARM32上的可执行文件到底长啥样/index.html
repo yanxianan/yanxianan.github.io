@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文通过 readelf 命令深入解析 ELF 格式可执行文件的内部结构，详细讲解代码段、数据段、符号表等关键段的功能与意义，帮助读者理解二进制文件的组成原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解析ELF可执行文件">
+<meta property="og:url" content="https://yanxianan.github.io/2025/08/13/%E5%B5%8C%E5%85%A5%E5%BC%8F/ARM32%E4%B8%8A%E7%9A%84%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E9%95%BF%E5%95%A5%E6%A0%B7/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文通过 readelf 命令深入解析 ELF 格式可执行文件的内部结构，详细讲解代码段、数据段、符号表等关键段的功能与意义，帮助读者理解二进制文件的组成原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-13T02:00:00.000Z">
+<meta property="article:modified_time" content="2025-08-15T03:52:56.900Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="可执行文件，readelf">
+<meta property="article:tag" content="ELF 格式">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/08/13/%E5%B5%8C%E5%85%A5%E5%BC%8F/ARM32%E4%B8%8A%E7%9A%84%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E9%95%BF%E5%95%A5%E6%A0%B7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>解析ELF可执行文件 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/08/13/%E5%B5%8C%E5%85%A5%E5%BC%8F/ARM32%E4%B8%8A%E7%9A%84%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E9%95%BF%E5%95%A5%E6%A0%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          解析ELF可执行文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-13 10:00:00" itemprop="dateCreated datePublished" datetime="2025-08-13T10:00:00+08:00">2025-08-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-08-15 11:52:56" itemprop="dateModified" datetime="2025-08-15T11:52:56+08:00">2025-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文通过 readelf 命令深入解析 ELF 格式可执行文件的内部结构，详细讲解代码段、数据段、符号表等关键段的功能与意义，帮助读者理解二进制文件的组成原理。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>当我们编译 C&#x2F;C++ 程序生成可执行文件后，双击运行即可得到结果，但很少有人深究这个二进制文件内部到底长什么样。实际上，可执行文件并非一堆杂乱无章的 0 和 1，而是按照严格格式组织的结构化数据。在 Linux 系统中，最常见的可执行文件格式是 ELF（Executable and Linkable Format），而readelf命令则是剖析 ELF 文件的利器。本文将通过readelf的各种参数，逐层揭开可执行文件的神秘面纱，带你看清它的 “内部器官”—— 各个段（Section）的真实面貌。</p>
+<h3 id="一、准备工作：生成并认识目标文件"><a href="#一、准备工作：生成并认识目标文件" class="headerlink" title="一、准备工作：生成并认识目标文件"></a>一、准备工作：生成并认识目标文件</h3><p>在开始分析前，我们需要一个简单的可执行文件作为研究对象。编写如下 C 程序（demo.c）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">// 全局变量</span><br><span class="line">int global_var = 10;</span><br><span class="line">int global_uninit_var;</span><br><span class="line"></span><br><span class="line">// 函数</span><br><span class="line">void print_msg() &#123;</span><br><span class="line">    const char* msg = &quot;Hello, ELF!&quot;;  // 字符串常量</span><br><span class="line">    printf(&quot;%s\n&quot;, msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    int local_var = 20;  // 局部变量</span><br><span class="line">    print_msg();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用gcc编译生成可执行文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc demo.c -o demo  # 生成ELF格式的可执行文件demo</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将通过readelf命令分析demo文件的结构。readelf是 GNU binutils 工具集中的一员，专门用于读取 ELF 格式文件的信息，支持多种参数查看不同维度的内容。</p>
+<h3 id="二、ELF-文件的整体结构概览"><a href="#二、ELF-文件的整体结构概览" class="headerlink" title="二、ELF 文件的整体结构概览"></a>二、ELF 文件的整体结构概览</h3><p>首先用readelf -h查看 ELF 文件的头部信息，了解文件的基本属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -h demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果（精简版）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ELF Header:</span><br><span class="line">  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 </span><br><span class="line">  Class:                             ELF64</span><br><span class="line">  Data:                              2&#x27;s complement, little endian</span><br><span class="line">  Version:                           1 (current)</span><br><span class="line">  OS/ABI:                            UNIX - System V</span><br><span class="line">  ABI Version:                       0</span><br><span class="line">  Type:                              EXEC (Executable file)</span><br><span class="line">  Machine:                           Advanced Micro Devices X86-64</span><br><span class="line">  Version:                           0x1</span><br><span class="line">  Entry point address:               0x400430</span><br><span class="line">  Start of program headers:          64 (bytes into file)</span><br><span class="line">  Start of section headers:          6240 (bytes into file)</span><br><span class="line">  Flags:                             0x0</span><br><span class="line">  Size of this header:               64 (bytes)</span><br><span class="line">  Size of program headers:           56 (bytes)</span><br><span class="line">  Number of program headers:         9</span><br><span class="line">  Size of section headers:           64 (bytes)</span><br><span class="line">  Number of section headers:         31</span><br><span class="line">  Section header string table index: 30</span><br></pre></td></tr></table></figure>
+
+<p>头部信息揭示了关键信息：</p>
+<ul>
+<li><p><strong>Class</strong>: 64 位 ELF 文件（对应 x86_64 架构）</p>
+</li>
+<li><p><strong>Type</strong>: 可执行文件（EXEC）</p>
+</li>
+<li><p><strong>Entry point address</strong>: 程序入口地址（0x400430，即main函数附近的代码起始位置）</p>
+</li>
+<li><p><strong>Section headers</strong>: 段表信息（共 31 个段，段表起始位置在文件偏移 6240 字节）</p>
+</li>
+</ul>
+<p>ELF 文件的整体结构可分为三部分：</p>
+<ol>
+<li><p><strong>ELF 头部</strong>：如上述信息，描述文件的基本属性</p>
+</li>
+<li><p><strong>段表（Section Headers）</strong>：记录所有段的元信息（名称、类型、大小、偏移量等）</p>
+</li>
+<li><p><strong>段数据</strong>：各个段的实际内容（代码、数据、符号表等）</p>
+</li>
+</ol>
+<p>接下来，我们通过readelf -S查看所有段的列表，这是分析的基础：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -S demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果中会列出 31 个段（因编译器版本可能略有差异），每个段有名称、类型、地址、偏移量、大小等属性。其中最关键的段包括：</p>
+<ul>
+<li><p>代码相关：.text（代码段）、.plt（过程链接表）</p>
+</li>
+<li><p>数据相关：.data（已初始化数据段）、.bss（未初始化数据段）、.rodata（只读数据段）</p>
+</li>
+<li><p>符号相关：.symtab（符号表）、.strtab（字符串表）、.dynsym（动态符号表）</p>
+</li>
+</ul>
+<h3 id="三、代码段：程序的-“行动指令”"><a href="#三、代码段：程序的-“行动指令”" class="headerlink" title="三、代码段：程序的 “行动指令”"></a>三、代码段：程序的 “行动指令”</h3><p>代码段（.text）是可执行文件中最核心的段之一，存放程序的机器指令（二进制形式的代码）。通过readelf -x .text可查看其十六进制内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -x .text demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果（精简版）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Hex dump of section &#x27;.text&#x27;:</span><br><span class="line">  0x00400430 554889e5 4883ec20 897dfc8b 45fc83f8  UH..H.. ...]..E...</span><br><span class="line">  0x00400440 00741e8b 05d60b20 008b0083 c8ff4889  .t..... ......H.</span><br><span class="line">  ...（省略部分内容）</span><br></pre></td></tr></table></figure>
+
+<p>这些十六进制数值是 CPU 可直接执行的机器码。结合objdump -d demo（反汇编）可将其转换为汇编指令，对应我们编写的main和print_msg函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d demo | grep -A 20 &quot;&lt;main&gt;&quot;  # 查看main函数的汇编</span><br></pre></td></tr></table></figure>
+
+<p>.text段的特点：</p>
+<ul>
+<li><p><strong>只读</strong>：防止程序运行时意外修改指令（内存保护机制）</p>
+</li>
+<li><p><strong>可执行</strong>：CPU 可直接从该段读取并执行指令</p>
+</li>
+<li><p><strong>位置无关</strong>（部分情况下）：动态链接时可加载到任意内存地址</p>
+</li>
+</ul>
+<h3 id="四、数据段：程序的-“记忆仓库”"><a href="#四、数据段：程序的-“记忆仓库”" class="headerlink" title="四、数据段：程序的 “记忆仓库”"></a>四、数据段：程序的 “记忆仓库”</h3><p>数据段用于存放程序中的变量，根据初始化状态分为.data、.bss和.rodata三个关键段。</p>
+<h4 id="1-data：已初始化的全局-静态变量"><a href="#1-data：已初始化的全局-静态变量" class="headerlink" title="1. .data：已初始化的全局 &#x2F; 静态变量"></a>1. .data：已初始化的全局 &#x2F; 静态变量</h4><p>我们在程序中定义了int global_var &#x3D; 10;（已初始化全局变量），其值存放在.data段。通过readelf -x .data查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -x .data demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Hex dump of section &#x27;.data&#x27;:</span><br><span class="line">  0x00601028 0a000000 00000000                 ........</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>0x00601028是global_var的内存地址</p>
+</li>
+<li><p>0a000000是十六进制的10（小端存储，低字节在前）</p>
+</li>
+<li><p>后续的00000000可能是其他已初始化变量的占位符</p>
+</li>
+</ul>
+<h4 id="2-bss：未初始化的全局-静态变量"><a href="#2-bss：未初始化的全局-静态变量" class="headerlink" title="2. .bss：未初始化的全局 &#x2F; 静态变量"></a>2. .bss：未初始化的全局 &#x2F; 静态变量</h4><p>未初始化的全局变量（如global_uninit_var）或初始值为 0 的变量存放在.bss段。与.data不同，.bss段在文件中不占用实际空间（仅记录大小），程序加载时由操作系统分配内存并初始化为 0。</p>
+<p>通过readelf -S查看.bss段的信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[25] .bss              NOBITS          00601030 001030 000008 00  WA  0   0  8</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>NOBITS：表示该段无实际数据（仅占内存，不占文件空间）</p>
+</li>
+<li><p>Size为000008（8 字节）：global_uninit_var是 int 类型（4 字节），可能还有其他未初始化变量</p>
+</li>
+</ul>
+<h4 id="3-rodata：只读数据"><a href="#3-rodata：只读数据" class="headerlink" title="3. .rodata：只读数据"></a>3. .rodata：只读数据</h4><p>字符串常量（如”Hello, ELF!”）和const修饰的全局变量存放在.rodata段，该段只读不可修改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -x .rodata demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Hex dump of section &#x27;.rodata&#x27;:</span><br><span class="line">  0x004005f8 01000200 48656c6c 6f2c2045 4c462100  ....Hello, ELF!.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>48656c6c6f2c20454c4621对应 ASCII 码的”Hello, ELF!”</p>
+</li>
+<li><p>末尾的00是字符串结束符\0</p>
+</li>
+</ul>
+<p>.rodata段的只读特性由内存页保护机制保证，试图修改会触发段错误（Segmentation fault）。</p>
+<h3 id="五、符号表：程序的-“身份档案”"><a href="#五、符号表：程序的-“身份档案”" class="headerlink" title="五、符号表：程序的 “身份档案”"></a>五、符号表：程序的 “身份档案”</h3><p>符号表（.symtab）记录了程序中所有符号（变量名、函数名）的信息，包括符号类型、地址、大小等。通过readelf -s查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -s demo | grep -E &quot;global_var|main|print_msg&quot;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果（精简版）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">58: 0000000000601028     4 OBJECT  GLOBAL DEFAULT   25 global_var</span><br><span class="line">65: 0000000000400526    28 FUNC    GLOBAL DEFAULT   14 print_msg</span><br><span class="line">66: 0000000000400430    43 FUNC    GLOBAL DEFAULT   14 main</span><br><span class="line">67: 0000000000601030     4 OBJECT  GLOBAL DEFAULT   25 global_uninit_var</span><br></pre></td></tr></table></figure>
+
+<p>各字段含义：</p>
+<ul>
+<li><p><strong>Value</strong>：符号的内存地址（如global_var在0x601028）</p>
+</li>
+<li><p><strong>Size</strong>：符号大小（global_var是 int 类型，占 4 字节）</p>
+</li>
+<li><p><strong>Type</strong>：符号类型（OBJECT表示变量，FUNC表示函数）</p>
+</li>
+<li><p><strong>Ndx</strong>：所在段的索引（25对应.bss段，14对应.text段）</p>
+</li>
+</ul>
+<p>符号表的作用：</p>
+<ul>
+<li><p>编译链接阶段：确保函数和变量的引用正确解析</p>
+</li>
+<li><p>调试阶段：gdb通过符号表将内存地址映射为变量名 &#x2F; 函数名</p>
+</li>
+<li><p>动态链接：动态加载器通过符号表定位共享库中的函数</p>
+</li>
+</ul>
+<h3 id="六、其他重要段：程序的-“辅助器官”"><a href="#六、其他重要段：程序的-“辅助器官”" class="headerlink" title="六、其他重要段：程序的 “辅助器官”"></a>六、其他重要段：程序的 “辅助器官”</h3><p>除了核心的代码段和数据段，ELF 文件还有多个辅助段，负责程序的加载、链接和调试。</p>
+<h4 id="1-plt与-got：动态链接的-“桥梁”"><a href="#1-plt与-got：动态链接的-“桥梁”" class="headerlink" title="1. .plt与.got：动态链接的 “桥梁”"></a>1. .plt与.got：动态链接的 “桥梁”</h4><p>当程序使用动态链接库（如printf来自libc）时，.plt（Procedure Linkage Table，过程链接表）和.got（Global Offset Table，全局偏移表）负责在运行时找到共享库函数的实际地址。</p>
+<ul>
+<li><p>.plt：存放跳转指令，首次调用共享库函数时触发动态链接器解析地址</p>
+</li>
+<li><p>.got：存放已解析的共享库函数地址，后续调用直接使用，避免重复解析</p>
+</li>
+</ul>
+<p>通过readelf -x .plt可查看.plt段的内容，其中包含指向.got的跳转指令。</p>
+<h4 id="2-shstrtab与-strtab：字符串表"><a href="#2-shstrtab与-strtab：字符串表" class="headerlink" title="2. .shstrtab与.strtab：字符串表"></a>2. .shstrtab与.strtab：字符串表</h4><ul>
+<li><p>.shstrtab（Section Header String Table）：存放段表中所有段的名称（如.text、.data）</p>
+</li>
+<li><p>.strtab（String Table）：存放符号表中符号的名称（如函数名、变量名）</p>
+</li>
+</ul>
+<p>通过readelf -p .shstrtab demo可查看段名称字符串：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -p .shstrtab demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果中包含所有段的名称，如[  11]  .text、[  17]  .rodata等。</p>
+<h3 id="七、程序头表：告诉操作系统如何加载"><a href="#七、程序头表：告诉操作系统如何加载" class="headerlink" title="七、程序头表：告诉操作系统如何加载"></a>七、程序头表：告诉操作系统如何加载</h3><p>程序头表（Program Headers）描述了 ELF 文件如何被操作系统加载到内存，通过readelf -l查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -l demo</span><br></pre></td></tr></table></figure>
+
+<p>输出结果中的 “Segment”（段，与 Section 不同）表示内存加载单元，例如：</p>
+<ul>
+<li><p><strong>LOAD</strong>类型的 Segment：将文件中的部分内容加载到内存，包含.text、.data等 Section</p>
+</li>
+<li><p><strong>Dynamic</strong>类型的 Segment：存放动态链接信息</p>
+</li>
+</ul>
+<p>每个 Segment 有VirtAddr（内存地址）、PhysAddr（物理地址）、FileSiz（文件中大小）、MemSiz（内存中大小）等属性，操作系统根据这些信息分配内存并加载数据。</p>
+<h3 id="八、总结：可执行文件的-“解剖图”"><a href="#八、总结：可执行文件的-“解剖图”" class="headerlink" title="八、总结：可执行文件的 “解剖图”"></a>八、总结：可执行文件的 “解剖图”</h3><p>通过readelf的各种命令，我们可以清晰看到 ELF 可执行文件的内部结构：</p>
+<table>
+<thead>
+<tr>
+<th>段名称</th>
+<th>功能</th>
+<th>关键特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.text</td>
+<td>存放机器指令</td>
+<td>只读、可执行</td>
+</tr>
+<tr>
+<td>.data</td>
+<td>存放已初始化全局 &#x2F; 静态变量</td>
+<td>可读写、占文件空间</td>
+</tr>
+<tr>
+<td>.bss</td>
+<td>存放未初始化全局 &#x2F; 静态变量</td>
+<td>可读写、不占文件空间</td>
+</tr>
+<tr>
+<td>.rodata</td>
+<td>存放只读数据（字符串常量等）</td>
+<td>只读</td>
+</tr>
+<tr>
+<td>.symtab</td>
+<td>记录符号信息（变量 &#x2F; 函数名）</td>
+<td>调试和链接的基础</td>
+</tr>
+<tr>
+<td>.plt&#x2F;.got</td>
+<td>动态链接时定位共享库函数</td>
+<td>实现延迟绑定</td>
+</tr>
+</tbody></table>
+<p>这些段按照 ELF 格式的规则有序组织，共同构成了可执行文件的 “躯体”。操作系统加载程序时，根据程序头表将各段映射到内存的相应位置，CPU 从.text段的入口地址开始执行指令，通过符号表和动态链接机制调用外部函数，通过数据段读写变量 —— 整个过程如同一个精密的机器在运转。</p>
+<p>理解可执行文件的结构，不仅能帮助我们排查链接错误、优化程序性能，更能深入理解程序从源码到运行的完整生命周期。readelf作为剖析工具，为我们打开了一扇窥探二进制世界的窗口，让看似神秘的可执行文件变得清晰可见。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%EF%BC%8Creadelf/" rel="tag"># 可执行文件，readelf</a>
+              <a href="/tags/ELF-%E6%A0%BC%E5%BC%8F/" rel="tag"># ELF 格式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/13/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E4%BD%BF%E7%94%A8qemu%E5%AE%89%E8%A3%85ARM64%20(aarch64)%20%E6%9E%B6%E6%9E%84%E7%9A%84%20Ubuntu%20Server%20%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="prev" title="使用qemu安装ARM64 (aarch64) 架构的 Ubuntu Server 虚拟机">
+      <i class="fa fa-chevron-left"></i> 使用qemu安装ARM64 (aarch64) 架构的 Ubuntu Server 虚拟机
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/14/%E5%B5%8C%E5%85%A5%E5%BC%8F/Ubuntu%E4%B8%8B%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%AE%9E%E6%88%98/" rel="next" title="Ubuntu下的交叉编译实战">
+      Ubuntu下的交叉编译实战 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%EF%BC%9A%E7%94%9F%E6%88%90%E5%B9%B6%E8%AE%A4%E8%AF%86%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">一、准备工作：生成并认识目标文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81ELF-%E6%96%87%E4%BB%B6%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84%E6%A6%82%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">二、ELF 文件的整体结构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E6%AE%B5%EF%BC%9A%E7%A8%8B%E5%BA%8F%E7%9A%84-%E2%80%9C%E8%A1%8C%E5%8A%A8%E6%8C%87%E4%BB%A4%E2%80%9D"><span class="nav-number">3.</span> <span class="nav-text">三、代码段：程序的 “行动指令”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%95%B0%E6%8D%AE%E6%AE%B5%EF%BC%9A%E7%A8%8B%E5%BA%8F%E7%9A%84-%E2%80%9C%E8%AE%B0%E5%BF%86%E4%BB%93%E5%BA%93%E2%80%9D"><span class="nav-number">4.</span> <span class="nav-text">四、数据段：程序的 “记忆仓库”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-data%EF%BC%9A%E5%B7%B2%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%85%A8%E5%B1%80-%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F"><span class="nav-number">4.1.</span> <span class="nav-text">1. .data：已初始化的全局 &#x2F; 静态变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-bss%EF%BC%9A%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%85%A8%E5%B1%80-%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">2. .bss：未初始化的全局 &#x2F; 静态变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-rodata%EF%BC%9A%E5%8F%AA%E8%AF%BB%E6%95%B0%E6%8D%AE"><span class="nav-number">4.3.</span> <span class="nav-text">3. .rodata：只读数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%AC%A6%E5%8F%B7%E8%A1%A8%EF%BC%9A%E7%A8%8B%E5%BA%8F%E7%9A%84-%E2%80%9C%E8%BA%AB%E4%BB%BD%E6%A1%A3%E6%A1%88%E2%80%9D"><span class="nav-number">5.</span> <span class="nav-text">五、符号表：程序的 “身份档案”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%85%B6%E4%BB%96%E9%87%8D%E8%A6%81%E6%AE%B5%EF%BC%9A%E7%A8%8B%E5%BA%8F%E7%9A%84-%E2%80%9C%E8%BE%85%E5%8A%A9%E5%99%A8%E5%AE%98%E2%80%9D"><span class="nav-number">6.</span> <span class="nav-text">六、其他重要段：程序的 “辅助器官”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-plt%E4%B8%8E-got%EF%BC%9A%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E7%9A%84-%E2%80%9C%E6%A1%A5%E6%A2%81%E2%80%9D"><span class="nav-number">6.1.</span> <span class="nav-text">1. .plt与.got：动态链接的 “桥梁”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-shstrtab%E4%B8%8E-strtab%EF%BC%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A1%A8"><span class="nav-number">6.2.</span> <span class="nav-text">2. .shstrtab与.strtab：字符串表</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E7%A8%8B%E5%BA%8F%E5%A4%B4%E8%A1%A8%EF%BC%9A%E5%91%8A%E8%AF%89%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%8A%A0%E8%BD%BD"><span class="nav-number">7.</span> <span class="nav-text">七、程序头表：告诉操作系统如何加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E7%9A%84-%E2%80%9C%E8%A7%A3%E5%89%96%E5%9B%BE%E2%80%9D"><span class="nav-number">8.</span> <span class="nav-text">八、总结：可执行文件的 “解剖图”</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
