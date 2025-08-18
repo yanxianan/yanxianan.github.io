@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍 Makefile 的自动化变量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Makefile的自动化变量">
+<meta property="og:url" content="https://yanxianan.github.io/2025/07/21/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%8E%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/Makefile%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍 Makefile 的自动化变量。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-21T07:30:00.000Z">
+<meta property="article:modified_time" content="2025-08-18T03:13:52.920Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Makefile">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="工具">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/07/21/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%8E%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/Makefile%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Makefile的自动化变量 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/07/21/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%8E%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/Makefile%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Makefile的自动化变量
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-07-21 15:30:00" itemprop="dateCreated datePublished" datetime="2025-07-21T15:30:00+08:00">2025-07-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-08-18 11:13:52" itemprop="dateModified" datetime="2025-08-18T11:13:52+08:00">2025-08-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%8E%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">工具使用与环境配置</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍 Makefile 的自动化变量。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Makefile的自动化变量"><a href="#Makefile的自动化变量" class="headerlink" title="Makefile的自动化变量"></a>Makefile的自动化变量</h1><p>自动化变量是 Make 工具提供的一组特殊变量，它们的值在规则执行时根据当前规则所涉及的**目标（Target）<strong>和</strong>先决条件（Prerequisites）**自动确定。它们极大地简化了 Makefile 的编写，使得规则更加通用和简洁，避免了重复书写文件名。</p>
+<p>理解自动化变量是编写高效、可维护 Makefile 的关键。</p>
+<hr>
+<h3 id="核心自动化变量"><a href="#核心自动化变量" class="headerlink" title="核心自动化变量"></a><strong>核心自动化变量</strong></h3><p>以下是 Make 中最常用和最重要的自动化变量：</p>
+<ol>
+<li><p><strong><code>$@</code> (Dollar-At)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>规则中的目标文件名（Target）</strong>。</li>
+<li><strong>行为</strong>：<ul>
+<li>如果规则有多个目标，<code>$@</code> 代表的是<strong>触发此规则执行的那个目标</strong>。在模式规则中，这通常是与模式匹配的那个目标。</li>
+<li>它会包含目标文件的完整路径（如果目标名中包含目录）。</li>
+</ul>
+</li>
+<li><strong>用途</strong>：最常用于指定编译或链接的输出文件名。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：将 main.c 编译成 main.o</span></span><br><span class="line"><span class="section">main.o: main.c main.h</span></span><br><span class="line">	gcc -c main.c -o <span class="variable">$@</span>  <span class="comment"># $@ 展开为 &quot;main.o&quot;</span></span><br></pre></td></tr></table></figure>
+这等价于 <code>gcc -c main.c -o main.o</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>$&lt;</code> (Dollar-Less-Than)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>规则中的第一个先决条件（Prerequisite）</strong>。</li>
+<li><strong>行为</strong>：只取列表中的第一个文件名。</li>
+<li><strong>用途</strong>：当你明确知道只需要第一个依赖文件时使用，例如在编译单个源文件生成目标文件时。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：将 .c 文件编译成同名的 .o 文件</span></span><br><span class="line"><span class="section">%.o: %.c</span></span><br><span class="line">	gcc -c <span class="variable">$&lt;</span> -o <span class="variable">$@</span>  <span class="comment"># $&lt; 是 %.c 匹配的源文件 (如 main.c), $@ 是 %.o 匹配的目标文件 (如 main.o)</span></span><br></pre></td></tr></table></figure>
+如果有 <code>main.o: main.c utils.h defs.h</code>，<code>$&lt;</code> 仍然是 <code>main.c</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>$^</code> (Dollar-Caret)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>规则中所有的先决条件（Prerequisites），以空格分隔，且会自动去重</strong>。</li>
+<li><strong>行为</strong>：列出所有依赖文件，重复的文件名只出现一次。</li>
+<li><strong>用途</strong>：当需要将所有依赖文件都作为参数传递给命令时非常有用，比如链接多个目标文件生成可执行文件，或者将所有依赖头文件传递给某些工具。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：链接多个 .o 文件生成可执行文件</span></span><br><span class="line"><span class="section">program: main.o utils.o math.o</span></span><br><span class="line">	gcc <span class="variable">$^</span> -o <span class="variable">$@</span>  <span class="comment"># $^ 展开为 &quot;main.o utils.o math.o&quot;, $@ 是 &quot;program&quot;</span></span><br></pre></td></tr></table></figure>
+如果 <code>main.o</code> 被多个规则依赖，<code>$^</code> 仍只列出一次。</li>
+</ul>
+</li>
+<li><p><strong><code>$+</code> (Dollar-Plus)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>规则中所有的先决条件（Prerequisites），以空格分隔，但不会去重</strong>。</li>
+<li><strong>行为</strong>：与 <code>$^</code> 类似，但保留了重复的文件名。</li>
+<li><strong>用途</strong>：非常罕见。只有在依赖列表中文件名的<strong>顺序和重复</strong>对命令有特定意义时才需要使用。绝大多数情况下 <code>$^</code> 更合适。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 假设依赖顺序和重复很重要（极少见）</span></span><br><span class="line"><span class="section">target: dep1 dep2 dep1 dep3</span></span><br><span class="line">	some_command <span class="variable">$+</span>  <span class="comment"># $+ 展开为 &quot;dep1 dep2 dep1 dep3&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong><code>$?</code> (Dollar-Question-Mark)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>比目标文件更新（更晚修改）的所有先决条件</strong>。</li>
+<li><strong>行为</strong>：Make 会比较目标文件和每个先决条件的修改时间，只列出那些时间戳比目标文件新的依赖。</li>
+<li><strong>用途</strong>：用于增量构建，只处理那些发生变化的依赖。常用于归档（<code>ar</code>）操作，只将更新的 <code>.o</code> 文件添加到静态库中。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：只将更新的 .o 文件添加到静态库 libmylib.a</span></span><br><span class="line"><span class="section">libmylib.a: file1.o file2.o file3.o</span></span><br><span class="line">	ar r libmylib.a <span class="variable">$?</span>  <span class="comment"># $? 只包含那些比 libmylib.a 新的 .o 文件</span></span><br></pre></td></tr></table></figure>
+如果 <code>file2.o</code> 刚被修改过，而 <code>file1.o</code> 和 <code>file3.o</code> 没变，<code>$?</code> 就是 <code>file2.o</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>$*</code> (Dollar-Star)</strong></p>
+<ul>
+<li><strong>含义</strong>：代表<strong>模式规则中匹配的目标模式部分</strong>。</li>
+<li><strong>行为</strong>：<strong>仅在模式规则（Pattern Rules）中有效</strong>。它代表 <code>%</code> 所匹配的那部分字符串。</li>
+<li><strong>用途</strong>：在需要将模式匹配的部分作为文件名（不带扩展名）使用时。使用较少，且容易与 <code>$(basename ...)</code> 混淆。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：将 .txt 文件复制到 .bak 文件，并在同目录下创建一个 .log 文件</span></span><br><span class="line"><span class="section">%.bak: %.txt</span></span><br><span class="line">	cp <span class="variable">$&lt;</span> <span class="variable">$@</span></span><br><span class="line">	touch <span class="variable">$*</span>.log  <span class="comment"># $* 代表 % 匹配的部分 (如 &quot;report&quot; 匹配 &quot;report.txt&quot; -&gt; &quot;report.bak&quot;)</span></span><br></pre></td></tr></table></figure>
+如果目标是 <code>report.bak</code>，<code>$*</code> 就是 <code>report</code>。<code>$*.log</code> 变成 <code>report.log</code>。</li>
+<li><strong>注意</strong>：<code>$*</code> 的行为在静态模式规则和双后缀规则中更复杂，有时不可靠，现代 Makefile 中更推荐使用 <code>$(basename $@)</code> 或 <code>$(basename $&lt;)</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>$%</code> (Dollar-Percent)</strong></p>
+<ul>
+<li><strong>含义</strong>：当目标是<strong>归档成员（Archive Member）<strong>时，代表</strong>归档成员的名字</strong>。</li>
+<li><strong>行为</strong>：仅在目标是 <code>archive(member)</code> 格式时有效。</li>
+<li><strong>用途</strong>：专门用于处理静态库（<code>.a</code> 文件）中的单个成员。</li>
+<li><strong>示例</strong>：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 规则：将 main.o 更新到 libmylib.a 库中</span></span><br><span class="line"><span class="section">libmylib.a(main.o): main.o</span></span><br><span class="line">	ar r <span class="variable">$@</span> <span class="variable">$&lt;</span>  <span class="comment"># $@ 是 &quot;libmylib.a(main.o)&quot;, $% 是 &quot;main.o&quot;</span></span><br></pre></td></tr></table></figure>
+在这个规则中，<code>$%</code> 等于 <code>main.o</code>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结与最佳实践"><a href="#总结与最佳实践" class="headerlink" title="总结与最佳实践"></a><strong>总结与最佳实践</strong></h3><table>
+<thead>
+<tr>
+<th align="left">变量</th>
+<th align="left">含义</th>
+<th align="left">最常用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong><code>$@</code></strong></td>
+<td align="left">目标文件名</td>
+<td align="left">几乎所有规则的输出文件</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$&lt;</code></strong></td>
+<td align="left">第一个先决条件</td>
+<td align="left">编译单个源文件 (<code>%.c -&gt; %.o</code>)</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$^</code></strong></td>
+<td align="left">所有先决条件 (去重)</td>
+<td align="left">链接多个 <code>.o</code> 文件生成可执行文件</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$?</code></strong></td>
+<td align="left">更新的先决条件</td>
+<td align="left">增量更新静态库 (<code>ar r</code>)</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$*</code></strong></td>
+<td align="left">模式匹配部分</td>
+<td align="left">模式规则中提取基础名 (较少用，<code>$(basename)</code> 更佳)</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$+</code></strong></td>
+<td align="left">所有先决条件 (不去重)</td>
+<td align="left">极其罕见</td>
+</tr>
+<tr>
+<td align="left"><strong><code>$%</code></strong></td>
+<td align="left">归档成员名</td>
+<td align="left">操作静态库成员</td>
+</tr>
+</tbody></table>
+<p><strong>最佳实践建议：</strong></p>
+<ol>
+<li><strong>优先使用 <code>$@</code>, <code>$&lt;</code>, <code>$^</code></strong>：这三个是绝对的核心，覆盖了 90% 以上的场景。</li>
+<li><strong>链接时用 <code>$^</code></strong>：链接器通常需要所有目标文件，<code>$^</code> 能确保所有依赖都被包含且不重复。</li>
+<li><strong>编译时用 <code>$&lt;</code></strong>：编译单个源文件时，输入就是第一个（通常也是唯一一个）<code>.c</code> 文件。</li>
+<li><strong>避免 <code>$*</code></strong>：除非你明确知道自己在做什么且需要它，否则优先使用 <code>$(basename $@)</code> 或 <code>$(dir $@)</code> 等更清晰的函数。</li>
+<li><strong>理解 <code>$?</code> 的增量优势</strong>：在管理大型静态库时，<code>$?</code> 可以显著加快构建速度，因为它只处理变化的文件。</li>
+<li><strong>注意变量作用域</strong>：自动化变量的值是在<strong>执行规则命令时</strong>才确定的，所以它们只能在规则的命令行中使用。</li>
+</ol>
+<p>掌握这些自动化变量，你就能写出简洁、高效且易于维护的 Makefile 了。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Makefile/" rel="tag"># Makefile</a>
+              <a href="/tags/%E7%BC%96%E8%AF%91/" rel="tag"># 编译</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag"># 工具</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/21/%E5%B5%8C%E5%85%A5%E5%BC%8F/MCU%E5%85%A5%E9%97%A8/" rel="prev" title="MCU 入门">
+      <i class="fa fa-chevron-left"></i> MCU 入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/22/%E5%85%B6%E4%BB%96/Win11%E5%8F%B3%E9%94%AE%E6%B7%BB%E5%8A%A0md%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6/" rel="next" title="Windows右键新建添加md文件">
+      Windows右键新建添加md文件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Makefile%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">Makefile的自动化变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F"><span class="nav-number">1.0.1.</span> <span class="nav-text">核心自动化变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.0.2.</span> <span class="nav-text">总结与最佳实践</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
