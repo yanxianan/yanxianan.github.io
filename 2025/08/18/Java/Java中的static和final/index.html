@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在 Java 中，&#96;static&#96; 和 &#96;final&#96; 是两个非常重要的关键字，它们可以用来修饰变量，但它们的含义和作用完全不同。当它们单独使用或组合使用时，会产生不同的效果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java中的static和final">
+<meta property="og:url" content="https://yanxianan.github.io/2025/08/18/Java/Java%E4%B8%AD%E7%9A%84static%E5%92%8Cfinal/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="在 Java 中，&#96;static&#96; 和 &#96;final&#96; 是两个非常重要的关键字，它们可以用来修饰变量，但它们的含义和作用完全不同。当它们单独使用或组合使用时，会产生不同的效果。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-18T02:41:55.000Z">
+<meta property="article:modified_time" content="2025-08-18T12:54:03.944Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="static">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="final">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/08/18/Java/Java%E4%B8%AD%E7%9A%84static%E5%92%8Cfinal/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java中的static和final | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/08/18/Java/Java%E4%B8%AD%E7%9A%84static%E5%92%8Cfinal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java中的static和final
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-08-18 10:41:55 / 修改时间：20:54:03" itemprop="dateCreated datePublished" datetime="2025-08-18T10:41:55+08:00">2025-08-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">在 Java 中，`static` 和 `final` 是两个非常重要的关键字，它们可以用来修饰变量，但它们的含义和作用完全不同。当它们单独使用或组合使用时，会产生不同的效果。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Java中的static和final关键字"><a href="#Java中的static和final关键字" class="headerlink" title="Java中的static和final关键字"></a>Java中的static和final关键字</h1><h3 id="1-static-关键字"><a href="#1-static-关键字" class="headerlink" title="1. static 关键字"></a>1. <code>static</code> 关键字</h3><p><strong>含义</strong>：<code>static</code> 表示“<strong>静态的</strong>”或“<strong>属于类的</strong>”，而不是属于某个具体的对象实例。</p>
+<p><strong>修饰变量时的特点</strong>：</p>
+<ul>
+<li><strong>类变量</strong>：被 <code>static</code> 修饰的变量称为<strong>类变量</strong>或<strong>静态变量</strong>。它属于类本身，而不是类的任何特定实例。</li>
+<li><strong>共享性</strong>：无论创建多少个该类的对象，<code>static</code> 变量在内存中<strong>只有一份拷贝</strong>。所有实例共享这个变量。</li>
+<li><strong>生命周期</strong>：<code>static</code> 变量在<strong>类加载时</strong>被初始化，并且在程序的整个生命周期内存在，直到类被卸载。</li>
+<li><strong>访问方式</strong>：可以通过 <code>类名.变量名</code> 直接访问，也可以通过 <code>对象实例.变量名</code> 访问（但不推荐，容易引起误解）。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Counter</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 静态变量，所有实例共享</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Counter</span><span class="params">()</span> &#123;</span><br><span class="line">        count++; <span class="comment">// 每创建一个实例，count 加 1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="type">Counter</span> <span class="variable">c1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Counter</span>(); <span class="comment">// count = 1</span></span><br><span class="line"><span class="type">Counter</span> <span class="variable">c2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Counter</span>(); <span class="comment">// count = 2</span></span><br><span class="line"><span class="type">Counter</span> <span class="variable">c3</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Counter</span>(); <span class="comment">// count = 3</span></span><br><span class="line"></span><br><span class="line">System.out.println(Counter.count); <span class="comment">// 输出: 3 (推荐通过类名访问)</span></span><br><span class="line">System.out.println(c1.count);      <span class="comment">// 输出: 3 (也可以，但不推荐)</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-final-关键字"><a href="#2-final-关键字" class="headerlink" title="2. final 关键字"></a>2. <code>final</code> 关键字</h3><p><strong>含义</strong>：<code>final</code> 表示“<strong>最终的</strong>”或“<strong>不可改变的</strong>”。</p>
+<p><strong>修饰变量时的特点</strong>：</p>
+<ul>
+<li><strong>不可变性</strong>：一旦被 <code>final</code> 修饰的变量被赋值（初始化），它的值就<strong>不能再被修改</strong>。</li>
+<li><strong>赋值时机</strong>：<ul>
+<li><strong>final 成员变量</strong>：必须在<strong>声明时</strong>初始化，或者在<strong>构造器</strong>中初始化。确保在对象构造完成前，<code>final</code> 变量已被赋值。</li>
+<li><strong>final 局部变量</strong>：可以在声明时初始化，也可以在后续的代码中赋值，但<strong>只能赋值一次</strong>。</li>
+</ul>
+</li>
+<li><strong>引用类型</strong>：如果 <code>final</code> 修饰的是一个<strong>对象引用</strong>，那么这个引用本身不能改变（即不能指向另一个对象），但<strong>对象内部的状态（其成员变量）是可以改变的</strong>。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Example</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> id;          <span class="comment">// final 成员变量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;     <span class="comment">// final 成员变量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;String&gt; list; <span class="comment">// final 引用变量</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Example</span><span class="params">(<span class="type">int</span> id, String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.id = id;           <span class="comment">// 在构造器中初始化 final 变量</span></span><br><span class="line">        <span class="built_in">this</span>.name = name;       <span class="comment">// 在构造器中初始化 final 变量</span></span><br><span class="line">        <span class="built_in">this</span>.list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(); <span class="comment">// 在构造器中初始化 final 引用</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">modify</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// id = 10; // ❌ 编译错误！不能修改 final 变量</span></span><br><span class="line">        <span class="comment">// name = &quot;New Name&quot;; // ❌ 编译错误！</span></span><br><span class="line"></span><br><span class="line">        list.add(<span class="string">&quot;Hello&quot;</span>); <span class="comment">// ✅ OK！可以修改 final 引用所指向对象的内部状态</span></span><br><span class="line">        <span class="comment">// list = new ArrayList&lt;&gt;(); // ❌ 编译错误！不能改变 final 引用本身</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// final 局部变量</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">someMethod</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> x;</span><br><span class="line">    x = <span class="number">5</span>; <span class="comment">// ✅ 第一次赋值</span></span><br><span class="line">    <span class="comment">// x = 10; // ❌ 编译错误！不能再次赋值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-static-final-组合使用"><a href="#3-static-final-组合使用" class="headerlink" title="3. static final 组合使用"></a>3. <code>static final</code> 组合使用</h3><p>当 <code>static</code> 和 <code>final</code> 同时修饰一个变量时，它表示一个<strong>全局常量</strong>。</p>
+<ul>
+<li><strong><code>static</code></strong>：表示这个变量属于类，所有实例共享。</li>
+<li><strong><code>final</code></strong>：表示这个变量的值不可改变。</li>
+</ul>
+<p>因此，<code>static final</code> 变量通常用来定义<strong>常量</strong>，并且命名习惯上使用<strong>全大写字母和下划线</strong>。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Constants</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">double</span> <span class="variable">PI</span> <span class="operator">=</span> <span class="number">3.1415926</span>; <span class="comment">// 数学常数 π</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_SIZE</span> <span class="operator">=</span> <span class="number">1000</span>;   <span class="comment">// 最大尺寸</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">APP_NAME</span> <span class="operator">=</span> <span class="string">&quot;MyApp&quot;</span>; <span class="comment">// 应用名称</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="type">double</span> <span class="variable">circumference</span> <span class="operator">=</span> <span class="number">2</span> * Constants.PI * radius;</span><br></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>在类加载时初始化（对于基本类型和字符串字面量，通常在编译期就能确定，称为“编译期常量”）。</li>
+<li>值不可变。</li>
+<li>通过 <code>类名.常量名</code> 访问。</li>
+</ul>
+<hr>
+<h3 id="对比总结"><a href="#对比总结" class="headerlink" title="对比总结"></a>对比总结</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left"><code>static</code></th>
+<th align="left"><code>final</code></th>
+<th align="left"><code>static final</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>所属</strong></td>
+<td align="left">属于类，不依赖实例</td>
+<td align="left">属于变量本身，可以是实例变量或类变量</td>
+<td align="left">属于类，是类级别的常量</td>
+</tr>
+<tr>
+<td align="left"><strong>可变性</strong></td>
+<td align="left">值可以改变（除非也用 <code>final</code> 修饰）</td>
+<td align="left">值不可改变</td>
+<td align="left">值不可改变</td>
+</tr>
+<tr>
+<td align="left"><strong>实例共享</strong></td>
+<td align="left">是，所有实例共享一份</td>
+<td align="left">否，每个实例有自己的 <code>final</code> 实例变量（但值固定）</td>
+<td align="left">是，所有实例共享同一个常量值</td>
+</tr>
+<tr>
+<td align="left"><strong>生命周期</strong></td>
+<td align="left">类加载时创建，程序结束时销毁</td>
+<td align="left">实例变量：对象创建时初始化，对象销毁时结束<br>局部变量：方法执行期间</td>
+<td align="left">类加载时初始化，程序结束时销毁</td>
+</tr>
+<tr>
+<td align="left"><strong>典型用途</strong></td>
+<td align="left">计数器、共享资源</td>
+<td align="left">防止变量被意外修改、定义实例常量</td>
+<td align="left">定义全局常量（如配置、数学常数）</td>
+</tr>
+</tbody></table>
+<p><strong>简单记忆</strong>：</p>
+<ul>
+<li><code>static</code> &#x3D; <strong>共享</strong> (One copy for all instances)</li>
+<li><code>final</code> &#x3D; <strong>不变</strong> (Value cannot be changed)</li>
+<li><code>static final</code> &#x3D; <strong>共享且不变</strong> (A constant shared by all instances)</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/static/" rel="tag"># static</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/final/" rel="tag"># final</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/14/%E5%B5%8C%E5%85%A5%E5%BC%8F/Ubuntu%E4%B8%8B%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%AE%9E%E6%88%98/" rel="prev" title="Ubuntu下的交叉编译实战">
+      <i class="fa fa-chevron-left"></i> Ubuntu下的交叉编译实战
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/19/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/MySQL%E5%85%A5%E9%97%A8/" rel="next" title="MySQL入门">
+      MySQL入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java%E4%B8%AD%E7%9A%84static%E5%92%8Cfinal%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">1.</span> <span class="nav-text">Java中的static和final关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-static-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. static 关键字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-final-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. final 关键字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-static-final-%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8"><span class="nav-number">1.0.3.</span> <span class="nav-text">3. static final 组合使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94%E6%80%BB%E7%BB%93"><span class="nav-number">1.0.4.</span> <span class="nav-text">对比总结</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">70</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
