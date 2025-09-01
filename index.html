@@ -177,7 +177,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/09/01/C_C++/%E6%B1%87%E7%BC%96%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">未命名</a>
+            <a href="/2025/09/01/C_C++/%E6%B1%87%E7%BC%96%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">汇编语言入门：从寄存器到指令，手把手教你写汇编</a>
         </h2>
 
         <div class="post-meta">
@@ -188,7 +188,16 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2025-09-01 17:04:44 / 修改时间：17:06:36" itemprop="dateCreated datePublished" datetime="2025-09-01T17:04:44+08:00">2025-09-01</time>
+              <time title="创建时间：2025-09-01 10:00:00 / 修改时间：17:08:22" itemprop="dateCreated datePublished" datetime="2025-09-01T10:00:00+08:00">2025-09-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
             </span>
 
           
@@ -202,361 +211,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>title: 汇编语言入门：从寄存器到指令，手把手教你写汇编          # 文章标题（必填）</p>
-<p>date: 2025-08-15 10:00:00   # 发布时间</p>
-<p>updated: 2025-08-15 12:20:00# 更新时间（可选）</p>
-<p>tags: [汇编语言，x86-64, 底层编程，入门教程]</p>
-<p>categories: [技术，底层原理]</p>
-<p>keywords: 汇编语言入门，x86-64 指令，寄存器操作，汇编实例</p>
-<p>description: 本文以 x86-64 架构（Linux 环境）为基础，从寄存器、指令系统到内存操作，通过 10 + 实例手把手教你入门汇编语言，理解底层代码的执行逻辑。</p>
-<p>comments: true</p>
-<p>提到汇编语言，很多人会觉得 “晦涩难懂”“离日常开发太远”。但实际上，汇编是连接高级语言（C&#x2F;C++&#x2F;Java）与硬件的桥梁 —— 理解汇编，能帮你看清程序的底层执行逻辑，排查性能瓶颈，甚至逆向分析代码。本文以最常用的 x86-64 架构（Linux 系统）为背景，从最基础的 “寄存器” 讲起，通过一个个可运行的实例，带你逐步掌握汇编语言的核心知识。</p>
-<h3 id="一、前置知识：汇编语言的-“世界观”"><a href="#一、前置知识：汇编语言的-“世界观”" class="headerlink" title="一、前置知识：汇编语言的 “世界观”"></a>一、前置知识：汇编语言的 “世界观”</h3><p>在学具体指令前，先搞懂汇编的核心概念，避免后续 confusion：</p>
-<h4 id="1-什么是汇编语言？"><a href="#1-什么是汇编语言？" class="headerlink" title="1. 什么是汇编语言？"></a>1. 什么是汇编语言？</h4><p>汇编语言是<strong>机器指令的符号化表示</strong>—— 每一条汇编指令对应一条 CPU 可直接执行的机器码（二进制）。例如，add rax, rbx 对应二进制 0x48 0x01 0xd8，作用是 “将 rbx 寄存器的值加到 rax 寄存器”。</p>
-<h4 id="2-为什么学-x86-64？"><a href="#2-为什么学-x86-64？" class="headerlink" title="2. 为什么学 x86-64？"></a>2. 为什么学 x86-64？</h4><p>x86-64 是目前 PC、服务器最主流的架构（32 位 x86 的扩展），支持 64 位地址空间，指令集丰富，资料齐全，适合入门。本文所有实例均基于 <strong>Linux 系统的 x86-64 汇编</strong>（AT&amp;T 语法或 Intel 语法，本文以更直观的 Intel 语法为主）。</p>
-<h4 id="3-工具准备"><a href="#3-工具准备" class="headerlink" title="3. 工具准备"></a>3. 工具准备</h4><p>需要 3 个工具：</p>
-<ul>
-<li><p><strong>nasm</strong>：汇编器，将汇编代码（.asm）编译为目标文件（.o）</p>
-</li>
-<li><p><strong>ld</strong>：链接器，将目标文件链接为可执行文件</p>
-</li>
-<li><p><strong>gdb</strong>：调试器，查看汇编代码执行过程</p>
-</li>
-</ul>
-<p>安装命令（Linux）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install nasm binutils gdb</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、核心基础：x86-64-的寄存器"><a href="#二、核心基础：x86-64-的寄存器" class="headerlink" title="二、核心基础：x86-64 的寄存器"></a>二、核心基础：x86-64 的寄存器</h3><p>寄存器是 CPU 内部的高速存储单元（比内存快 100 倍以上），汇编语言的操作几乎都围绕寄存器展开。x86-64 有 16 个通用寄存器，每个 64 位，常用的如下：</p>
-<table>
-<thead>
-<tr>
-<th>寄存器</th>
-<th>用途（Linux 约定）</th>
-<th>32 位别名</th>
-<th>16 位别名</th>
-<th>8 位别名（高 &#x2F; 低）</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>rax</td>
-<td>累加器（返回值）</td>
-<td>eax</td>
-<td>ax</td>
-<td>ah（高 8 位）&#x2F;al（低 8 位）</td>
-</tr>
-<tr>
-<td>rbx</td>
-<td>基址寄存器（通用）</td>
-<td>ebx</td>
-<td>bx</td>
-<td>bh&#x2F;bl</td>
-</tr>
-<tr>
-<td>rcx</td>
-<td>计数器（循环 &#x2F; 函数参数）</td>
-<td>ecx</td>
-<td>cx</td>
-<td>ch&#x2F;cl</td>
-</tr>
-<tr>
-<td>rdx</td>
-<td>数据寄存器（函数参数）</td>
-<td>edx</td>
-<td>dx</td>
-<td>dh&#x2F;dl</td>
-</tr>
-<tr>
-<td>rsi</td>
-<td>源索引（字符串 &#x2F; 数组）</td>
-<td>esi</td>
-<td>si</td>
-<td>sil</td>
-</tr>
-<tr>
-<td>rdi</td>
-<td>目的索引（字符串 &#x2F; 数组）</td>
-<td>edi</td>
-<td>di</td>
-<td>dil</td>
-</tr>
-<tr>
-<td>rbp</td>
-<td>栈基址指针（栈帧）</td>
-<td>ebp</td>
-<td>bp</td>
-<td>bpl</td>
-</tr>
-<tr>
-<td>rsp</td>
-<td>栈指针（栈顶）</td>
-<td>esp</td>
-<td>sp</td>
-<td>spl</td>
-</tr>
-<tr>
-<td>r8-r15</td>
-<td>通用寄存器（64 位新增）</td>
-<td>r8d-r15d</td>
-<td>r8w-r15w</td>
-<td>r8b-r15b</td>
-</tr>
-</tbody></table>
-<p><strong>关键规则</strong>：</p>
-<ul>
-<li><p>64 位寄存器名以r开头（如 rax），32 位以e开头（如 eax），16 位以x结尾（如 ax），8 位以b结尾（如 al）。</p>
-</li>
-<li><p>操作 32 位寄存器会自动将 64 位寄存器的高 32 位清零（如修改 eax，rax 的高 32 位变为 0）。</p>
-</li>
-</ul>
-<h3 id="三、第一个汇编程序：Hello-World"><a href="#三、第一个汇编程序：Hello-World" class="headerlink" title="三、第一个汇编程序：Hello World"></a>三、第一个汇编程序：Hello World</h3><p>和所有语言一样，从 “Hello World” 开始，感受汇编的执行流程。</p>
-<h4 id="实例-1：打印字符串（系统调用方式）"><a href="#实例-1：打印字符串（系统调用方式）" class="headerlink" title="实例 1：打印字符串（系统调用方式）"></a>实例 1：打印字符串（系统调用方式）</h4><p>x86-64 Linux 中，程序通过 “系统调用” 与内核交互（如打印、退出），需要用到以下寄存器：</p>
-<ul>
-<li><p>rax：系统调用号（如 1&#x3D;write，60&#x3D;exit）</p>
-</li>
-<li><p>rdi：第一个参数（如文件描述符，1 &#x3D; 标准输出）</p>
-</li>
-<li><p>rsi：第二个参数（如字符串地址）</p>
-</li>
-<li><p>rdx：第三个参数（如字符串长度）</p>
-</li>
-<li><p>触发系统调用：syscall指令</p>
-</li>
-</ul>
-<p>汇编代码（hello.asm）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">section .data           ; 数据段：存放常量、已初始化数据</span><br><span class="line">    msg db &#x27;Hello, Assembly!&#x27;, 0xA  ; 字符串，0xA是换行符</span><br><span class="line">    len equ $ - msg      ; 计算字符串长度（$表示当前地址，减去msg地址）</span><br><span class="line"></span><br><span class="line">section .text           ; 代码段：存放指令</span><br><span class="line">    global _start        ; 声明入口点（链接器需要）</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    ; 系统调用1：write(1, msg, len)</span><br><span class="line">    mov rax, 1           ; rax=1（write的系统调用号）</span><br><span class="line">    mov rdi, 1           ; rdi=1（标准输出文件描述符）</span><br><span class="line">    mov rsi, msg         ; rsi=msg（字符串地址）</span><br><span class="line">    mov rdx, len         ; rdx=len（字符串长度）</span><br><span class="line">    syscall              ; 触发系统调用</span><br><span class="line"></span><br><span class="line">    ; 系统调用60：exit(0)</span><br><span class="line">    mov rax, 60          ; rax=60（exit的系统调用号）</span><br><span class="line">    mov rdi, 0           ; rdi=0（退出码，0表示正常）</span><br><span class="line">    syscall              ; 触发系统调用</span><br></pre></td></tr></table></figure>
-
-<h4 id="编译与运行："><a href="#编译与运行：" class="headerlink" title="编译与运行："></a>编译与运行：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 1. 汇编：nasm将.asm编译为.o（-f elf64指定64位ELF格式）</span><br><span class="line">nasm -f elf64 hello.asm -o hello.o</span><br><span class="line"></span><br><span class="line"># 2. 链接：ld将.o链接为可执行文件</span><br><span class="line">ld hello.o -o hello</span><br><span class="line"></span><br><span class="line"># 3. 运行</span><br><span class="line">./hello</span><br></pre></td></tr></table></figure>
-
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, Assembly!</span><br></pre></td></tr></table></figure>
-
-<p><strong>代码解析</strong>：</p>
-<ul>
-<li><p>section .data：数据段存放字符串msg和长度len，db表示 “定义字节”（每个字符占 1 字节）。</p>
-</li>
-<li><p>section .text：代码段是程序执行的核心，_start是入口点（类似 C 语言的 main）。</p>
-</li>
-<li><p>mov指令：“移动” 数据（如mov rax, 1是将 1 赋值给 rax）。</p>
-</li>
-<li><p>syscall：触发内核执行对应的系统调用（write 打印，exit 退出）。</p>
-</li>
-</ul>
-<h3 id="四、核心指令：数据操作与运算"><a href="#四、核心指令：数据操作与运算" class="headerlink" title="四、核心指令：数据操作与运算"></a>四、核心指令：数据操作与运算</h3><p>汇编的核心是 “指令”，掌握以下常用指令，就能完成大部分基础逻辑。</p>
-<h4 id="1-数据移动指令：mov"><a href="#1-数据移动指令：mov" class="headerlink" title="1. 数据移动指令：mov"></a>1. 数据移动指令：mov</h4><p>mov 目标, 源：将源操作数的值赋给目标操作数（支持寄存器→寄存器、内存→寄存器、立即数→寄存器）。</p>
-<p><strong>实例 2：mov 指令的用法</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    mov rax, 100         ; 立即数→寄存器（rax=100）</span><br><span class="line">    mov rbx, rax         ; 寄存器→寄存器（rbx=rax=100）</span><br><span class="line">    mov rcx, [var]       ; 内存→寄存器（需先定义var，见下文）</span><br><span class="line">    mov [var2], rbx      ; 寄存器→内存（将rbx的值存到var2地址）</span><br><span class="line"></span><br><span class="line">    ; 退出程序</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br><span class="line"></span><br><span class="line">section .data</span><br><span class="line">    var dq 200           ; dq：定义8字节（64位）数据，var=200</span><br><span class="line">    var2 dq 0            ; var2初始值0</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意</strong>：内存操作需要用[]包裹地址（如[var]表示 “var 地址处的值”），dq表示 “定义 64 位数据”（对应 x86-64 的 qword）。</p>
-<h4 id="2-算术运算指令：add-sub-mul-div"><a href="#2-算术运算指令：add-sub-mul-div" class="headerlink" title="2. 算术运算指令：add&#x2F;sub&#x2F;mul&#x2F;div"></a>2. 算术运算指令：add&#x2F;sub&#x2F;mul&#x2F;div</h4><ul>
-<li><p>add 目标, 源：目标 &#x3D; 目标 + 源</p>
-</li>
-<li><p>sub 目标, 源：目标 &#x3D; 目标 - 源</p>
-</li>
-<li><p>mul 源：无符号乘法（rax &#x3D; rax * 源，64 位结果存 rax+rdx）</p>
-</li>
-<li><p>div 源：无符号除法（rax &#x2F; 源，商存 rax，余数存 rdx）</p>
-</li>
-</ul>
-<p><strong>实例 3：计算 10+20-5，结果存入内存</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">section .data</span><br><span class="line">    result dq 0          ; 存放结果的变量</span><br><span class="line"></span><br><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    mov rax, 10          ; rax=10</span><br><span class="line">    add rax, 20          ; rax=10+20=30</span><br><span class="line">    sub rax, 5           ; rax=30-5=25</span><br><span class="line">    mov [result], rax    ; 将25存入result</span><br><span class="line"></span><br><span class="line">    ; 退出</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<p><strong>验证结果</strong>：用 gdb 调试查看result的值：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb ./a.out</span><br><span class="line">(gdb) break _start+20  # 在退出前打断点</span><br><span class="line">(gdb) run</span><br><span class="line">(gdb) x/q &amp;result       # 查看result的64位值（q=quadword）</span><br><span class="line">0x601008 &lt;result&gt;:     25  # 结果正确</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-比较与分支指令：cmp-jmp-jxx"><a href="#3-比较与分支指令：cmp-jmp-jxx" class="headerlink" title="3. 比较与分支指令：cmp&#x2F;jmp&#x2F;jxx"></a>3. 比较与分支指令：cmp&#x2F;jmp&#x2F;jxx</h4><p>汇编没有if-else，但可以通过 “比较 + 条件跳转” 实现分支逻辑：</p>
-<ul>
-<li><p>cmp a, b：计算 a - b（不修改 a 和 b，只影响标志寄存器）</p>
-</li>
-<li><p>jmp 标签：无条件跳转到标签处</p>
-</li>
-<li><p>jxx 标签：条件跳转（xx 是条件，如 je &#x3D; 等于、jne &#x3D; 不等于、jg &#x3D; 大于）</p>
-</li>
-</ul>
-<p>标志寄存器（rflags）是隐藏的寄存器，cmp指令会修改它的位（如零标志位 ZF：a&#x3D;&#x3D;b 时 ZF&#x3D;1，否则 ZF&#x3D;0），jxx指令根据这些位决定是否跳转。</p>
-<p><strong>实例 4：判断两个数是否相等（if-else 逻辑）</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">section .data</span><br><span class="line">    num1 dq 30</span><br><span class="line">    num2 dq 30</span><br><span class="line">    msg_eq db &#x27;Equal&#x27;, 0xA</span><br><span class="line">    len_eq equ $ - msg_eq</span><br><span class="line">    msg_ne db &#x27;Not Equal&#x27;, 0xA</span><br><span class="line">    len_ne equ $ - msg_ne</span><br><span class="line"></span><br><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    ; 比较num1和num2</span><br><span class="line">    mov rax, [num1]</span><br><span class="line">    mov rbx, [num2]</span><br><span class="line">    cmp rax, rbx         ; rax - rbx，设置标志位</span><br><span class="line">    je equal             ; 如果相等（ZF=1），跳转到equal标签</span><br><span class="line"></span><br><span class="line">    ; 不相等的逻辑：打印Not Equal</span><br><span class="line">not_equal:</span><br><span class="line">    mov rax, 1</span><br><span class="line">    mov rdi, 1</span><br><span class="line">    mov rsi, msg_ne</span><br><span class="line">    mov rdx, len_ne</span><br><span class="line">    syscall</span><br><span class="line">    jmp exit             ; 跳转到exit，避免执行equal的代码</span><br><span class="line"></span><br><span class="line">    ; 相等的逻辑：打印Equal</span><br><span class="line">equal:</span><br><span class="line">    mov rax, 1</span><br><span class="line">    mov rdi, 1</span><br><span class="line">    mov rsi, msg_eq</span><br><span class="line">    mov rdx, len_eq</span><br><span class="line">    syscall</span><br><span class="line"></span><br><span class="line">exit:</span><br><span class="line">    ; 退出</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<p>运行结果：因num1&#x3D;num2&#x3D;30，输出Equal；若修改num2&#x3D;40，则输出Not Equal。</p>
-<h4 id="4-循环指令：loop"><a href="#4-循环指令：loop" class="headerlink" title="4. 循环指令：loop"></a>4. 循环指令：loop</h4><p>loop 标签：实现循环，依赖rcx寄存器（每次循环rcx–，直到rcx&#x3D;0退出循环）。</p>
-<p><strong>实例 5：循环打印 5 次 “Loop”</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">section .data</span><br><span class="line">    msg db &#x27;Loop&#x27;, 0xA</span><br><span class="line">    len equ $ - msg</span><br><span class="line"></span><br><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    mov rcx, 5           ; rcx=5（循环次数）</span><br><span class="line"></span><br><span class="line">loop_label:</span><br><span class="line">    ; 打印msg</span><br><span class="line">    mov rax, 1</span><br><span class="line">    mov rdi, 1</span><br><span class="line">    mov rsi, msg</span><br><span class="line">    mov rdx, len</span><br><span class="line">    syscall</span><br><span class="line"></span><br><span class="line">    loop loop_label      ; rcx--，若rcx≠0则跳回loop_label</span><br><span class="line"></span><br><span class="line">    ; 退出</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<p>运行结果：连续打印 5 次 “Loop”，每次换行。</p>
-<h3 id="五、内存操作：栈与全局变量"><a href="#五、内存操作：栈与全局变量" class="headerlink" title="五、内存操作：栈与全局变量"></a>五、内存操作：栈与全局变量</h3><p>除了寄存器，汇编还需要操作内存 —— 全局变量（.data 段）和栈（临时存储）是两种常用方式。</p>
-<h4 id="1-全局变量（-data-bss-段）"><a href="#1-全局变量（-data-bss-段）" class="headerlink" title="1. 全局变量（.data&#x2F;.bss 段）"></a>1. 全局变量（.data&#x2F;.bss 段）</h4><ul>
-<li><p>.data：存放已初始化的全局变量（如var dq 100）</p>
-</li>
-<li><p>.bss：存放未初始化的全局变量（仅占地址，不占文件空间，初始值 0）</p>
-</li>
-</ul>
-<p><strong>实例 6：使用.bss 段存储临时结果</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">section .bss</span><br><span class="line">    temp resq 1          ; resq 1：预留1个64位（8字节）空间，初始值0</span><br><span class="line"></span><br><span class="line">section .data</span><br><span class="line">    num dq 50</span><br><span class="line"></span><br><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    mov rax, [num]</span><br><span class="line">    add rax, 30          ; rax=50+30=80</span><br><span class="line">    mov [temp], rax      ; 将80存入temp（.bss段）</span><br><span class="line"></span><br><span class="line">    ; 退出</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-栈操作：push-pop"><a href="#2-栈操作：push-pop" class="headerlink" title="2. 栈操作：push&#x2F;pop"></a>2. 栈操作：push&#x2F;pop</h4><p>栈是 “先进后出” 的内存区域，由rsp寄存器指向栈顶（栈向下生长，rsp减小表示栈扩容，增大表示栈收缩）：</p>
-<ul>
-<li><p>push 数据：将数据压入栈（rsp -&#x3D; 8，再存数据到 rsp 地址）</p>
-</li>
-<li><p>pop 目标：将栈顶数据弹出到目标（取 rsp 地址的数据，再 rsp +&#x3D; 8）</p>
-</li>
-</ul>
-<p><strong>实例 7：用栈保存寄存器值（函数调用前常用）</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    mov rax, 100</span><br><span class="line">    mov rbx, 200</span><br><span class="line"></span><br><span class="line">    ; 保存rax和rbx到栈</span><br><span class="line">    push rax</span><br><span class="line">    push rbx</span><br><span class="line"></span><br><span class="line">    ; 修改rax和rbx</span><br><span class="line">    mov rax, 0</span><br><span class="line">    mov rbx, 0</span><br><span class="line"></span><br><span class="line">    ; 从栈恢复rax和rbx（注意顺序：先push的后pop）</span><br><span class="line">    pop rbx              ; rbx恢复为200</span><br><span class="line">    pop rax              ; rax恢复为100</span><br><span class="line"></span><br><span class="line">    ; 退出</span><br><span class="line">    mov rax, 60</span><br><span class="line">    mov rdi, 0</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<p><strong>为什么用栈？</strong>：当需要临时修改寄存器（如函数调用），又不想丢失原有值时，用栈保存是标准做法。</p>
-<h3 id="六、汇编与-C-的关联：反汇编看本质"><a href="#六、汇编与-C-的关联：反汇编看本质" class="headerlink" title="六、汇编与 C 的关联：反汇编看本质"></a>六、汇编与 C 的关联：反汇编看本质</h3><p>学汇编的重要目的是理解高级语言的底层执行逻辑。通过gcc将 C 代码反汇编，能直观看到汇编与 C 的对应关系。</p>
-<p><strong>实例 8：C 代码反汇编</strong></p>
-<p>写一个简单的 C 程序（add.c）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">    int a = 10;</span><br><span class="line">    int b = 20;</span><br><span class="line">    int c = a + b;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译并反汇编：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 编译为汇编代码（-S选项生成.s文件）</span><br><span class="line">gcc -S -masm=intel add.c -o add.s</span><br><span class="line"></span><br><span class="line"># 查看汇编代码</span><br><span class="line">cat add.s</span><br></pre></td></tr></table></figure>
-
-<p>关键汇编代码（精简）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">main:</span><br><span class="line">    push rbp              ; 保存旧栈基址</span><br><span class="line">    mov rbp, rsp          ; 设置新栈基址（栈帧初始化）</span><br><span class="line">    sub rsp, 16           ; 栈扩容16字节（存放a、b、c）</span><br><span class="line"></span><br><span class="line">    mov DWORD PTR [rbp-4], 10  ; a=10（rbp-4是a的地址）</span><br><span class="line">    mov DWORD PTR [rbp-8], 20  ; b=20（rbp-8是b的地址）</span><br><span class="line">    mov eax&lt;/doubaocanvas&gt;</span><br><span class="line"></span><br><span class="line">	mov eax, DWORD PTR [rbp-4]  ; eax = a（将 a 的值加载到 eax）</span><br><span class="line"></span><br><span class="line">	add eax, DWORD PTR [rbp-8]  ; eax = a + b（累加后存入 eax）</span><br><span class="line"></span><br><span class="line">	mov DWORD PTR [rbp-12], eax ; c = eax（将结果存入 c 的地址）</span><br><span class="line"></span><br><span class="line">	mov eax, 0                  ; main 函数返回值 0（存入 eax）</span><br><span class="line"></span><br><span class="line">	leave                       ; 等价于 mov rsp, rbp + pop rbp（销毁栈帧）</span><br><span class="line"></span><br><span class="line">	ret                         ; 返回到调用者（如操作系统）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><strong>代码解析</strong>：</p>
-<ul>
-<li>栈帧初始化：<code>push rbp</code> + <code>mov rbp, rsp</code> 是函数入口的标准操作，用于创建独立的栈帧（每个函数有自己的栈空间），<code>sub rsp, 16</code> 为局部变量 <code>a</code>、<code>b</code>、<code>c</code> 分配16字节栈空间（实际仅用12字节，编译器会按对齐规则分配）。</li>
-<li>局部变量存储：<code>[rbp-4]</code> 是 <code>a</code> 的地址、<code>[rbp-8]</code> 是 <code>b</code> 的地址、<code>[rbp-12]</code> 是 <code>c</code> 的地址，均基于栈基址 <code>rbp</code> 偏移，确保地址唯一。</li>
-<li>返回值传递：C语言函数的返回值默认通过 <code>eax</code>（32位）或 <code>rax</code>（64位）寄存器传递，因此 <code>main</code> 函数将返回值0存入 <code>eax</code>。</li>
-<li>栈帧销毁：<code>leave</code> 指令恢复栈指针和栈基址，<code>ret</code> 指令从栈中取出返回地址，跳回调用者，完成函数退出。</li>
-</ul>
-<h3 id="七、进阶实例：汇编实现函数调用"><a href="#七、进阶实例：汇编实现函数调用" class="headerlink" title="七、进阶实例：汇编实现函数调用"></a>七、进阶实例：汇编实现函数调用</h3><p>在高级语言中，函数调用是核心逻辑，汇编通过“栈传参+<code>call</code>&#x2F;<code>ret</code> 指令”实现函数调用，遵循特定的调用约定（x86-64 Linux 遵循 System V AMD64 ABI 约定）。</p>
-<h4 id="调用约定核心规则（64位）："><a href="#调用约定核心规则（64位）：" class="headerlink" title="调用约定核心规则（64位）："></a>调用约定核心规则（64位）：</h4><ol>
-<li>前6个参数依次通过 <code>rdi</code>、<code>rsi</code>、<code>rdx</code>、<code>rcx</code>、<code>r8</code>、<code>r9</code> 寄存器传递，超过6个的参数通过栈传递。</li>
-<li>函数返回值通过 <code>rax</code> 寄存器传递。</li>
-<li>调用者需为被调用者预留“影子空间”（128字节栈空间，用于被调用者临时存储寄存器），但简单函数可省略。</li>
-</ol>
-<h4 id="实例9：汇编实现函数调用（计算两数之和）"><a href="#实例9：汇编实现函数调用（计算两数之和）" class="headerlink" title="实例9：汇编实现函数调用（计算两数之和）"></a>实例9：汇编实现函数调用（计算两数之和）</h4><p>编写一个 <code>add_num</code> 函数，接收两个参数并返回和，在 <code>_start</code> 中调用该函数。</p>
-<p>汇编代码（func_call.asm）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">; 函数：add_num(a, b)，返回a + b</span><br><span class="line">; 参数：a -&gt; rdi，b -&gt; rsi</span><br><span class="line">; 返回值：a + b -&gt; rax</span><br><span class="line">add_num:</span><br><span class="line">    mov rax, rdi        ; rax = a</span><br><span class="line">    add rax, rsi        ; rax = a + b</span><br><span class="line">    ret                 ; 返回，rax中的值即为返回值</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    ; 准备参数：调用add_num(15, 25)</span><br><span class="line">    mov rdi, 15         ; 第一个参数a=15</span><br><span class="line">    mov rsi, 25         ; 第二个参数b=25</span><br><span class="line">    call add_num        ; 调用函数，返回值存入rax（此时rax=40）</span><br><span class="line"></span><br><span class="line">    ; 退出程序（返回值存入rdi，作为退出码）</span><br><span class="line">    mov rdi, rax        ; 退出码=40（验证函数返回值）</span><br><span class="line">    mov rax, 60</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<h4 id="编译运行与验证："><a href="#编译运行与验证：" class="headerlink" title="编译运行与验证："></a>编译运行与验证：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nasm -f elf64 func_call.asm -o func_call.o</span><br><span class="line">ld func_call.o -o func_call</span><br><span class="line">./func_call</span><br><span class="line">echo $?  # 查看程序退出码（应输出40，即函数返回值）</span><br></pre></td></tr></table></figure>
-
-<p><strong>代码解析</strong>：</p>
-<ul>
-<li><p>函数定义：add_num 函数接收 rdi（a）和 rsi（b）传递的参数，计算和后存入 rax，通过 ret 指令返回。</p>
-</li>
-<li><p>函数调用：call add_num 指令会先将下一条指令的地址（返回地址）压入栈，再跳转到 add_num 函数入口；函数执行完 ret 指令时，会从栈中取出返回地址，跳回 _start 继续执行。</p>
-</li>
-<li><p>返回值验证：通过将 rax（函数返回值）存入 rdi 作为程序退出码，用 echo $? 查看退出码，验证函数调用结果是否正确。</p>
-</li>
-</ul>
-<h4 id="实例-10：汇编调用-C-函数（混合编程）"><a href="#实例-10：汇编调用-C-函数（混合编程）" class="headerlink" title="实例 10：汇编调用 C 函数（混合编程）"></a>实例 10：汇编调用 C 函数（混合编程）</h4><p>汇编不仅能自己写函数，还能调用 C 语言编写的函数，实现 “汇编 + C” 混合编程，降低复杂逻辑的编写难度。</p>
-<p>步骤 1：编写 C 函数（add_c.c）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// C函数：接收两个整数，返回和</span><br><span class="line">int add_c(int a, int b) &#123;</span><br><span class="line">    return a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>步骤 2：编写汇编代码（call_c.asm），调用 add_c 函数</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">extern add_c  ; 声明外部C函数（告诉汇编器该函数在其他文件中定义）</span><br><span class="line">section .text</span><br><span class="line">global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    ; 准备参数：调用add_c(30, 40)（参数通过rdi、rsi传递）</span><br><span class="line">    mov rdi, 30         ; 第一个参数a=30</span><br><span class="line">    mov rsi, 40         ; 第二个参数b=40</span><br><span class="line">    call add_c          ; 调用C函数，返回值存入rax（此时rax=70）</span><br><span class="line"></span><br><span class="line">    ; 退出程序，退出码=70</span><br><span class="line">    mov rdi, rax</span><br><span class="line">    mov rax, 60</span><br><span class="line">    syscall</span><br></pre></td></tr></table></figure>
-
-<p>步骤 3：编译链接（需将 C 文件和汇编文件一起链接）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 1. 编译C文件为目标文件（-c表示只编译不链接）</span><br><span class="line">gcc -c -fPIC add_c.c -o add_c.o</span><br><span class="line"></span><br><span class="line"># 2. 编译汇编文件为目标文件</span><br><span class="line">nasm -f elf64 call_c.asm -o call_c.o</span><br><span class="line"></span><br><span class="line"># 3. 链接两个目标文件（需指定C标准库，否则会报错）</span><br><span class="line">gcc call_c.o add_c.o -o call_c -nostdlib -lc -lgcc</span><br><span class="line"></span><br><span class="line"># 4. 运行并验证</span><br><span class="line">./call_c</span><br><span class="line">echo $?  # 输出70，验证C函数调用成功</span><br></pre></td></tr></table></figure>
-
-<p><strong>关键说明</strong>：</p>
-<ul>
-<li><p>extern add_c：汇编中声明外部函数，表明 add_c 由其他文件（如 C 文件）定义，避免汇编器报错。</p>
-</li>
-<li><p>链接选项：-nostdlib 表示不链接默认的标准库启动文件，-lc 链接 C 标准库（add_c 函数依赖），-lgcc 链接 GCC 支持库，确保函数调用正常。</p>
-</li>
-<li><p>混合编程优势：复杂逻辑（如字符串处理、数学计算）用 C 编写更高效，简单的底层操作（如系统调用、寄存器控制）用汇编实现，兼顾开发效率和底层控制能力。</p>
-</li>
-</ul>
-<h3 id="八、汇编调试：用-GDB-查看执行过程"><a href="#八、汇编调试：用-GDB-查看执行过程" class="headerlink" title="八、汇编调试：用 GDB 查看执行过程"></a>八、汇编调试：用 GDB 查看执行过程</h3><p>汇编代码的执行逻辑较抽象，通过 GDB 调试能直观看到寄存器、内存、指令的变化，是理解汇编的重要手段。</p>
-<h4 id="实例-11：用-GDB-调试-Hello-World-程序"><a href="#实例-11：用-GDB-调试-Hello-World-程序" class="headerlink" title="实例 11：用 GDB 调试 Hello World 程序"></a>实例 11：用 GDB 调试 Hello World 程序</h4><p>以实例 1 的 hello.asm 为例，演示 GDB 调试步骤：</p>
-<ol>
-<li><strong>编译时保留调试信息</strong>：汇编时添加 -g 选项，生成包含调试信息的目标文件</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nasm -f elf64 -g hello.asm -o hello.o</span><br><span class="line">ld hello.o -o hello</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><strong>启动 GDB 调试</strong></li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb ./hello</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><strong>常用 GDB 调试命令</strong></li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>命令</th>
-<th>功能</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>b 标签</td>
-<td>在指定标签处设置断点</td>
-<td>b _start（在_start处断点）</td>
-</tr>
-<tr>
-<td>run</td>
-<td>启动程序</td>
-<td>run</td>
-</tr>
-<tr>
-<td>nexti</td>
-<td>执行一条汇编指令（单步执行）</td>
-<td>nexti（简写ni）</td>
-</tr>
-<tr>
-<td>info registers</td>
-<td>查看所有寄存器的值</td>
-<td>info registers（简写i r）</td>
-</tr>
-<tr>
-<td>x&#x2F;格式 地址</td>
-<td>查看内存内容</td>
-<td>x&#x2F;s msg（查看msg地址的字符串）</td>
-</tr>
-<tr>
-<td>continue</td>
-<td>继续执行到下一个断点</td>
-<td>continue（简写c）</td>
-</tr>
-<tr>
-<td>quit</td>
-<td>退出 GDB</td>
-<td>quit（简写q）</td>
-</tr>
-</tbody></table>
-<ol>
-<li><strong>调试流程示例</strong></li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b _start        # 在程序入口设置断点</span><br><span class="line">(gdb) run             # 启动程序，停在_start断点</span><br><span class="line">(gdb) ni              # 执行第一条指令mov rax, 1</span><br><span class="line">(gdb) i r rax         # 查看rax寄存器，应显示rax=0x1</span><br><span class="line">(gdb) ni              # 执行mov rdi, 1</span><br><span class="line">(gdb) i r rdi         # 查看rdi寄存器，应显示rdi=0x1</span><br><span class="line">(gdb) x/s msg         # 查看msg地址的字符串，显示&quot;Hello, Assembly!\n&quot;</span><br><span class="line">(gdb) c               # 继续执行，直到程序退出</span><br><span class="line">(gdb) q               # 退出GDB</span><br></pre></td></tr></table></figure>
-
-<p>通过调试，能清晰看到每条指令执行后寄存器的变化（如 rax 从 0 变为 1、rdi 从 0 变为 1），以及内存中字符串的实际存储，帮助理解汇编代码的执行逻辑。</p>
-<h3 id="九、学习汇编的常见误区与建议"><a href="#九、学习汇编的常见误区与建议" class="headerlink" title="九、学习汇编的常见误区与建议"></a>九、学习汇编的常见误区与建议</h3><h4 id="1-常见误区"><a href="#1-常见误区" class="headerlink" title="1. 常见误区"></a>1. 常见误区</h4><ul>
-<li><p><strong>“汇编只能操作寄存器，不能用变量”</strong>：错误。汇编可通过全局变量（.data&#x2F;.bss段）和局部变量（栈空间）存储数据，只是需要手动管理地址。</p>
-</li>
-<li><p><strong>“学汇编必须背所有指令”</strong>：错误。入门阶段只需掌握常用指令（mov&#x2F;add&#x2F;sub&#x2F;cmp&#x2F;jmp&#x2F;call&#x2F;ret），复杂指令可在需要时查阅文档（如 Intel 官方指令集手册）。</p>
-</li>
-<li><p><strong>“汇编效率一定比 C 高”</strong>：错误。现代编译器（如 GCC、Clang）的优化能力极强，简单逻辑的汇编代码效率往往不如编译器优化后的 C 代码；只有对性能敏感的核心逻辑（如加密、算法），手动编写汇编才可能提升效率。</p>
-</li>
-</ul>
-<h4 id="2-学习建议"><a href="#2-学习建议" class="headerlink" title="2. 学习建议"></a>2. 学习建议</h4><ul>
-<li><p><strong>从简单实例入手</strong>：先实现 Hello World、算术计算、循环等基础功能，再逐步尝试函数调用、混合编程，避免一开始接触复杂逻辑。</p>
-</li>
-<li><p><strong>结合反汇编学习</strong>：将 C 代码反汇编，对比 C 与汇编的对应关系，理解高级语言的底层实现，如循环对应loop指令、if-else对应cmp+jxx指令。</p>
-</li>
-<li><p><strong>多动手调试</strong>：通过 GDB 查看寄存器和内存变化，验证自己对指令执行逻辑的理解是否正确，调试是掌握汇编的关键。</p>
-</li>
-<li><p><strong>查阅官方文档</strong>：遇到不熟悉的指令或调用约定，参考 Intel 64 and IA-32 Architectures Software Developer’s Manual（Intel 官方指令集手册）或 System V AMD64 ABI（调用约定文档），确保知识的准确性。</p>
-</li>
-</ul>
-<h3 id="十、总结"><a href="#十、总结" class="headerlink" title="十、总结"></a>十、总结</h3><p>汇编语言虽然是底层语言，但并非 “高深莫测”—— 它的核心是 “寄存器操作 + 指令执行 + 内存管理”，通过本文的 11 个实例，你已掌握 x86-64 汇编的基础：</p>
-<ol>
-<li><p><strong>寄存器</strong>：了解 16 个通用寄存器的用途，掌握 64 位 &#x2F; 32 位 &#x2F; 16 位 &#x2F; 8 位寄存器的别名与使用规则。</p>
-</li>
-<li><p><strong>核心指令</strong>：熟练使用mov（数据移动）、add&#x2F;sub（算术运算）、cmp&#x2F;jxx（分支）、loop（循环）、call&#x2F;ret（函数调用）等指令。</p>
-</li>
-<li><p><strong>内存操作</strong>：学会用.data&#x2F;.bss段存储全局变量，用栈存储局部变量，理解栈帧的创建与销毁。</p>
-</li>
-<li><p><strong>混合编程</strong>：掌握汇编调用 C 函数的方法，实现 “汇编 + C” 协同开发，兼顾底层控制与开发效率。</p>
-</li>
-</ol>
-<p>学习汇编的价值，不仅在于能编写底层代码，更在于理解程序的执行本质 —— 当你能看懂 C 代码对应的汇编逻辑，就能更清晰地排查性能瓶颈（如冗余指令）、理解内存布局（如栈溢出原理），甚至为后续学习逆向工程、操作系统内核打下基础。</p>
-<p>后续可进一步学习高级主题，如浮点数操作、SIMD 指令（向量计算）、系统调用深入解析等，逐步提升汇编能力。</p>
-
+          <p>本文以 x86-64 架构（Linux 环境）为基础，从寄存器、指令系统到内存操作，通过 10 + 实例手把手教你入门汇编语言，理解底层代码的执行逻辑。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/09/01/C_C++/%E6%B1%87%E7%BC%96%E5%85%A5%E9%97%A8/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1336,7 +999,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">78</span>
+        <span class="site-state-item-count">80</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
