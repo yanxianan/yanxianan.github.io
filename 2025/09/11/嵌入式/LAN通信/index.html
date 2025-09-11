@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍LAN通信相关知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LAN 通信详解：从原理到实践的局域网技术指南">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/LAN%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍LAN通信相关知识。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-11T01:30:00.000Z">
+<meta property="article:modified_time" content="2025-09-11T12:20:23.957Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="LAN 通信，局域网，以太网，TCP&#x2F;IP">
+<meta property="article:tag" content="嵌入式网络">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/LAN%E9%80%9A%E4%BF%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LAN 通信详解：从原理到实践的局域网技术指南 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/LAN%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LAN 通信详解：从原理到实践的局域网技术指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-11 09:30:00 / 修改时间：20:20:23" itemprop="dateCreated datePublished" datetime="2025-09-11T09:30:00+08:00">2025-09-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍LAN通信相关知识。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在数字化时代，局域网（LAN，Local Area Network）是连接设备、实现数据交互的基础 —— 从家庭中的路由器连接电脑与智能设备，到工业场景中 PLC 与传感器的通信，再到数据中心内服务器的集群交互，都依赖 LAN 通信技术。本文将从 LAN 通信的核心原理入手，拆解关键技术、协议栈及典型应用，同时分享嵌入式场景下 LAN 通信的调试技巧，帮你全面掌握局域网通信的底层逻辑与实践方法。</p>
+<h2 id="一、LAN-通信基础：什么是局域网？"><a href="#一、LAN-通信基础：什么是局域网？" class="headerlink" title="一、LAN 通信基础：什么是局域网？"></a>一、LAN 通信基础：什么是局域网？</h2><p>LAN（局域网）是指在<strong>有限地理范围</strong>（如一栋楼、一个办公室、一个家庭）内，将多台设备（计算机、嵌入式设备、打印机等）通过物理介质（网线、WiFi）连接形成的网络。其核心特点是：</p>
+<ul>
+<li><p><strong>地理范围小</strong>：通常覆盖范围不超过几公里，区别于广域网（WAN，如互联网）；</p>
+</li>
+<li><p><strong>传输速率高</strong>：主流以太网速率已达 100Mbps、1Gbps，甚至 10Gbps，满足高频数据交互需求；</p>
+</li>
+<li><p><strong>延迟低</strong>：设备间通信延迟通常在毫秒级，适合实时性要求高的场景（如工业控制、游戏）；</p>
+</li>
+<li><p><strong>成本低</strong>：硬件（交换机、网线）价格亲民，部署维护简单。</p>
+</li>
+</ul>
+<p>常见的 LAN 通信介质分为两类：</p>
+<ol>
+<li><p><strong>有线介质</strong>：以以太网网线（CAT5&#x2F;CAT6）为代表，传输稳定、抗干扰能力强，适合工业控制、服务器集群等对可靠性要求高的场景；</p>
+</li>
+<li><p><strong>无线介质</strong>：以 WiFi（802.11 系列协议）为代表，无需布线、灵活性高，适合家庭、办公场景中的移动设备（手机、笔记本）。</p>
+</li>
+</ol>
+<h2 id="二、LAN-通信的核心技术：协议栈与关键协议"><a href="#二、LAN-通信的核心技术：协议栈与关键协议" class="headerlink" title="二、LAN 通信的核心技术：协议栈与关键协议"></a>二、LAN 通信的核心技术：协议栈与关键协议</h2><p>LAN 通信的正常运行依赖 “分层协议栈”—— 不同层级负责不同功能，从物理层的信号传输到应用层的业务数据交互，形成完整的通信链路。最常用的是<strong>TCP&#x2F;IP 协议栈</strong>（与 OSI 七层模型对应），在 LAN 场景中核心涉及以下层级：</p>
+<h3 id="1-物理层：信号的-“传输载体”"><a href="#1-物理层：信号的-“传输载体”" class="headerlink" title="1. 物理层：信号的 “传输载体”"></a>1. 物理层：信号的 “传输载体”</h3><p>物理层是 LAN 通信的 “硬件基础”，负责将数字信号转换为物理介质可传输的电信号 &#x2F; 光信号，定义介质类型、接口标准、传输速率等。</p>
+<ul>
+<li><p><strong>有线 LAN（以太网）</strong>：</p>
+</li>
+<li><ul>
+<li>接口：RJ45 水晶头（常见于网卡、交换机）；</li>
+</ul>
+</li>
+<li><ul>
+<li>信号：差分信号（抗干扰），如 100Mbps 以太网采用曼彻斯特编码，1Gbps 及以上采用 4B&#x2F;5B 编码；</li>
+</ul>
+</li>
+<li><ul>
+<li>传输距离：CAT5 网线单段最大传输距离 100 米，超过需通过交换机中继。</li>
+</ul>
+</li>
+<li><p><strong>无线 LAN（WiFi）</strong>：</p>
+</li>
+<li><ul>
+<li>频段：2.4GHz（覆盖广、速率低，最高 300Mbps）、5GHz（速率高、覆盖窄，最高数 Gbps）；</li>
+</ul>
+</li>
+<li><ul>
+<li>调制方式：OFDM（正交频分复用），通过多子载波并行传输提升速率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-数据链路层：设备的-“身份识别”-与-“帧传输”"><a href="#2-数据链路层：设备的-“身份识别”-与-“帧传输”" class="headerlink" title="2. 数据链路层：设备的 “身份识别” 与 “帧传输”"></a>2. 数据链路层：设备的 “身份识别” 与 “帧传输”</h3><p>数据链路层负责将物理层的信号封装为 “数据帧”，实现局域网内设备的精准通信，核心协议是<strong>以太网协议（Ethernet）</strong> 和<strong>ARP 协议</strong>。</p>
+<h4 id="（1）以太网帧：LAN-通信的-“数据包裹”"><a href="#（1）以太网帧：LAN-通信的-“数据包裹”" class="headerlink" title="（1）以太网帧：LAN 通信的 “数据包裹”"></a>（1）以太网帧：LAN 通信的 “数据包裹”</h4><p>以太网帧是 LAN 内数据传输的基本单位，结构如下（简化版）：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>长度（字节）</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目的 MAC 地址</td>
+<td>6</td>
+<td>接收设备的物理地址（唯一标识）</td>
+</tr>
+<tr>
+<td>源 MAC 地址</td>
+<td>6</td>
+<td>发送设备的物理地址</td>
+</tr>
+<tr>
+<td>类型 &#x2F; 长度</td>
+<td>2</td>
+<td>标识上层协议（如 0x0800 表示 IP 协议）</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>46-1500</td>
+<td>上层协议数据（如 IP 数据包）</td>
+</tr>
+<tr>
+<td>FCS</td>
+<td>4</td>
+<td>校验和（检测帧传输是否出错）</td>
+</tr>
+</tbody></table>
+<p><strong>关键概念：MAC 地址</strong></p>
+<p>MAC 地址是设备网卡的物理地址，由 48 位二进制数组成（如00:1A:2B:3C:4D:5E），前 24 位为厂商代码（由 IEEE 分配），后 24 位为厂商自定义编号，确保全球唯一 —— 这是 LAN 内设备 “身份识别” 的核心，交换机通过 MAC 地址表实现 “帧转发”。</p>
+<h4 id="（2）ARP-协议：从-IP-地址到-MAC-地址的-“翻译官”"><a href="#（2）ARP-协议：从-IP-地址到-MAC-地址的-“翻译官”" class="headerlink" title="（2）ARP 协议：从 IP 地址到 MAC 地址的 “翻译官”"></a>（2）ARP 协议：从 IP 地址到 MAC 地址的 “翻译官”</h4><p>LAN 内通信时，设备通常已知目标设备的 IP 地址（如 <a target="_blank" rel="noopener" href="http://192.168.1.10/">192.168.1.10</a>），但需要 MAC 地址才能封装以太网帧 ——ARP 协议（地址解析协议）负责实现 “IP 地址→MAC 地址” 的映射。</p>
+<ul>
+<li><strong>工作流程</strong>：</li>
+</ul>
+<ol>
+<li><ol>
+<li>发送设备（如 IP：<a target="_blank" rel="noopener" href="http://192.168.1.20/">192.168.1.20</a>）广播 ARP 请求帧：“谁是 <a target="_blank" rel="noopener" href="http://192.168.1.10/">192.168.1.10</a>？请回复你的 MAC 地址”；</li>
+</ol>
+</li>
+<li><ol>
+<li>局域网内所有设备接收请求，仅目标设备（<a target="_blank" rel="noopener" href="http://192.168.1.10/">192.168.1.10</a>）回复 ARP 响应帧，包含自身 MAC 地址；</li>
+</ol>
+</li>
+<li><ol>
+<li>发送设备将 “IP→MAC” 映射存入 ARP 缓存表，后续通信直接使用该映射，无需重复广播。</li>
+</ol>
+</li>
+</ol>
+<p><strong>实例：查看 ARP 缓存表</strong></p>
+<p>在 Linux&#x2F;Windows 终端中，可通过命令查看 ARP 缓存：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Linux系统</span><br><span class="line">arp -a</span><br><span class="line"># 输出示例：? (192.168.1.10) at 00:1a:2b:3c:4d:5e [ether] on eth0</span><br><span class="line"></span><br><span class="line"># Windows系统</span><br><span class="line">arp -a</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-网络层：LAN-内的-“路由与转发”"><a href="#3-网络层：LAN-内的-“路由与转发”" class="headerlink" title="3. 网络层：LAN 内的 “路由与转发”"></a>3. 网络层：LAN 内的 “路由与转发”</h3><p>网络层负责实现 LAN 内设备的 IP 地址管理与数据包路由，核心协议是<strong>IP 协议（IPv4&#x2F;IPv6）</strong>。</p>
+<ul>
+<li><p><strong>IP 地址</strong>：LAN 内设备的逻辑地址（如 <a target="_blank" rel="noopener" href="http://192.168.1.20/">192.168.1.20</a>），由 “网络段 + 主机段” 组成，通过子网掩码（如 <a target="_blank" rel="noopener" href="http://255.255.255.0/">255.255.255.0</a>）区分；</p>
+</li>
+<li><p><strong>LAN 内路由</strong>：若设备在同一子网（如 <a target="_blank" rel="noopener" href="http://192.168.1.20/">192.168.1.20</a> 和 <a target="_blank" rel="noopener" href="http://192.168.1.10/">192.168.1.10</a>，子网掩码 <a target="_blank" rel="noopener" href="http://255.255.255.0/">255.255.255.0</a>），数据包直接通过数据链路层传输；若跨子网，则需通过路由器转发（但 LAN 场景多为同一子网，路由需求较少）。</p>
+</li>
+</ul>
+<h3 id="4-传输层：数据的-“可靠-快速传输”"><a href="#4-传输层：数据的-“可靠-快速传输”" class="headerlink" title="4. 传输层：数据的 “可靠 &#x2F; 快速传输”"></a>4. 传输层：数据的 “可靠 &#x2F; 快速传输”</h3><p>传输层负责为应用层提供端到端的通信服务，LAN 场景中最常用的是<strong>TCP 协议</strong>和<strong>UDP 协议</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TCP</td>
+<td>面向连接、可靠传输（重传、流量控制）、有序</td>
+<td>文件传输（FTP）、数据交互（HTTP）、工业控制</td>
+</tr>
+<tr>
+<td>UDP</td>
+<td>无连接、不可靠、高速传输</td>
+<td>实时视频（RTSP）、传感器数据（MQTT）、广播</td>
+</tr>
+</tbody></table>
+<p><strong>实例：LAN 内 TCP 通信流程</strong></p>
+<ol>
+<li><p>客户端（如 <a target="_blank" rel="noopener" href="http://192.168.1.20:8080/">192.168.1.20:8080</a>）向服务器（<a target="_blank" rel="noopener" href="http://192.168.1.10/">192.168.1.10:80</a>）发起 TCP 三次握手，建立连接；</p>
+</li>
+<li><p>客户端发送数据（如 HTTP 请求），TCP 通过序号、确认号确保数据有序且不丢失；</p>
+</li>
+<li><p>服务器处理请求后返回响应数据，TCP 通过滑动窗口实现流量控制，避免发送过快导致接收端溢出；</p>
+</li>
+<li><p>通信结束后，双方发起 TCP 四次挥手，释放连接。</p>
+</li>
+</ol>
+<h2 id="三、LAN-通信的典型应用场景"><a href="#三、LAN-通信的典型应用场景" class="headerlink" title="三、LAN 通信的典型应用场景"></a>三、LAN 通信的典型应用场景</h2><p>LAN 通信广泛应用于家庭、办公、工业等领域，不同场景的技术选型与配置重点不同：</p>
+<h3 id="1-家庭-LAN：WiFi-以太网混合组网"><a href="#1-家庭-LAN：WiFi-以太网混合组网" class="headerlink" title="1. 家庭 LAN：WiFi + 以太网混合组网"></a>1. 家庭 LAN：WiFi + 以太网混合组网</h3><p>家庭场景中，通常以<strong>无线路由器</strong>为核心，构建 “有线 + 无线” 混合 LAN：</p>
+<ul>
+<li><p>有线连接：路由器 LAN 口通过网线连接台式机、智能电视（传输稳定，适合大流量场景）；</p>
+</li>
+<li><p>无线连接：手机、笔记本、智能家居（如扫地机器人、摄像头）通过 WiFi 连接路由器；</p>
+</li>
+<li><p>核心配置：路由器分配 LAN 内 IP 地址（如 <a target="_blank" rel="noopener" href="http://192.168.3.0/24">192.168.3.0&#x2F;24</a> 网段），所有设备在同一子网，可互相访问（如手机访问台式机共享文件夹）。</p>
+</li>
+</ul>
+<h3 id="2-工业-LAN：高可靠、低延迟的工业以太网"><a href="#2-工业-LAN：高可靠、低延迟的工业以太网" class="headerlink" title="2. 工业 LAN：高可靠、低延迟的工业以太网"></a>2. 工业 LAN：高可靠、低延迟的工业以太网</h3><p>工业场景对 LAN 通信的 “可靠性”“实时性” 要求极高（如生产线控制、设备监控），通常采用<strong>工业以太网</strong>技术：</p>
+<ul>
+<li><p>协议：在标准以太网基础上优化，如 Profinet、EtherNet&#x2F;IP，支持实时数据传输（延迟 &lt; 1ms）；</p>
+</li>
+<li><p>拓扑：采用环网拓扑（如冗余环），某一段网线故障时，数据可通过备用路径传输，避免网络中断；</p>
+</li>
+<li><p>硬件：工业级交换机、网线（抗电磁干扰、耐高低温），适应工厂恶劣环境。</p>
+</li>
+</ul>
+<h3 id="3-嵌入式-LAN：设备的-“联网能力”-实现"><a href="#3-嵌入式-LAN：设备的-“联网能力”-实现" class="headerlink" title="3. 嵌入式 LAN：设备的 “联网能力” 实现"></a>3. 嵌入式 LAN：设备的 “联网能力” 实现</h3><p>嵌入式设备（如 PLC、传感器、智能硬件）通过 LAN 通信接入网络，通常需要以下步骤：</p>
+<ol>
+<li><p><strong>硬件选型</strong>：集成以太网控制器（如 ENC28J60、W5500）或 WiFi 模块（如 ESP8266、ESP32）；</p>
+</li>
+<li><p><strong>驱动开发</strong>：在嵌入式系统（如 Linux、RT-Thread）中编写网卡驱动，实现数据链路层通信；</p>
+</li>
+<li><p><strong>协议栈移植</strong>：移植 LwIP（轻量级 TCP&#x2F;IP 协议栈），支持 IP、TCP、UDP 等协议；</p>
+</li>
+<li><p><strong>应用开发</strong>：基于 Socket 编程实现业务逻辑，如通过 TCP 与上位机通信，或通过 UDP 发送传感器数据。</p>
+</li>
+</ol>
+<p><strong>实例：嵌入式设备 LAN 通信代码片段（LwIP+UDP）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;lwip/socket.h&quot;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#define DEST_IP &quot;192.168.1.100&quot;  // 目标设备IP</span><br><span class="line">#define DEST_PORT 8888           // 目标端口</span><br><span class="line"></span><br><span class="line">void udp_send_data(const char* data, int len) &#123;</span><br><span class="line">    int sockfd;</span><br><span class="line">    struct sockaddr_in dest_addr;</span><br><span class="line"></span><br><span class="line">    // 创建UDP socket</span><br><span class="line">    sockfd = socket(AF_INET, SOCK_DGRAM, 0);</span><br><span class="line">    if (sockfd &lt; 0) &#123;</span><br><span class="line">        printf(&quot;Socket create failed!\n&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 配置目标地址</span><br><span class="line">    memset(&amp;dest_addr, 0, sizeof(dest_addr));</span><br><span class="line">    dest_addr.sin_family = AF_INET;</span><br><span class="line">    dest_addr.sin_port = htons(DEST_PORT);</span><br><span class="line">    inet_aton(DEST_IP, &amp;dest_addr.sin_addr);</span><br><span class="line"></span><br><span class="line">    // 发送数据</span><br><span class="line">    sendto(sockfd, data, len, 0, (struct sockaddr*)&amp;dest_addr, sizeof(dest_addr));</span><br><span class="line">    printf(&quot;Send data: %s\n&quot;, data);</span><br><span class="line"></span><br><span class="line">    // 关闭socket</span><br><span class="line">    close(sockfd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、LAN-通信调试：常见问题与排查方法"><a href="#四、LAN-通信调试：常见问题与排查方法" class="headerlink" title="四、LAN 通信调试：常见问题与排查方法"></a>四、LAN 通信调试：常见问题与排查方法</h2><p>在 LAN 通信开发中，常遇到 “设备无法联网”“数据传输丢包”“延迟过高” 等问题，以下是实用的调试工具与排查流程：</p>
+<h3 id="1-基础连通性排查：ping-命令"><a href="#1-基础连通性排查：ping-命令" class="headerlink" title="1. 基础连通性排查：ping 命令"></a>1. 基础连通性排查：ping 命令</h3><p>ping是 LAN 通信调试的 “第一工具”，通过 ICMP 协议测试设备间的连通性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 测试与192.168.1.10的连通性（Linux/Windows通用）</span><br><span class="line">ping 192.168.1.10</span><br><span class="line"></span><br><span class="line"># 关键输出解读：</span><br><span class="line"># &quot;64 bytes from 192.168.1.10: icmp_seq=1 ttl=64 time=0.500 ms&quot;：连通正常，延迟0.5ms；</span><br><span class="line"># &quot;Request timeout for icmp_seq=1&quot;：超时，设备未响应（可能IP错误、防火墙拦截、设备离线）；</span><br><span class="line"># &quot;Destination host unreachable&quot;：目标不可达（可能子网掩码错误、路由配置问题）。</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口通信排查：telnet-netcat"><a href="#2-端口通信排查：telnet-netcat" class="headerlink" title="2. 端口通信排查：telnet&#x2F;netcat"></a>2. 端口通信排查：telnet&#x2F;netcat</h3><p>若应用层使用 TCP 协议，可通过telnet或nc（netcat）测试端口是否开放、能否建立连接：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 方法1：telnet测试192.168.1.10的8080端口</span><br><span class="line">telnet 192.168.1.10 8080</span><br><span class="line"># 成功：显示&quot;Connected to 192.168.1.10&quot;；失败：显示&quot;Connection refused&quot;（端口未开放）</span><br><span class="line"></span><br><span class="line"># 方法2：nc测试UDP端口（-u表示UDP）</span><br><span class="line">nc -u 192.168.1.10 8888</span><br><span class="line"># 输入数据并回车，若目标设备能接收，则通信正常</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-数据包分析：Wireshark-抓包"><a href="#3-数据包分析：Wireshark-抓包" class="headerlink" title="3. 数据包分析：Wireshark 抓包"></a>3. 数据包分析：Wireshark 抓包</h3><p>Wireshark 是 LAN 通信的 “显微镜”，可捕获局域网内的数据包，分析协议交互过程，定位丢包、协议错误等问题：</p>
+<ul>
+<li><strong>操作步骤</strong>：</li>
+</ul>
+<ol>
+<li><ol>
+<li>打开 Wireshark，选择 LAN 网卡（如 eth0、WiFi）；</li>
+</ol>
+</li>
+<li><ol>
+<li>设置过滤条件（如ip.addr &#x3D;&#x3D; <a target="_blank" rel="noopener" href="http://192.168.1.20/">192.168.1.20</a>，仅显示目标设备的数据包）；</li>
+</ol>
+</li>
+<li><ol>
+<li>触发通信（如发送数据），Wireshark 捕获数据包；</li>
+</ol>
+</li>
+<li><ol>
+<li>分析数据包：查看以太网帧、IP 包、TCP&#x2F;UDP 段的结构，判断是否存在帧丢失、校验错误、协议字段异常。</li>
+</ol>
+</li>
+</ol>
+<p><strong>常见问题定位</strong>：</p>
+<ul>
+<li><p>若仅能捕获 ARP 请求，无 ARP 响应：可能目标设备 IP 错误、MAC 地址冲突；</p>
+</li>
+<li><p>若 TCP 三次握手失败（仅 SYN 包，无 SYN+ACK 包）：可能目标设备端口未监听、防火墙拦截；</p>
+</li>
+<li><p>若数据包存在大量重传（TCP Dup ACK）：可能网线接触不良、信号干扰导致丢包。</p>
+</li>
+</ul>
+<h3 id="4-工业-LAN-特殊排查：环网冗余测试"><a href="#4-工业-LAN-特殊排查：环网冗余测试" class="headerlink" title="4. 工业 LAN 特殊排查：环网冗余测试"></a>4. 工业 LAN 特殊排查：环网冗余测试</h3><p>工业环网场景中，需测试 “冗余切换” 功能：</p>
+<ol>
+<li><p>正常状态下，通过 Wireshark 查看数据包传输路径；</p>
+</li>
+<li><p>断开环网中某一段网线，观察设备是否能在 100ms 内切换到备用路径；</p>
+</li>
+<li><p>检查切换后的数据是否连续，无丢失或重复（可通过应用层数据序号验证）。</p>
+</li>
+</ol>
+<h2 id="五、LAN-通信的发展趋势"><a href="#五、LAN-通信的发展趋势" class="headerlink" title="五、LAN 通信的发展趋势"></a>五、LAN 通信的发展趋势</h2><p>随着物联网、工业 4.0 的推进，LAN 通信正朝着以下方向发展：</p>
+<ol>
+<li><p><strong>更高速率</strong>：从 1Gbps 以太网向 10Gbps、25Gbps 升级，满足高清视频、大数据传输需求；</p>
+</li>
+<li><p><strong>更低延迟</strong>：工业以太网延迟逐步降至微秒级（如 Time-Sensitive Networking，TSN 协议），支持实时控制场景；</p>
+</li>
+<li><p><strong>无线化</strong>：WiFi 6&#x2F;6E、5G-Advanced 技术在 LAN 场景中的应用增加，实现 “有线级可靠性” 的无线通信；</p>
+</li>
+<li><p><strong>智能化</strong>：LAN 设备（交换机、路由器）集成 AI 功能，支持自动故障诊断、流量优化、安全防护（如入侵检测）。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>LAN 通信是连接设备的 “基础纽带”，从物理层的信号传输到应用层的业务交互，每一层都有明确的协议与技术支撑。无论是家庭场景的 WiFi 组网、工业场景的实时控制，还是嵌入式设备的联网实现，理解 LAN 通信的原理、掌握调试方法都是关键。</p>
+<p>对于嵌入式工程师而言，需重点关注 “硬件驱动→协议栈移植→应用开发” 的全流程，结合ping、Wireshark 等工具排查问题；对于普通用户或运维人员，需熟悉 LAN 的基本配置与连通性测试，确保网络稳定运行。随着技术的发展，LAN 通信将持续进化，为更复杂的场景提供高效、可靠的连接能力。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LAN-%E9%80%9A%E4%BF%A1%EF%BC%8C%E5%B1%80%E5%9F%9F%E7%BD%91%EF%BC%8C%E4%BB%A5%E5%A4%AA%E7%BD%91%EF%BC%8CTCP-IP/" rel="tag"># LAN 通信，局域网，以太网，TCP/IP</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%BD%91%E7%BB%9C/" rel="tag"># 嵌入式网络</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/01/C_C++/%E6%B1%87%E7%BC%96%E5%85%A5%E9%97%A8/" rel="prev" title="汇编语言入门：从寄存器到指令，手把手教你写汇编">
+      <i class="fa fa-chevron-left"></i> 汇编语言入门：从寄存器到指令，手把手教你写汇编
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E5%91%BD%E4%BB%A4/" rel="next" title="Linux系统常用命令大全">
+      Linux系统常用命令大全 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81LAN-%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E5%B1%80%E5%9F%9F%E7%BD%91%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、LAN 通信基础：什么是局域网？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81LAN-%E9%80%9A%E4%BF%A1%E7%9A%84%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF%EF%BC%9A%E5%8D%8F%E8%AE%AE%E6%A0%88%E4%B8%8E%E5%85%B3%E9%94%AE%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.</span> <span class="nav-text">二、LAN 通信的核心技术：协议栈与关键协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%89%A9%E7%90%86%E5%B1%82%EF%BC%9A%E4%BF%A1%E5%8F%B7%E7%9A%84-%E2%80%9C%E4%BC%A0%E8%BE%93%E8%BD%BD%E4%BD%93%E2%80%9D"><span class="nav-number">2.1.</span> <span class="nav-text">1. 物理层：信号的 “传输载体”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%EF%BC%9A%E8%AE%BE%E5%A4%87%E7%9A%84-%E2%80%9C%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB%E2%80%9D-%E4%B8%8E-%E2%80%9C%E5%B8%A7%E4%BC%A0%E8%BE%93%E2%80%9D"><span class="nav-number">2.2.</span> <span class="nav-text">2. 数据链路层：设备的 “身份识别” 与 “帧传输”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%B8%A7%EF%BC%9ALAN-%E9%80%9A%E4%BF%A1%E7%9A%84-%E2%80%9C%E6%95%B0%E6%8D%AE%E5%8C%85%E8%A3%B9%E2%80%9D"><span class="nav-number">2.2.1.</span> <span class="nav-text">（1）以太网帧：LAN 通信的 “数据包裹”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89ARP-%E5%8D%8F%E8%AE%AE%EF%BC%9A%E4%BB%8E-IP-%E5%9C%B0%E5%9D%80%E5%88%B0-MAC-%E5%9C%B0%E5%9D%80%E7%9A%84-%E2%80%9C%E7%BF%BB%E8%AF%91%E5%AE%98%E2%80%9D"><span class="nav-number">2.2.2.</span> <span class="nav-text">（2）ARP 协议：从 IP 地址到 MAC 地址的 “翻译官”</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%BD%91%E7%BB%9C%E5%B1%82%EF%BC%9ALAN-%E5%86%85%E7%9A%84-%E2%80%9C%E8%B7%AF%E7%94%B1%E4%B8%8E%E8%BD%AC%E5%8F%91%E2%80%9D"><span class="nav-number">2.3.</span> <span class="nav-text">3. 网络层：LAN 内的 “路由与转发”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BC%A0%E8%BE%93%E5%B1%82%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%9A%84-%E2%80%9C%E5%8F%AF%E9%9D%A0-%E5%BF%AB%E9%80%9F%E4%BC%A0%E8%BE%93%E2%80%9D"><span class="nav-number">2.4.</span> <span class="nav-text">4. 传输层：数据的 “可靠 &#x2F; 快速传输”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81LAN-%E9%80%9A%E4%BF%A1%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">三、LAN 通信的典型应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%B6%E5%BA%AD-LAN%EF%BC%9AWiFi-%E4%BB%A5%E5%A4%AA%E7%BD%91%E6%B7%B7%E5%90%88%E7%BB%84%E7%BD%91"><span class="nav-number">3.1.</span> <span class="nav-text">1. 家庭 LAN：WiFi + 以太网混合组网</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B7%A5%E4%B8%9A-LAN%EF%BC%9A%E9%AB%98%E5%8F%AF%E9%9D%A0%E3%80%81%E4%BD%8E%E5%BB%B6%E8%BF%9F%E7%9A%84%E5%B7%A5%E4%B8%9A%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="nav-number">3.2.</span> <span class="nav-text">2. 工业 LAN：高可靠、低延迟的工业以太网</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B5%8C%E5%85%A5%E5%BC%8F-LAN%EF%BC%9A%E8%AE%BE%E5%A4%87%E7%9A%84-%E2%80%9C%E8%81%94%E7%BD%91%E8%83%BD%E5%8A%9B%E2%80%9D-%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.3.</span> <span class="nav-text">3. 嵌入式 LAN：设备的 “联网能力” 实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81LAN-%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%EF%BC%9A%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">四、LAN 通信调试：常见问题与排查方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E8%BF%9E%E9%80%9A%E6%80%A7%E6%8E%92%E6%9F%A5%EF%BC%9Aping-%E5%91%BD%E4%BB%A4"><span class="nav-number">4.1.</span> <span class="nav-text">1. 基础连通性排查：ping 命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%AB%AF%E5%8F%A3%E9%80%9A%E4%BF%A1%E6%8E%92%E6%9F%A5%EF%BC%9Atelnet-netcat"><span class="nav-number">4.2.</span> <span class="nav-text">2. 端口通信排查：telnet&#x2F;netcat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%95%B0%E6%8D%AE%E5%8C%85%E5%88%86%E6%9E%90%EF%BC%9AWireshark-%E6%8A%93%E5%8C%85"><span class="nav-number">4.3.</span> <span class="nav-text">3. 数据包分析：Wireshark 抓包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%B7%A5%E4%B8%9A-LAN-%E7%89%B9%E6%AE%8A%E6%8E%92%E6%9F%A5%EF%BC%9A%E7%8E%AF%E7%BD%91%E5%86%97%E4%BD%99%E6%B5%8B%E8%AF%95"><span class="nav-number">4.4.</span> <span class="nav-text">4. 工业 LAN 特殊排查：环网冗余测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81LAN-%E9%80%9A%E4%BF%A1%E7%9A%84%E5%8F%91%E5%B1%95%E8%B6%8B%E5%8A%BF"><span class="nav-number">5.</span> <span class="nav-text">五、LAN 通信的发展趋势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">83</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
