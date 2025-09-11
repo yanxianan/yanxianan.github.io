@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文整理了Linux系统从基础到进阶的常用命令，涵盖文件操作、系统管理、网络配置等场景，每个命令均附带具体实例，适合新手快速上手。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux系统常用命令大全">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文整理了Linux系统从基础到进阶的常用命令，涵盖文件操作、系统管理、网络配置等场景，每个命令均附带具体实例，适合新手快速上手。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-11T07:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-11T12:18:17.565Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="命令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux系统常用命令大全 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/11/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux系统常用命令大全
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-11 15:00:00 / 修改时间：20:18:17" itemprop="dateCreated datePublished" datetime="2025-09-11T15:00:00+08:00">2025-09-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文整理了Linux系统从基础到进阶的常用命令，涵盖文件操作、系统管理、网络配置等场景，每个命令均附带具体实例，适合新手快速上手。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Linux系统的强大之处在于其丰富的命令行工具，无论是日常操作、系统管理还是开发调试，命令行都能提供高效的解决方案。本文精选了Linux系统中最常用的命令，从基础的文件操作到复杂的系统监控，每个命令都配有实际场景的使用例子，帮助你快速掌握Linux命令行技能。</p>
+<h3 id="一、文件与目录操作命令"><a href="#一、文件与目录操作命令" class="headerlink" title="一、文件与目录操作命令"></a>一、文件与目录操作命令</h3><h4 id="1-ls：列出目录内容"><a href="#1-ls：列出目录内容" class="headerlink" title="1. ls：列出目录内容"></a>1. <code>ls</code>：列出目录内容</h4><p><strong>功能</strong>：查看当前目录或指定目录下的文件和子目录。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-l</code>：以长格式显示（权限、所有者、大小、修改时间等）</li>
+<li><code>-a</code>：显示所有文件（包括隐藏文件，以<code>.</code>开头的文件）</li>
+<li><code>-h</code>：以人类可读的单位显示文件大小（如K、M、G）</li>
+<li><code>-t</code>：按修改时间排序（最新的在前）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 列出当前目录所有文件（包括隐藏文件）的详细信息</span></span><br><span class="line"><span class="built_in">ls</span> -la</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出/var/log目录下的文件，按大小排序（从大到小）</span></span><br><span class="line"><span class="built_in">ls</span> -lhS /var/log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只列出当前目录下的子目录</span></span><br><span class="line"><span class="built_in">ls</span> -d */</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-cd：切换目录"><a href="#2-cd：切换目录" class="headerlink" title="2. cd：切换目录"></a>2. <code>cd</code>：切换目录</h4><p><strong>功能</strong>：切换当前工作目录。</p>
+<p><strong>特殊路径</strong>：</p>
+<ul>
+<li><code>~</code>：当前用户的家目录</li>
+<li><code>.</code>：当前目录</li>
+<li><code>..</code>：上一级目录</li>
+<li><code>-</code>：上一次所在的目录</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 切换到用户家目录</span></span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到上一级目录</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到/tmp目录</span></span><br><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换回上一次所在的目录</span></span><br><span class="line"><span class="built_in">cd</span> -</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-pwd：显示当前目录路径"><a href="#3-pwd：显示当前目录路径" class="headerlink" title="3. pwd：显示当前目录路径"></a>3. <code>pwd</code>：显示当前目录路径</h4><p><strong>功能</strong>：打印当前工作目录的绝对路径。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显示当前所在目录</span></span><br><span class="line"><span class="built_in">pwd</span></span><br><span class="line"><span class="comment"># 输出：/home/user/documents</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-mkdir：创建目录"><a href="#4-mkdir：创建目录" class="headerlink" title="4. mkdir：创建目录"></a>4. <code>mkdir</code>：创建目录</h4><p><strong>功能</strong>：创建新的目录。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-p</code>：递归创建目录（若父目录不存在则自动创建）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在当前目录创建单个目录</span></span><br><span class="line"><span class="built_in">mkdir</span> projects</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归创建多级目录（如创建a/b/c，即使a和b不存在）</span></span><br><span class="line"><span class="built_in">mkdir</span> -p a/b/c</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建多个目录</span></span><br><span class="line"><span class="built_in">mkdir</span> docs images downloads</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-rm：删除文件或目录"><a href="#5-rm：删除文件或目录" class="headerlink" title="5. rm：删除文件或目录"></a>5. <code>rm</code>：删除文件或目录</h4><p><strong>功能</strong>：删除指定的文件或目录（危险操作，谨慎使用）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-f</code>：强制删除（不提示确认）</li>
+<li><code>-r</code>：递归删除目录及其内容</li>
+<li><code>-i</code>：删除前提示确认</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除单个文件（会提示确认）</span></span><br><span class="line"><span class="built_in">rm</span> file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制删除多个文件</span></span><br><span class="line"><span class="built_in">rm</span> -f temp1.txt temp2.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归删除目录及其所有内容（危险！）</span></span><br><span class="line"><span class="built_in">rm</span> -rf old_projects/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除目录前逐一确认</span></span><br><span class="line"><span class="built_in">rm</span> -ri data/</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-cp：复制文件或目录"><a href="#6-cp：复制文件或目录" class="headerlink" title="6. cp：复制文件或目录"></a>6. <code>cp</code>：复制文件或目录</h4><p><strong>功能</strong>：复制文件或目录到指定位置。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-i</code>：若目标文件存在，提示是否覆盖</li>
+<li><code>-r</code>：递归复制目录及其内容</li>
+<li><code>-v</code>：显示复制过程</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 复制文件到指定目录</span></span><br><span class="line"><span class="built_in">cp</span> report.pdf ~/documents/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制文件并改名</span></span><br><span class="line"><span class="built_in">cp</span> image.jpg backup_image.jpg</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归复制目录到目标位置</span></span><br><span class="line"><span class="built_in">cp</span> -r projects/ /backup/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制多个文件到目录</span></span><br><span class="line"><span class="built_in">cp</span> *.txt ~/text_files/</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-mv：移动或重命名文件-目录"><a href="#7-mv：移动或重命名文件-目录" class="headerlink" title="7. mv：移动或重命名文件&#x2F;目录"></a>7. <code>mv</code>：移动或重命名文件&#x2F;目录</h4><p><strong>功能</strong>：移动文件&#x2F;目录到新位置，或重命名文件&#x2F;目录。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重命名文件</span></span><br><span class="line"><span class="built_in">mv</span> oldname.txt newname.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动文件到目录</span></span><br><span class="line"><span class="built_in">mv</span> document.pdf ~/archive/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动多个文件到目录</span></span><br><span class="line"><span class="built_in">mv</span> *.<span class="built_in">log</span> /var/log/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重命名目录</span></span><br><span class="line"><span class="built_in">mv</span> photos/ vacation_photos/</span><br></pre></td></tr></table></figure>
+
+<h4 id="8-find：查找文件或目录"><a href="#8-find：查找文件或目录" class="headerlink" title="8. find：查找文件或目录"></a>8. <code>find</code>：查找文件或目录</h4><p><strong>功能</strong>：在指定目录下按名称、类型、大小等条件查找文件。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-name</code>：按文件名查找（支持通配符<code>*</code>和<code>?</code>）</li>
+<li><code>-type</code>：按类型查找（<code>f</code>为文件，<code>d</code>为目录）</li>
+<li><code>-size</code>：按大小查找（<code>+10M</code>表示大于10M，<code>-1k</code>表示小于1k）</li>
+<li><code>-mtime</code>：按修改时间查找（<code>-7</code>表示7天内修改的）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在当前目录及子目录查找所有.txt文件</span></span><br><span class="line">find . -name <span class="string">&quot;*.txt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在/var目录查找最近3天内修改的.log文件</span></span><br><span class="line">find /var -name <span class="string">&quot;*.log&quot;</span> -mtime -3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找系统中大于100M的文件</span></span><br><span class="line">find / -<span class="built_in">type</span> f -size +100M</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找/home目录下所有名为docs的目录</span></span><br><span class="line">find /home -<span class="built_in">type</span> d -name <span class="string">&quot;docs&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="9-grep：文本搜索工具"><a href="#9-grep：文本搜索工具" class="headerlink" title="9. grep：文本搜索工具"></a>9. <code>grep</code>：文本搜索工具</h4><p><strong>功能</strong>：在文件中搜索匹配指定模式的文本行。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-i</code>：忽略大小写</li>
+<li><code>-n</code>：显示匹配行的行号</li>
+<li><code>-r</code>：递归搜索目录下的所有文件</li>
+<li><code>-v</code>：显示不匹配的行</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在file.txt中查找包含&quot;error&quot;的行（忽略大小写）</span></span><br><span class="line">grep -i <span class="string">&quot;error&quot;</span> file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在当前目录所有.php文件中查找&quot;function&quot;并显示行号</span></span><br><span class="line">grep -rn <span class="string">&quot;function&quot;</span> *.php</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找/var/log/syslog中不包含&quot;INFO&quot;的行</span></span><br><span class="line">grep -v <span class="string">&quot;INFO&quot;</span> /var/log/syslog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找包含&quot;user&quot;且紧接着&quot;name&quot;的行（使用正则表达式）</span></span><br><span class="line">grep -E <span class="string">&quot;user.*name&quot;</span> data.txt</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="二、文件内容操作命令"><a href="#二、文件内容操作命令" class="headerlink" title="二、文件内容操作命令"></a>二、文件内容操作命令</h3><h4 id="1-cat：查看文件内容"><a href="#1-cat：查看文件内容" class="headerlink" title="1. cat：查看文件内容"></a>1. <code>cat</code>：查看文件内容</h4><p><strong>功能</strong>：连接并打印文件内容（适合查看小型文件）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-n</code>：显示行号</li>
+<li><code>-b</code>：只对非空行显示行号</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看文件内容</span></span><br><span class="line"><span class="built_in">cat</span> readme.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示文件内容并带行号</span></span><br><span class="line"><span class="built_in">cat</span> -n config.ini</span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并多个文件内容到新文件</span></span><br><span class="line"><span class="built_in">cat</span> part1.txt part2.txt &gt; combined.txt</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-less-more：分页查看文件内容"><a href="#2-less-more：分页查看文件内容" class="headerlink" title="2. less&#x2F;more：分页查看文件内容"></a>2. <code>less</code>&#x2F;<code>more</code>：分页查看文件内容</h4><p><strong>功能</strong>：分页显示大型文件内容（<code>less</code>功能更强大，支持上下滚动和搜索）。</p>
+<p><strong>常用操作（<code>less</code>中）</strong>：</p>
+<ul>
+<li><code>空格键</code>：翻页</li>
+<li><code>b</code>：向上翻页</li>
+<li><code>/关键词</code>：向下搜索关键词</li>
+<li><code>q</code>：退出</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分页查看大型日志文件</span></span><br><span class="line">less /var/log/syslog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在查看过程中搜索&quot;error&quot;</span></span><br><span class="line"><span class="comment"># 输入 /error 然后按回车，按n查看下一个匹配</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-head-tail：查看文件开头-结尾内容"><a href="#3-head-tail：查看文件开头-结尾内容" class="headerlink" title="3. head&#x2F;tail：查看文件开头&#x2F;结尾内容"></a>3. <code>head</code>&#x2F;<code>tail</code>：查看文件开头&#x2F;结尾内容</h4><p><strong>功能</strong>：</p>
+<ul>
+<li><code>head</code>：显示文件开头的几行（默认10行）</li>
+<li><code>tail</code>：显示文件结尾的几行（默认10行）</li>
+</ul>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-n</code>：指定显示的行数</li>
+<li><code>-f</code>：实时跟踪文件新增内容（常用于监控日志）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看文件前5行</span></span><br><span class="line"><span class="built_in">head</span> -n 5 access.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看文件最后20行</span></span><br><span class="line"><span class="built_in">tail</span> -n 20 error.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时监控日志文件新增内容（按Ctrl+C退出）</span></span><br><span class="line"><span class="built_in">tail</span> -f /var/log/apache2/access.log</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-wc：统计文件内容"><a href="#4-wc：统计文件内容" class="headerlink" title="4. wc：统计文件内容"></a>4. <code>wc</code>：统计文件内容</h4><p><strong>功能</strong>：统计文件的行数、单词数、字节数。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-l</code>：只统计行数</li>
+<li><code>-w</code>：只统计单词数</li>
+<li><code>-c</code>：只统计字节数</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 统计文件的行数、单词数、字节数</span></span><br><span class="line"><span class="built_in">wc</span> document.txt</span><br><span class="line"><span class="comment"># 输出：  150   850  12500 document.txt（行数 单词数 字节数）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计当前目录下所有.txt文件的总行数</span></span><br><span class="line"><span class="built_in">wc</span> -l *.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计一个目录下的文件总数（通过管道结合ls）</span></span><br><span class="line"><span class="built_in">ls</span> | <span class="built_in">wc</span> -l</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="三、系统管理命令"><a href="#三、系统管理命令" class="headerlink" title="三、系统管理命令"></a>三、系统管理命令</h3><h4 id="1-top-htop：查看系统进程和资源占用"><a href="#1-top-htop：查看系统进程和资源占用" class="headerlink" title="1. top&#x2F;htop：查看系统进程和资源占用"></a>1. <code>top</code>&#x2F;<code>htop</code>：查看系统进程和资源占用</h4><p><strong>功能</strong>：实时显示系统进程的CPU、内存占用情况（<code>htop</code>是<code>top</code>的增强版，界面更友好）。</p>
+<p><strong>常用操作（<code>top</code>中）</strong>：</p>
+<ul>
+<li><code>P</code>：按CPU使用率排序</li>
+<li><code>M</code>：按内存使用率排序</li>
+<li><code>k</code>：终止指定进程（输入进程ID）</li>
+<li><code>q</code>：退出</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动top监控</span></span><br><span class="line">top</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装并启动htop（部分系统需先安装）</span></span><br><span class="line"><span class="built_in">sudo</span> apt install htop  <span class="comment"># Debian/Ubuntu</span></span><br><span class="line">htop</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-ps：查看进程状态"><a href="#2-ps：查看进程状态" class="headerlink" title="2. ps：查看进程状态"></a>2. <code>ps</code>：查看进程状态</h4><p><strong>功能</strong>：显示当前系统的进程快照（静态查看）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>aux</code>：显示所有用户的所有进程（最常用组合）</li>
+<li><code>-ef</code>：显示进程的详细信息（包括父进程ID）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看系统中所有进程（常用）</span></span><br><span class="line">ps aux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找特定进程（如nginx）</span></span><br><span class="line">ps aux | grep nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示进程树（父子关系）</span></span><br><span class="line">ps -ef --forest</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-kill-pkill：终止进程"><a href="#3-kill-pkill：终止进程" class="headerlink" title="3. kill&#x2F;pkill：终止进程"></a>3. <code>kill</code>&#x2F;<code>pkill</code>：终止进程</h4><p><strong>功能</strong>：向进程发送信号（默认是终止信号）。</p>
+<p><strong>常用信号</strong>：</p>
+<ul>
+<li><code>15</code>（SIGTERM）：正常终止（默认）</li>
+<li><code>9</code>（SIGKILL）：强制终止（无法被进程捕获）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 通过进程ID终止进程（先通过ps找到PID）</span></span><br><span class="line"><span class="built_in">kill</span> 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制终止进程</span></span><br><span class="line"><span class="built_in">kill</span> -9 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过进程名终止进程（更方便）</span></span><br><span class="line">pkill nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制终止所有包含&quot;python&quot;的进程</span></span><br><span class="line">pkill -9 python</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-df-du：查看磁盘空间"><a href="#4-df-du：查看磁盘空间" class="headerlink" title="4. df&#x2F;du：查看磁盘空间"></a>4. <code>df</code>&#x2F;<code>du</code>：查看磁盘空间</h4><p><strong>功能</strong>：</p>
+<ul>
+<li><code>df</code>：显示磁盘分区的使用情况</li>
+<li><code>du</code>：显示文件或目录的磁盘占用情况</li>
+</ul>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-h</code>：以人类可读的单位显示（K、M、G）</li>
+<li><code>-s</code>：<code>du</code>专用，显示总大小（不显示子目录详情）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有磁盘分区的使用情况</span></span><br><span class="line"><span class="built_in">df</span> -h</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前目录的总大小</span></span><br><span class="line"><span class="built_in">du</span> -sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前目录下各子目录的大小（按大小排序）</span></span><br><span class="line"><span class="built_in">du</span> -h --max-depth=1 | <span class="built_in">sort</span> -hr</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看/var目录的磁盘占用</span></span><br><span class="line"><span class="built_in">du</span> -sh /var</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-free：查看内存使用情况"><a href="#5-free：查看内存使用情况" class="headerlink" title="5. free：查看内存使用情况"></a>5. <code>free</code>：查看内存使用情况</h4><p><strong>功能</strong>：显示系统内存（物理内存和交换分区）的使用情况。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-h</code>：以人类可读的单位显示</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看内存使用情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="comment"># 输出示例：</span></span><br><span class="line"><span class="comment">#              total        used        free      shared  buff/cache   available</span></span><br><span class="line"><span class="comment"># Mem:           15G        8.2G        2.1G        512M        5.2G        7.0G</span></span><br><span class="line"><span class="comment"># Swap:          2.0G        512M        1.5G</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="四、用户与权限管理命令"><a href="#四、用户与权限管理命令" class="headerlink" title="四、用户与权限管理命令"></a>四、用户与权限管理命令</h3><h4 id="1-sudo：以超级用户权限执行命令"><a href="#1-sudo：以超级用户权限执行命令" class="headerlink" title="1. sudo：以超级用户权限执行命令"></a>1. <code>sudo</code>：以超级用户权限执行命令</h4><p><strong>功能</strong>：允许普通用户以root权限执行指定命令（需在<code>sudoers</code>文件中配置权限）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以root权限安装软件</span></span><br><span class="line"><span class="built_in">sudo</span> apt install nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑系统配置文件（通常需要root权限）</span></span><br><span class="line"><span class="built_in">sudo</span> vim /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到root用户（需输入当前用户密码）</span></span><br><span class="line"><span class="built_in">sudo</span> su -</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-chmod：修改文件权限"><a href="#2-chmod：修改文件权限" class="headerlink" title="2. chmod：修改文件权限"></a>2. <code>chmod</code>：修改文件权限</h4><p><strong>功能</strong>：改变文件或目录的访问权限（读<code>r</code>、写<code>w</code>、执行<code>x</code>）。</p>
+<p><strong>权限表示方式</strong>：</p>
+<ul>
+<li>符号表示：<code>u</code>（所有者）、<code>g</code>（所属组）、<code>o</code>（其他用户）；<code>+</code>（添加）、<code>-</code>（移除）、<code>=</code>（设置）</li>
+<li>数字表示：<code>r=4</code>、<code>w=2</code>、<code>x=1</code>，三者之和表示权限（如<code>755</code>表示<code>rwxr-xr-x</code>）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 给文件所有者添加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> u+x script.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移除其他用户的写权限</span></span><br><span class="line"><span class="built_in">chmod</span> o-w data.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置文件权限为所有者可读可写可执行，同组和其他用户可读可执行（755）</span></span><br><span class="line"><span class="built_in">chmod</span> 755 program</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归设置目录及其内容的权限（所有者可读可写，同组和其他用户只读）</span></span><br><span class="line"><span class="built_in">chmod</span> -R 644 documents/</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-chown：修改文件所有者"><a href="#3-chown：修改文件所有者" class="headerlink" title="3. chown：修改文件所有者"></a>3. <code>chown</code>：修改文件所有者</h4><p><strong>功能</strong>：改变文件或目录的所有者和所属组。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将file.txt的所有者改为user1</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> user1 file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将目录web/的所有者改为user1，所属组改为group1</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> user1:group1 web/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归修改目录及其内容的所有者和所属组</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -R www-data:www-data /var/www/html/</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="五、网络相关命令"><a href="#五、网络相关命令" class="headerlink" title="五、网络相关命令"></a>五、网络相关命令</h3><h4 id="1-ping：测试网络连接"><a href="#1-ping：测试网络连接" class="headerlink" title="1. ping：测试网络连接"></a>1. <code>ping</code>：测试网络连接</h4><p><strong>功能</strong>：向目标主机发送ICMP请求，检查网络连通性。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-c</code>：指定发送包的数量</li>
+<li><code>-i</code>：指定发送间隔（秒）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试与百度的连接（发送4个包）</span></span><br><span class="line">ping -c 4 baidu.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试与局域网内主机的连接</span></span><br><span class="line">ping 192.168.1.1</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-ifconfig-ip：查看网络接口信息"><a href="#2-ifconfig-ip：查看网络接口信息" class="headerlink" title="2. ifconfig&#x2F;ip：查看网络接口信息"></a>2. <code>ifconfig</code>&#x2F;<code>ip</code>：查看网络接口信息</h4><p><strong>功能</strong>：显示或配置网络接口（<code>ip</code>是新一代工具，逐步替代<code>ifconfig</code>）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有网络接口信息（旧方式）</span></span><br><span class="line">ifconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有网络接口信息（新方式，推荐）</span></span><br><span class="line">ip addr</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用或禁用网络接口（需root权限）</span></span><br><span class="line"><span class="built_in">sudo</span> ifconfig eth0 up   <span class="comment"># 启用eth0</span></span><br><span class="line"><span class="built_in">sudo</span> ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 down  <span class="comment"># 禁用eth0</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-netstat-ss：查看网络连接"><a href="#3-netstat-ss：查看网络连接" class="headerlink" title="3. netstat&#x2F;ss：查看网络连接"></a>3. <code>netstat</code>&#x2F;<code>ss</code>：查看网络连接</h4><p><strong>功能</strong>：显示网络连接、路由表、端口监听等信息（<code>ss</code>是<code>netstat</code>的替代工具，性能更好）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有监听端口（包括TCP和UDP）</span></span><br><span class="line">netstat -tuln</span><br><span class="line">ss -tuln</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有已建立的TCP连接</span></span><br><span class="line">netstat -tuan</span><br><span class="line">ss -tuan</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查找占用80端口的进程</span></span><br><span class="line">netstat -tulnp | grep :80</span><br><span class="line">ss -tulnp | grep :80</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-curl-wget：下载文件或测试HTTP请求"><a href="#4-curl-wget：下载文件或测试HTTP请求" class="headerlink" title="4. curl&#x2F;wget：下载文件或测试HTTP请求"></a>4. <code>curl</code>&#x2F;<code>wget</code>：下载文件或测试HTTP请求</h4><p><strong>功能</strong>：</p>
+<ul>
+<li><code>curl</code>：发送HTTP请求，支持多种协议，适合测试API</li>
+<li><code>wget</code>：下载文件，支持断点续传</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用curl获取网页内容</span></span><br><span class="line">curl https://example.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用curl发送POST请求</span></span><br><span class="line">curl -X POST -d <span class="string">&quot;name=test&quot;</span> https://api.example.com/submit</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用wget下载文件</span></span><br><span class="line">wget https://example.com/file.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 断点续传下载</span></span><br><span class="line">wget -c https://example.com/large_file.iso</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="六、压缩与解压命令"><a href="#六、压缩与解压命令" class="headerlink" title="六、压缩与解压命令"></a>六、压缩与解压命令</h3><h4 id="1-tar：打包与压缩文件"><a href="#1-tar：打包与压缩文件" class="headerlink" title="1. tar：打包与压缩文件"></a>1. <code>tar</code>：打包与压缩文件</h4><p><strong>功能</strong>：打包多个文件为一个归档文件，可结合gzip或bzip2进行压缩。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-c</code>：创建归档</li>
+<li><code>-x</code>：解压归档</li>
+<li><code>-v</code>：显示过程</li>
+<li><code>-f</code>：指定归档文件名</li>
+<li><code>-z</code>：用gzip压缩&#x2F;解压（.tar.gz）</li>
+<li><code>-j</code>：用bzip2压缩&#x2F;解压（.tar.bz2）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打包并压缩目录（gzip格式）</span></span><br><span class="line">tar -czvf documents.tar.gz documents/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压tar.gz文件</span></span><br><span class="line">tar -xzvf documents.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打包并压缩目录（bzip2格式）</span></span><br><span class="line">tar -cjvf images.tar.bz2 images/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压tar.bz2文件到指定目录</span></span><br><span class="line">tar -xjvf images.tar.bz2 -C /tmp/</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-zip-unzip：ZIP格式压缩-解压"><a href="#2-zip-unzip：ZIP格式压缩-解压" class="headerlink" title="2. zip&#x2F;unzip：ZIP格式压缩&#x2F;解压"></a>2. <code>zip</code>&#x2F;<code>unzip</code>：ZIP格式压缩&#x2F;解压</h4><p><strong>功能</strong>：处理ZIP格式的压缩文件（Windows系统常用格式，跨平台兼容性强，适合与Windows设备交互或压缩单个文件）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-r</code>：递归压缩目录及其子目录内容（压缩目录时必须添加）</li>
+<li><code>-q</code>：静默压缩&#x2F;解压（不显示过程信息）</li>
+<li><code>-l</code>：查看压缩包内文件列表（不解压）</li>
+<li><code>-d</code>：指定解压目标目录</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 压缩多个文件和目录为ZIP包（递归处理目录docs/和photos/）</span></span><br><span class="line">zip -r backup_20250911.zip docs/ photos/ report.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 静默压缩（不显示压缩过程）</span></span><br><span class="line">zip -qr silent_backup.zip important_data/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看ZIP包内的文件列表（大小、修改时间等）</span></span><br><span class="line">unzip -l backup_20250911.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压ZIP包到指定目录（如/tmp/backup/，目录不存在会自动创建）</span></span><br><span class="line">unzip backup_20250911.zip -d /tmp/backup/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只解压ZIP包中的某个特定文件（如report.txt）</span></span><br><span class="line">unzip backup_20250911.zip report.txt -d /tmp/</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="七、其他实用命令（嵌入式开发高频场景补充）"><a href="#七、其他实用命令（嵌入式开发高频场景补充）" class="headerlink" title="七、其他实用命令（嵌入式开发高频场景补充）"></a>七、其他实用命令（嵌入式开发高频场景补充）</h3><h4 id="1-history：查看与复用命令历史"><a href="#1-history：查看与复用命令历史" class="headerlink" title="1. history：查看与复用命令历史"></a>1. <code>history</code>：查看与复用命令历史</h4><p><strong>功能</strong>：显示当前用户执行过的命令历史，支持快速复用历史命令（嵌入式开发中频繁执行编译、烧录命令时尤其高效）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li>直接输入<code>history</code>：显示所有历史命令（默认保存1000条，可通过<code>HISTSIZE</code>环境变量修改）</li>
+<li><code>history N</code>：显示最近N条命令</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看最近15条命令历史（快速找到之前的编译命令）</span></span><br><span class="line"><span class="built_in">history</span> 15</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索包含&quot;make&quot;的历史命令（嵌入式编译常用）</span></span><br><span class="line"><span class="built_in">history</span> | grep <span class="string">&quot;make&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重复执行历史中第89条命令（假设第89条是交叉编译命令）</span></span><br><span class="line">!89</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重复执行上一条命令（如刚执行完烧录，想再验证一次）</span></span><br><span class="line">!!</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清除所有命令历史（避免敏感命令泄露，如密码或设备IP）</span></span><br><span class="line"><span class="built_in">history</span> -c</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-man-help：获取命令帮助"><a href="#2-man-help：获取命令帮助" class="headerlink" title="2. man&#x2F;--help：获取命令帮助"></a>2. <code>man</code>&#x2F;<code>--help</code>：获取命令帮助</h4><p><strong>功能</strong>：<code>man</code>是Linux系统自带的“离线手册”，提供命令的详细参数说明和使用场景；<code>--help</code>则是快速查看命令核心参数（适合临时记忆模糊时快速查阅）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看tar命令的完整手册（包括参数详解、示例）</span></span><br><span class="line">man tar</span><br><span class="line"><span class="comment"># 手册内操作：按&quot;/关键词&quot;搜索（如搜索&quot;-z&quot;），按&quot;q&quot;退出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看find命令的手册，并跳转到&quot;-name&quot;参数说明（通过章节定位）</span></span><br><span class="line">man find  <span class="comment"># 进入后输入 /-name 按回车</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 快速查看cp命令的核心参数（无需打开完整手册）</span></span><br><span class="line"><span class="built_in">cp</span> --<span class="built_in">help</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看交叉编译工具链的gcc版本及帮助（嵌入式开发常用）</span></span><br><span class="line">arm-linux-gnueabihf-gcc --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-sudo进阶：权限与执行控制"><a href="#3-sudo进阶：权限与执行控制" class="headerlink" title="3. sudo进阶：权限与执行控制"></a>3. <code>sudo</code>进阶：权限与执行控制</h4><p><strong>功能</strong>：除了基础的“提权执行”，<code>sudo</code>还支持限制用户执行特定命令、保留环境变量等（嵌入式开发中多用户协作或避免误操作时常用）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以root权限执行命令，并保留当前用户的环境变量（如交叉编译的PATH）</span></span><br><span class="line"><span class="built_in">sudo</span> -E make -j4 zImage  <span class="comment"># -E 保留环境变量，避免因权限切换导致工具链路径丢失</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到root用户，但使用当前用户的Shell配置（如.bashrc中的环境变量）</span></span><br><span class="line"><span class="built_in">sudo</span> -i</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前用户可执行的sudo命令列表（确认是否有权限执行烧录、修改系统配置）</span></span><br><span class="line"><span class="built_in">sudo</span> -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时以其他用户（如开发板测试用户test）执行命令</span></span><br><span class="line"><span class="built_in">sudo</span> -u <span class="built_in">test</span> scp rootfs.img <span class="built_in">test</span>@192.168.1.100:/home/test/</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-scp：跨设备文件传输（嵌入式开发必备）"><a href="#4-scp：跨设备文件传输（嵌入式开发必备）" class="headerlink" title="4. scp：跨设备文件传输（嵌入式开发必备）"></a>4. <code>scp</code>：跨设备文件传输（嵌入式开发必备）</h4><p><strong>功能</strong>：基于SSH协议在本地主机与远程设备（如开发板、服务器）之间传输文件（嵌入式开发中常用于传输内核镜像、根文件系统）。</p>
+<p><strong>常用参数</strong>：</p>
+<ul>
+<li><code>-r</code>：递归传输目录</li>
+<li><code>-P</code>：指定远程设备的SSH端口（默认22，若开发板修改过端口需指定）</li>
+<li><code>-q</code>：静默传输（不显示进度）</li>
+</ul>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地→开发板：传输编译好的内核镜像到开发板的/tmp目录（开发板IP：192.168.1.100）</span></span><br><span class="line">scp <span class="built_in">arch</span>/arm/boot/zImage root@192.168.1.100:/tmp/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地→开发板：递归传输根文件系统目录到开发板</span></span><br><span class="line">scp -r ~/rootfs/ root@192.168.1.100:/mnt/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板→本地：从开发板下载日志文件到本地的logs目录</span></span><br><span class="line">scp root@192.168.1.100:/var/log/messages ~/logs/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定SSH端口传输（如开发板SSH端口改为2222）</span></span><br><span class="line">scp -P 2222 exynos4412-tiny4412.dtb root@192.168.1.100:/boot/</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-watch：实时监控命令输出"><a href="#5-watch：实时监控命令输出" class="headerlink" title="5. watch：实时监控命令输出"></a>5. <code>watch</code>：实时监控命令输出</h4><p><strong>功能</strong>：周期性执行指定命令并显示输出，适合实时监控文件变化、系统资源或编译进度（嵌入式开发中监控日志、磁盘占用时常用）。</p>
+<p><strong>实例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每2秒查看一次当前目录下的文件大小变化（监控编译产物生成）</span></span><br><span class="line">watch -n 2 <span class="string">&quot;ls -lh arch/arm/boot/zImage&quot;</span>  <span class="comment"># -n 2 表示每2秒执行一次</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时监控开发板的内存使用情况（通过SSH远程执行free命令）</span></span><br><span class="line">watch -n 1 <span class="string">&quot;ssh root@192.168.1.100 free -h&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 监控日志文件的新增内容（结合tail命令，比单独用tail -f更灵活）</span></span><br><span class="line">watch -d <span class="string">&quot;tail -n 10 /var/log/embedded_dev.log&quot;</span>  <span class="comment"># -d 高亮显示变化的内容</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="八、嵌入式开发场景命令组合示例"><a href="#八、嵌入式开发场景命令组合示例" class="headerlink" title="八、嵌入式开发场景命令组合示例"></a>八、嵌入式开发场景命令组合示例</h3><p>Linux命令的核心效率在于“组合使用”，通过管道（<code>|</code>）、重定向（<code>&gt;</code>&#x2F;<code>&gt;&gt;</code>）将多个命令串联，解决复杂场景需求（以下为嵌入式开发高频组合）。</p>
+<h4 id="1-查找并删除过期编译产物"><a href="#1-查找并删除过期编译产物" class="headerlink" title="1. 查找并删除过期编译产物"></a>1. 查找并删除过期编译产物</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查找当前目录及子目录下30天前的.o文件（编译中间产物）并删除</span></span><br><span class="line">find . -name <span class="string">&quot;*.o&quot;</span> -mtime +30 -<span class="built_in">exec</span> <span class="built_in">rm</span> -f &#123;&#125; \;</span><br><span class="line"><span class="comment"># 解释：-exec 执行后续命令，&#123;&#125; 代表找到的每个文件，\; 结束exec命令</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-统计内核源码目录下的C文件数量"><a href="#2-统计内核源码目录下的C文件数量" class="headerlink" title="2. 统计内核源码目录下的C文件数量"></a>2. 统计内核源码目录下的C文件数量</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 递归查找所有.c文件，统计总行数（评估代码量）</span></span><br><span class="line">find linux-5.15.71/ -name <span class="string">&quot;*.c&quot;</span> -<span class="built_in">type</span> f | xargs <span class="built_in">cat</span> | <span class="built_in">wc</span> -l</span><br><span class="line"><span class="comment"># 解释：xargs 将find的结果作为cat的输入，批量读取文件内容后用wc -l统计</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-筛选开发板串口日志中的错误信息"><a href="#3-筛选开发板串口日志中的错误信息" class="headerlink" title="3. 筛选开发板串口日志中的错误信息"></a>3. 筛选开发板串口日志中的错误信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从串口日志文件中筛选包含&quot;error&quot;或&quot;fail&quot;的行，并保存到error.log</span></span><br><span class="line"><span class="built_in">cat</span> serial_log.txt | grep -iE <span class="string">&quot;error|fail&quot;</span> &gt; error.log</span><br><span class="line"><span class="comment"># 解释：-i 忽略大小写，-E 支持正则表达式（| 表示“或”），&gt; 重定向输出到文件</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-批量重命名开发板设备树文件"><a href="#4-批量重命名开发板设备树文件" class="headerlink" title="4. 批量重命名开发板设备树文件"></a>4. 批量重命名开发板设备树文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将目录下所有.dts文件重命名为&quot;board_xxx.dts&quot;（如exynos4412.dts→board_exynos4412.dts）</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> *.dts; <span class="keyword">do</span> <span class="built_in">mv</span> <span class="string">&quot;<span class="variable">$file</span>&quot;</span> <span class="string">&quot;board_<span class="variable">$&#123;file&#125;</span>&quot;</span>; <span class="keyword">done</span></span><br><span class="line"><span class="comment"># 解释：for循环遍历所有.dts文件，$&#123;file&#125; 保留原文件名，拼接前缀后重命名</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文整理的命令覆盖了Linux系统基础操作与嵌入式开发高频场景，从文件管理、系统监控到跨设备交互，每个命令均结合嵌入式开发实际需求补充了实例。对于嵌入式工程师而言，命令行的核心价值在于“高效自动化”——通过熟练组合命令、编写简单脚本（如编译烧录一键脚本），可大幅减少重复操作，提升开发效率。</p>
+<p>建议在实际开发中逐步积累“命令组合模板”（如日志筛选、文件传输），遇到陌生命令时优先通过<code>man</code>或<code>--help</code>查阅官方说明，避免因参数错误导致数据丢失或设备异常（尤其是<code>rm -rf</code>、<code>dd</code>等高危命令）。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag"># 命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/01/C_C++/%E6%B1%87%E7%BC%96%E5%85%A5%E9%97%A8/" rel="prev" title="汇编语言入门：从寄存器到指令，手把手教你写汇编">
+      <i class="fa fa-chevron-left"></i> 汇编语言入门：从寄存器到指令，手把手教你写汇编
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E4%B8%8E%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">一、文件与目录操作命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-ls%EF%BC%9A%E5%88%97%E5%87%BA%E7%9B%AE%E5%BD%95%E5%86%85%E5%AE%B9"><span class="nav-number">1.1.</span> <span class="nav-text">1. ls：列出目录内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-cd%EF%BC%9A%E5%88%87%E6%8D%A2%E7%9B%AE%E5%BD%95"><span class="nav-number">1.2.</span> <span class="nav-text">2. cd：切换目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-pwd%EF%BC%9A%E6%98%BE%E7%A4%BA%E5%BD%93%E5%89%8D%E7%9B%AE%E5%BD%95%E8%B7%AF%E5%BE%84"><span class="nav-number">1.3.</span> <span class="nav-text">3. pwd：显示当前目录路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-mkdir%EF%BC%9A%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95"><span class="nav-number">1.4.</span> <span class="nav-text">4. mkdir：创建目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-rm%EF%BC%9A%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6%E6%88%96%E7%9B%AE%E5%BD%95"><span class="nav-number">1.5.</span> <span class="nav-text">5. rm：删除文件或目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-cp%EF%BC%9A%E5%A4%8D%E5%88%B6%E6%96%87%E4%BB%B6%E6%88%96%E7%9B%AE%E5%BD%95"><span class="nav-number">1.6.</span> <span class="nav-text">6. cp：复制文件或目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-mv%EF%BC%9A%E7%A7%BB%E5%8A%A8%E6%88%96%E9%87%8D%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-%E7%9B%AE%E5%BD%95"><span class="nav-number">1.7.</span> <span class="nav-text">7. mv：移动或重命名文件&#x2F;目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-find%EF%BC%9A%E6%9F%A5%E6%89%BE%E6%96%87%E4%BB%B6%E6%88%96%E7%9B%AE%E5%BD%95"><span class="nav-number">1.8.</span> <span class="nav-text">8. find：查找文件或目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9-grep%EF%BC%9A%E6%96%87%E6%9C%AC%E6%90%9C%E7%B4%A2%E5%B7%A5%E5%85%B7"><span class="nav-number">1.9.</span> <span class="nav-text">9. grep：文本搜索工具</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%93%8D%E4%BD%9C%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">二、文件内容操作命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-cat%EF%BC%9A%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-number">2.1.</span> <span class="nav-text">1. cat：查看文件内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-less-more%EF%BC%9A%E5%88%86%E9%A1%B5%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-number">2.2.</span> <span class="nav-text">2. less&#x2F;more：分页查看文件内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-head-tail%EF%BC%9A%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E5%BC%80%E5%A4%B4-%E7%BB%93%E5%B0%BE%E5%86%85%E5%AE%B9"><span class="nav-number">2.3.</span> <span class="nav-text">3. head&#x2F;tail：查看文件开头&#x2F;结尾内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-wc%EF%BC%9A%E7%BB%9F%E8%AE%A1%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-number">2.4.</span> <span class="nav-text">4. wc：统计文件内容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">三、系统管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-top-htop%EF%BC%9A%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E8%BF%9B%E7%A8%8B%E5%92%8C%E8%B5%84%E6%BA%90%E5%8D%A0%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">1. top&#x2F;htop：查看系统进程和资源占用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-ps%EF%BC%9A%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">3.2.</span> <span class="nav-text">2. ps：查看进程状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-kill-pkill%EF%BC%9A%E7%BB%88%E6%AD%A2%E8%BF%9B%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">3. kill&#x2F;pkill：终止进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-df-du%EF%BC%9A%E6%9F%A5%E7%9C%8B%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4"><span class="nav-number">3.4.</span> <span class="nav-text">4. df&#x2F;du：查看磁盘空间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-free%EF%BC%9A%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="nav-number">3.5.</span> <span class="nav-text">5. free：查看内存使用情况</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%94%A8%E6%88%B7%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">四、用户与权限管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-sudo%EF%BC%9A%E4%BB%A5%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="nav-number">4.1.</span> <span class="nav-text">1. sudo：以超级用户权限执行命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-chmod%EF%BC%9A%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="nav-number">4.2.</span> <span class="nav-text">2. chmod：修改文件权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-chown%EF%BC%9A%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%89%80%E6%9C%89%E8%80%85"><span class="nav-number">4.3.</span> <span class="nav-text">3. chown：修改文件所有者</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">五、网络相关命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-ping%EF%BC%9A%E6%B5%8B%E8%AF%95%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.1.</span> <span class="nav-text">1. ping：测试网络连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-ifconfig-ip%EF%BC%9A%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E4%BF%A1%E6%81%AF"><span class="nav-number">5.2.</span> <span class="nav-text">2. ifconfig&#x2F;ip：查看网络接口信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-netstat-ss%EF%BC%9A%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.3.</span> <span class="nav-text">3. netstat&#x2F;ss：查看网络连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-curl-wget%EF%BC%9A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%E6%88%96%E6%B5%8B%E8%AF%95HTTP%E8%AF%B7%E6%B1%82"><span class="nav-number">5.4.</span> <span class="nav-text">4. curl&#x2F;wget：下载文件或测试HTTP请求</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%8E%8B%E7%BC%A9%E4%B8%8E%E8%A7%A3%E5%8E%8B%E5%91%BD%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">六、压缩与解压命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-tar%EF%BC%9A%E6%89%93%E5%8C%85%E4%B8%8E%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6"><span class="nav-number">6.1.</span> <span class="nav-text">1. tar：打包与压缩文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-zip-unzip%EF%BC%9AZIP%E6%A0%BC%E5%BC%8F%E5%8E%8B%E7%BC%A9-%E8%A7%A3%E5%8E%8B"><span class="nav-number">6.2.</span> <span class="nav-text">2. zip&#x2F;unzip：ZIP格式压缩&#x2F;解压</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%85%B6%E4%BB%96%E5%AE%9E%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%88%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E9%AB%98%E9%A2%91%E5%9C%BA%E6%99%AF%E8%A1%A5%E5%85%85%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">七、其他实用命令（嵌入式开发高频场景补充）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-history%EF%BC%9A%E6%9F%A5%E7%9C%8B%E4%B8%8E%E5%A4%8D%E7%94%A8%E5%91%BD%E4%BB%A4%E5%8E%86%E5%8F%B2"><span class="nav-number">7.1.</span> <span class="nav-text">1. history：查看与复用命令历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-man-help%EF%BC%9A%E8%8E%B7%E5%8F%96%E5%91%BD%E4%BB%A4%E5%B8%AE%E5%8A%A9"><span class="nav-number">7.2.</span> <span class="nav-text">2. man&#x2F;--help：获取命令帮助</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-sudo%E8%BF%9B%E9%98%B6%EF%BC%9A%E6%9D%83%E9%99%90%E4%B8%8E%E6%89%A7%E8%A1%8C%E6%8E%A7%E5%88%B6"><span class="nav-number">7.3.</span> <span class="nav-text">3. sudo进阶：权限与执行控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-scp%EF%BC%9A%E8%B7%A8%E8%AE%BE%E5%A4%87%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93%EF%BC%88%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E5%BF%85%E5%A4%87%EF%BC%89"><span class="nav-number">7.4.</span> <span class="nav-text">4. scp：跨设备文件传输（嵌入式开发必备）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-watch%EF%BC%9A%E5%AE%9E%E6%97%B6%E7%9B%91%E6%8E%A7%E5%91%BD%E4%BB%A4%E8%BE%93%E5%87%BA"><span class="nav-number">7.5.</span> <span class="nav-text">5. watch：实时监控命令输出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E5%9C%BA%E6%99%AF%E5%91%BD%E4%BB%A4%E7%BB%84%E5%90%88%E7%A4%BA%E4%BE%8B"><span class="nav-number">8.</span> <span class="nav-text">八、嵌入式开发场景命令组合示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%9F%A5%E6%89%BE%E5%B9%B6%E5%88%A0%E9%99%A4%E8%BF%87%E6%9C%9F%E7%BC%96%E8%AF%91%E4%BA%A7%E7%89%A9"><span class="nav-number">8.1.</span> <span class="nav-text">1. 查找并删除过期编译产物</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%BB%9F%E8%AE%A1%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84C%E6%96%87%E4%BB%B6%E6%95%B0%E9%87%8F"><span class="nav-number">8.2.</span> <span class="nav-text">2. 统计内核源码目录下的C文件数量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%AD%9B%E9%80%89%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%97%A5%E5%BF%97%E4%B8%AD%E7%9A%84%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF"><span class="nav-number">8.3.</span> <span class="nav-text">3. 筛选开发板串口日志中的错误信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%89%B9%E9%87%8F%E9%87%8D%E5%91%BD%E5%90%8D%E5%BC%80%E5%8F%91%E6%9D%BF%E8%AE%BE%E5%A4%87%E6%A0%91%E6%96%87%E4%BB%B6"><span class="nav-number">8.4.</span> <span class="nav-text">4. 批量重命名开发板设备树文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">81</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
