@@ -20,16 +20,17 @@
     var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="title: 深入浅出C++11新特性：核心功能与实战示例 date: 2025-09-16 10:30:00 tags: [C++新特性] categories: [C_C++] description: 本文系统讲解 C++ 11新特性。 C++11是C++语言发展史上的里程碑版本，引入了数十项新特性，从语法简化到性能优化，从内存安全到并发编程，全方位提升了语言的易用性、安全性和高效性。对于嵌">
+  <meta name="description" content="本文系统讲解 C++ 11新特性。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="蛋的博客">
+<meta property="og:title" content="深入浅出C++11新特性：核心功能与实战示例">
 <meta property="og:url" content="https://yanxianan.github.io/2025/09/16/C_C++/C++11%E6%96%B0%E7%89%B9%E6%80%A7/index.html">
 <meta property="og:site_name" content="蛋的博客">
-<meta property="og:description" content="title: 深入浅出C++11新特性：核心功能与实战示例 date: 2025-09-16 10:30:00 tags: [C++新特性] categories: [C_C++] description: 本文系统讲解 C++ 11新特性。 C++11是C++语言发展史上的里程碑版本，引入了数十项新特性，从语法简化到性能优化，从内存安全到并发编程，全方位提升了语言的易用性、安全性和高效性。对于嵌">
+<meta property="og:description" content="本文系统讲解 C++ 11新特性。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-09-16T07:17:45.540Z">
-<meta property="article:modified_time" content="2025-09-16T07:19:39.784Z">
+<meta property="article:published_time" content="2025-09-16T02:30:00.000Z">
+<meta property="article:modified_time" content="2025-09-16T09:05:52.507Z">
 <meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C++新特性">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://yanxianan.github.io/2025/09/16/C_C++/C++11%E6%96%B0%E7%89%B9%E6%80%A7/">
@@ -45,7 +46,7 @@
   };
 </script>
 
-  <title> | 蛋的博客</title>
+  <title>深入浅出C++11新特性：核心功能与实战示例 | 蛋的博客</title>
   
 
 
@@ -179,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          深入浅出C++11新特性：核心功能与实战示例
         </h1>
 
         <div class="post-meta">
@@ -190,10 +191,20 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2025-09-16 15:17:45 / 修改时间：15:19:39" itemprop="dateCreated datePublished" datetime="2025-09-16T15:17:45+08:00">2025-09-16</time>
+              <time title="创建时间：2025-09-16 10:30:00 / 修改时间：17:05:52" itemprop="dateCreated datePublished" datetime="2025-09-16T10:30:00+08:00">2025-09-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
             </span>
 
           
+            <div class="post-description">本文系统讲解 C++ 11新特性。</div>
 
         </div>
       </header>
@@ -204,12 +215,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>title: 深入浅出C++11新特性：核心功能与实战示例</p>
-<p>date: 2025-09-16 10:30:00</p>
-<p>tags: [C++新特性]</p>
-<p>categories: [C_C++]</p>
-<p>description: 本文系统讲解 C++ 11新特性。</p>
-<p>C++11是C++语言发展史上的里程碑版本，引入了数十项新特性，从语法简化到性能优化，从内存安全到并发编程，全方位提升了语言的易用性、安全性和高效性。对于嵌入式开发、服务器开发、游戏引擎等领域的开发者而言，掌握C++11是提升编码效率和代码质量的关键。本文将从<strong>语法简化</strong>、<strong>类型增强</strong>、<strong>内存管理</strong>、<strong>并发编程</strong>、<strong>通用编程</strong>五大维度，结合实战示例讲解C++11的核心新特性。</p>
+        <p>C++11是C++语言发展史上的里程碑版本，引入了数十项新特性，从语法简化到性能优化，从内存安全到并发编程，全方位提升了语言的易用性、安全性和高效性。对于嵌入式开发、服务器开发、游戏引擎等领域的开发者而言，掌握C++11是提升编码效率和代码质量的关键。本文将从<strong>语法简化</strong>、<strong>类型增强</strong>、<strong>内存管理</strong>、<strong>并发编程</strong>、<strong>通用编程</strong>五大维度，结合实战示例讲解C++11的核心新特性。</p>
 <h2 id="一、语法简化：减少冗余，提升编码效率"><a href="#一、语法简化：减少冗余，提升编码效率" class="headerlink" title="一、语法简化：减少冗余，提升编码效率"></a>一、语法简化：减少冗余，提升编码效率</h2><p>C++11通过多种语法优化，解决了传统C++中“代码冗余”“表达繁琐”的问题，让开发者更聚焦于逻辑实现而非语法细节。</p>
 <h3 id="1-自动类型推导（auto）"><a href="#1-自动类型推导（auto）" class="headerlink" title="1. 自动类型推导（auto）"></a>1. 自动类型推导（auto）</h3><p><strong>核心作用</strong>：让编译器根据变量的初始化值自动推导类型，避免手动书写冗长的类型名（尤其适合模板、STL迭代器等场景）。<br><strong>注意事项</strong>：<code>auto</code>不能单独用于函数返回值、函数参数，也不能推导数组类型。</p>
 <p><strong>示例</strong>：</p>
@@ -301,6 +307,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C-%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag"># C++新特性</a>
+          </div>
 
         
 
@@ -402,7 +411,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">87</span>
+        <span class="site-state-item-count">88</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
