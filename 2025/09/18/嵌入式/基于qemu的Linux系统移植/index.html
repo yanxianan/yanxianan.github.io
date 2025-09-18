@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文为基于qemu的Linux系统移植实战。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于qemu的Linux系统移植">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/18/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%9F%BA%E4%BA%8Eqemu%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为基于qemu的Linux系统移植实战。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-18T07:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-18T07:31:13.615Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="qemu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/18/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%9F%BA%E4%BA%8Eqemu%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于qemu的Linux系统移植 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/18/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%9F%BA%E4%BA%8Eqemu%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于qemu的Linux系统移植
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-18 15:00:00 / 修改时间：15:31:13" itemprop="dateCreated datePublished" datetime="2025-09-18T15:00:00+08:00">2025-09-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文为基于qemu的Linux系统移植实战。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基于qemu的Linux系统移植"><a href="#基于qemu的Linux系统移植" class="headerlink" title="基于qemu的Linux系统移植"></a>基于qemu的Linux系统移植</h1><ul>
+<li>交叉编译 U-Boot</li>
+<li>交叉编译 Linux 内核</li>
+<li>制作根文件系统（initramfs &#x2F; initrd &#x2F; ext4 等）</li>
+<li>使用 QEMU 模拟器“运行”整个系统</li>
+<li>调试启动流程</li>
+</ul>
+<hr>
+<h2 id="🎯-目标"><a href="#🎯-目标" class="headerlink" title="🎯 目标"></a>🎯 目标</h2><p>在 x86_64 主机 + 虚拟机（或直接在主机）环境下，为<strong>ARM架构</strong>（或其他架构，如 RISC-V）构建并运行一个完整的 Linux 系统（U-Boot + Kernel + RootFS），使用 QEMU 模拟目标硬件。</p>
+<hr>
+<h2 id="✅-推荐方案：使用-QEMU-ARM-架构模拟"><a href="#✅-推荐方案：使用-QEMU-ARM-架构模拟" class="headerlink" title="✅ 推荐方案：使用 QEMU + ARM 架构模拟"></a>✅ 推荐方案：使用 QEMU + ARM 架构模拟</h2><p>我们以 <strong>ARMv7 &#x2F; ARM64（aarch64）</strong> 为例，这是嵌入式最常用的架构之一。</p>
+<hr>
+<h1 id="🧱-一、环境准备"><a href="#🧱-一、环境准备" class="headerlink" title="🧱 一、环境准备"></a>🧱 一、环境准备</h1><h2 id="1-安装必要工具（在-Ubuntu-Debian-系统为例）"><a href="#1-安装必要工具（在-Ubuntu-Debian-系统为例）" class="headerlink" title="1. 安装必要工具（在 Ubuntu&#x2F;Debian 系统为例）"></a>1. 安装必要工具（在 Ubuntu&#x2F;Debian 系统为例）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install -y git build-essential gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu \</span><br><span class="line">    qemu-system-arm qemu-system-aarch64 qemu-utils debootstrap libncurses-dev \</span><br><span class="line">    flex bison libssl-dev libelf-dev bc kmod cpio</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你用的是 CentOS&#x2F;RHEL，请用 <code>yum</code> 或 <code>dnf</code> 安装对应包。</p>
+</blockquote>
+<hr>
+<h2 id="2-创建工作目录"><a href="#2-创建工作目录" class="headerlink" title="2. 创建工作目录"></a>2. 创建工作目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/embedded-linux &amp;&amp; <span class="built_in">cd</span> ~/embedded-linux</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="🛠️-二、编译-U-Boot（以-qemu-arm-virt-为例）"><a href="#🛠️-二、编译-U-Boot（以-qemu-arm-virt-为例）" class="headerlink" title="🛠️ 二、编译 U-Boot（以 qemu_arm_virt 为例）"></a>🛠️ 二、编译 U-Boot（以 qemu_arm_virt 为例）</h1><p>我们使用 QEMU 支持的 <code>virt</code> 板子（虚拟 ARM 板）。</p>
+<h2 id="1-下载-U-Boot-源码"><a href="#1-下载-U-Boot-源码" class="headerlink" title="1. 下载 U-Boot 源码"></a>1. 下载 U-Boot 源码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://source.denx.de/u-boot/u-boot.git</span><br><span class="line"><span class="built_in">cd</span> u-boot</span><br><span class="line">git checkout v2025.01  <span class="comment"># 选择一个稳定版本</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-配置并编译（ARM32）"><a href="#2-配置并编译（ARM32）" class="headerlink" title="2. 配置并编译（ARM32）"></a>2. 配置并编译（ARM32）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=arm</span><br><span class="line"><span class="built_in">export</span> CROSS_COMPILE=arm-linux-gnueabihf-</span><br><span class="line"></span><br><span class="line">make qemu_arm_defconfig</span><br><span class="line">make -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>编译完成后会生成 <code>u-boot</code> 可执行文件（ELF 格式）。</p>
+</blockquote>
+<hr>
+<h2 id="3-（可选）ARM64-编译"><a href="#3-（可选）ARM64-编译" class="headerlink" title="3. （可选）ARM64 编译"></a>3. （可选）ARM64 编译</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">git <span class="built_in">clone</span> https://source.denx.de/u-boot/u-boot.git u-boot-aarch64</span><br><span class="line"><span class="built_in">cd</span> u-boot-aarch64</span><br><span class="line">git checkout v2025.01</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> ARCH=arm64</span><br><span class="line"><span class="built_in">export</span> CROSS_COMPILE=aarch64-linux-gnu-</span><br><span class="line"></span><br><span class="line">make qemu_arm64_defconfig</span><br><span class="line">make -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<p>生成 <code>u-boot</code> 文件。</p>
+<hr>
+<h1 id="🐧-三、编译-Linux-内核"><a href="#🐧-三、编译-Linux-内核" class="headerlink" title="🐧 三、编译 Linux 内核"></a>🐧 三、编译 Linux 内核</h1><h2 id="1-下载内核源码"><a href="#1-下载内核源码" class="headerlink" title="1. 下载内核源码"></a>1. 下载内核源码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/embedded-linux</span><br><span class="line">git <span class="built_in">clone</span> --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git</span><br><span class="line"><span class="built_in">cd</span> linux</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-配置内核（ARM32）"><a href="#2-配置内核（ARM32）" class="headerlink" title="2. 配置内核（ARM32）"></a>2. 配置内核（ARM32）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=arm</span><br><span class="line"><span class="built_in">export</span> CROSS_COMPILE=arm-linux-gnueabihf-</span><br><span class="line"></span><br><span class="line">make vexpress_defconfig  <span class="comment"># 适用于 QEMU ARM</span></span><br><span class="line"><span class="comment"># 或者更通用的：</span></span><br><span class="line">make multi_v7_defconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可选：图形化配置（需要 libncurses-dev）</span></span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>推荐启用：</p>
+<ul>
+<li><code>CONFIG_BLK_DEV_INITRD=y</code> （支持 initramfs）</li>
+<li><code>CONFIG_DEVTMPFS=y</code> 和 <code>CONFIG_DEVTMPFS_MOUNT=y</code></li>
+<li><code>CONFIG_SERIAL_AMBA_PL011=y</code> 和 <code>CONFIG_SERIAL_AMBA_PL011_CONSOLE=y</code>（串口支持）</li>
+</ul>
+</blockquote>
+<h2 id="3-编译内核和设备树"><a href="#3-编译内核和设备树" class="headerlink" title="3. 编译内核和设备树"></a>3. 编译内核和设备树</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j$(<span class="built_in">nproc</span>) zImage dtbs</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>生成文件：</p>
+<ul>
+<li><code>arch/arm/boot/zImage</code></li>
+<li><code>arch/arm/boot/dts/virt.dtb</code>（或 <code>vexpress-v2p-ca9.dtb</code>）</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="4-（可选）ARM64-内核编译"><a href="#4-（可选）ARM64-内核编译" class="headerlink" title="4. （可选）ARM64 内核编译"></a>4. （可选）ARM64 内核编译</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=arm64</span><br><span class="line"><span class="built_in">export</span> CROSS_COMPILE=aarch64-linux-gnu-</span><br><span class="line"></span><br><span class="line">make defconfig</span><br><span class="line">make menuconfig  <span class="comment"># 可选配置</span></span><br><span class="line">make -j$(<span class="built_in">nproc</span>) Image dtbs</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>生成 <code>arch/arm64/boot/Image</code></p>
+</blockquote>
+<hr>
+<h1 id="📁-四、制作根文件系统（RootFS）"><a href="#📁-四、制作根文件系统（RootFS）" class="headerlink" title="📁 四、制作根文件系统（RootFS）"></a>📁 四、制作根文件系统（RootFS）</h1><h2 id="方法-1：使用-BusyBox-Initramfs（推荐入门）"><a href="#方法-1：使用-BusyBox-Initramfs（推荐入门）" class="headerlink" title="方法 1：使用 BusyBox + Initramfs（推荐入门）"></a>方法 1：使用 BusyBox + Initramfs（推荐入门）</h2><h3 id="1-下载并编译-BusyBox"><a href="#1-下载并编译-BusyBox" class="headerlink" title="1. 下载并编译 BusyBox"></a>1. 下载并编译 BusyBox</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/embedded-linux</span><br><span class="line">git <span class="built_in">clone</span> https://git.busybox.net/busybox</span><br><span class="line"><span class="built_in">cd</span> busybox</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> ARCH=arm</span><br><span class="line"><span class="built_in">export</span> CROSS_COMPILE=arm-linux-gnueabihf-</span><br><span class="line"></span><br><span class="line">make defconfig</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在 menuconfig 中设置：</p>
+<ul>
+<li><code>Settings → Build static binary (no shared libs)</code> → 启用（避免动态库依赖）</li>
+<li><code>Linux System Utilities → [*] mdev</code>（用于设备管理）</li>
+</ul>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j$(<span class="built_in">nproc</span>) install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>安装到 <code>_install</code> 目录</p>
+</blockquote>
+<h3 id="2-创建-initramfs-目录结构"><a href="#2-创建-initramfs-目录结构" class="headerlink" title="2. 创建 initramfs 目录结构"></a>2. 创建 initramfs 目录结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/embedded-linux/initramfs/&#123;bin,sbin,etc,proc,sys,usr/&#123;bin,sbin&#125;,dev,tmp&#125;</span><br><span class="line"><span class="built_in">cp</span> -a busybox/_install/* ~/embedded-linux/initramfs/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建必要的设备节点</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> ~/embedded-linux/initramfs/dev/console c 5 1</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> ~/embedded-linux/initramfs/dev/null c 1 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 init 脚本</span></span><br><span class="line"><span class="built_in">cat</span> &gt; ~/embedded-linux/initramfs/init &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/bin/sh</span></span><br><span class="line">mount -t proc none /proc</span><br><span class="line">mount -t sysfs none /sys</span><br><span class="line">mount -t devtmpfs none /dev</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello from embedded Linux!&quot;</span></span><br><span class="line"><span class="built_in">exec</span> /bin/sh</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">chmod</span> +x ~/embedded-linux/initramfs/init</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-打包成-initramfs"><a href="#3-打包成-initramfs" class="headerlink" title="3. 打包成 initramfs"></a>3. 打包成 initramfs</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/embedded-linux/initramfs</span><br><span class="line">find . | cpio -o --format=newc &gt; ../initramfs.cpio</span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">gzip -c initramfs.cpio &gt; initramfs.cpio.gz</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="方法-2：使用-Buildroot（更完整，推荐进阶）"><a href="#方法-2：使用-Buildroot（更完整，推荐进阶）" class="headerlink" title="方法 2：使用 Buildroot（更完整，推荐进阶）"></a>方法 2：使用 Buildroot（更完整，推荐进阶）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/embedded-linux</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/buildroot/buildroot.git</span><br><span class="line"><span class="built_in">cd</span> buildroot</span><br><span class="line"></span><br><span class="line">make qemu_arm_virt_defconfig</span><br><span class="line">make menuconfig  <span class="comment"># 可选配置</span></span><br><span class="line">make -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>输出在 <code>output/images/</code>：</p>
+<ul>
+<li><code>zImage</code></li>
+<li><code>rootfs.ext2</code></li>
+<li><code>u-boot.bin</code>（如果启用了）</li>
+</ul>
+</blockquote>
+<hr>
+<h1 id="🖥️-五、使用-QEMU-启动整个系统"><a href="#🖥️-五、使用-QEMU-启动整个系统" class="headerlink" title="🖥️ 五、使用 QEMU 启动整个系统"></a>🖥️ 五、使用 QEMU 启动整个系统</h1><h2 id="方式-1：直接启动内核-initramfs（跳过-U-Boot）"><a href="#方式-1：直接启动内核-initramfs（跳过-U-Boot）" class="headerlink" title="方式 1：直接启动内核 + initramfs（跳过 U-Boot）"></a>方式 1：直接启动内核 + initramfs（跳过 U-Boot）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm \</span><br><span class="line">    -M virt \</span><br><span class="line">    -cpu cortex-a15 \</span><br><span class="line">    -m 256M \</span><br><span class="line">    -kernel ~/embedded-linux/linux/arch/arm/boot/zImage \</span><br><span class="line">    -initrd ~/embedded-linux/initramfs.cpio.gz \</span><br><span class="line">    -dtb ~/embedded-linux/linux/arch/arm/boot/dts/virt.dtb \</span><br><span class="line">    -append <span class="string">&quot;console=ttyAMA0 root=/dev/ram rdinit=/init&quot;</span> \</span><br><span class="line">    -nographic</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>成功后你将进入 shell！</p>
+</blockquote>
+<hr>
+<h2 id="方式-2：使用-U-Boot-引导（更接近真实开发板流程）"><a href="#方式-2：使用-U-Boot-引导（更接近真实开发板流程）" class="headerlink" title="方式 2：使用 U-Boot 引导（更接近真实开发板流程）"></a>方式 2：使用 U-Boot 引导（更接近真实开发板流程）</h2><h3 id="启动-U-Boot："><a href="#启动-U-Boot：" class="headerlink" title="启动 U-Boot："></a>启动 U-Boot：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm \</span><br><span class="line">    -M virt \</span><br><span class="line">    -cpu cortex-a15 \</span><br><span class="line">    -m 256M \</span><br><span class="line">    -nographic \</span><br><span class="line">    -bios ~/embedded-linux/u-boot/u-boot</span><br></pre></td></tr></table></figure>
+
+<h3 id="在-U-Boot-命令行中手动加载内核："><a href="#在-U-Boot-命令行中手动加载内核：" class="headerlink" title="在 U-Boot 命令行中手动加载内核："></a>在 U-Boot 命令行中手动加载内核：</h3><p>（假设你已把 zImage, dtb, initramfs 放到 tftp 目录或使用 <code>host</code> 文件系统 —— QEMU 支持 <code>host_net_add</code> 或直接 <code>-sd</code> 加载）</p>
+<p>更简单的方法是让 U-Boot 从内存加载（通过 QEMU 参数传入）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm \</span><br><span class="line">    -M virt \</span><br><span class="line">    -cpu cortex-a15 \</span><br><span class="line">    -m 256M \</span><br><span class="line">    -nographic \</span><br><span class="line">    -bios ~/embedded-linux/u-boot/u-boot \</span><br><span class="line">    -kernel ~/embedded-linux/linux/arch/arm/boot/zImage \</span><br><span class="line">    -initrd ~/embedded-linux/initramfs.cpio.gz \</span><br><span class="line">    -dtb ~/embedded-linux/linux/arch/arm/boot/dts/virt.dtb \</span><br><span class="line">    -append <span class="string">&quot;console=ttyAMA0 root=/dev/ram rdinit=/init&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：QEMU 会把 <code>-kernel</code> &#x2F; <code>-initrd</code> &#x2F; <code>-dtb</code> 加载到内存，U-Boot 启动后可以通过 <code>bootz 0x40080000 - 0x43000000</code> 手动引导（地址需根据 U-Boot 输出调整）。</p>
+</blockquote>
+<hr>
+<h2 id="✅-方式-3：ARM64-示例（aarch64）"><a href="#✅-方式-3：ARM64-示例（aarch64）" class="headerlink" title="✅ 方式 3：ARM64 示例（aarch64）"></a>✅ 方式 3：ARM64 示例（aarch64）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-aarch64 \</span><br><span class="line">    -M virt \</span><br><span class="line">    -cpu cortex-a57 \</span><br><span class="line">    -m 512M \</span><br><span class="line">    -kernel ~/embedded-linux/linux/arch/arm64/boot/Image \</span><br><span class="line">    -initrd ~/embedded-linux/initramfs.cpio.gz \</span><br><span class="line">    -append <span class="string">&quot;console=ttyAMA0 root=/dev/ram rdinit=/init&quot;</span> \</span><br><span class="line">    -nographic</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="📚-六、学习价值"><a href="#📚-六、学习价值" class="headerlink" title="📚 六、学习价值"></a>📚 六、学习价值</h1><p>通过以上步骤，你虽然没有开发板，但完整经历了：</p>
+<p>✅ 交叉编译工具链使用<br>✅ U-Boot 配置与编译<br>✅ Linux 内核裁剪与编译<br>✅ 设备树理解<br>✅ 根文件系统构建（BusyBox &#x2F; init 脚本）<br>✅ QEMU 模拟运行与调试<br>✅ 启动流程分析（U-Boot → Kernel → RootFS）</p>
+<hr>
+<h1 id="🚀-进阶建议"><a href="#🚀-进阶建议" class="headerlink" title="🚀 进阶建议"></a>🚀 进阶建议</h1><ol>
+<li><strong>替换根文件系统为 Buildroot&#x2F;Yocto 生成的完整系统</strong></li>
+<li><strong>添加 NFS 根文件系统支持，实现网络挂载调试</strong></li>
+<li><strong>使用 GDB + QEMU 调试内核或 U-Boot</strong></li>
+<li><strong>编写自己的驱动并编译进内核</strong></li>
+<li><strong>尝试 RISC-V 架构模拟（QEMU 也支持）</strong></li>
+</ol>
+<hr>
+<h1 id="🧩-附：常见问题"><a href="#🧩-附：常见问题" class="headerlink" title="🧩 附：常见问题"></a>🧩 附：常见问题</h1><h3 id="Q：为什么不用-x86？"><a href="#Q：为什么不用-x86？" class="headerlink" title="Q：为什么不用 x86？"></a>Q：为什么不用 x86？</h3><p>A：x86 不是嵌入式主流，且 U-Boot 在 x86 上使用较少（多用 GRUB&#x2F;UEFI）。ARM 是嵌入式标准。</p>
+<h3 id="Q：能否模拟真实开发板，比如-Raspberry-Pi？"><a href="#Q：能否模拟真实开发板，比如-Raspberry-Pi？" class="headerlink" title="Q：能否模拟真实开发板，比如 Raspberry Pi？"></a>Q：能否模拟真实开发板，比如 Raspberry Pi？</h3><p>A：QEMU 对树莓派支持有限。推荐使用官方 SDK 或购买开发板。但 <code>virt</code> 板足够学习系统构建。</p>
+<h3 id="Q：initramfs-启动后没有网络-USB？"><a href="#Q：initramfs-启动后没有网络-USB？" class="headerlink" title="Q：initramfs 启动后没有网络&#x2F;USB？"></a>Q：initramfs 启动后没有网络&#x2F;USB？</h3><p>A：需要在内核配置中启用对应驱动，或使用更完整的根文件系统（如 Buildroot）。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/qemu/" rel="tag"># qemu</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/18/C_C++/C++%E6%8F%90%E9%AB%98%E7%BC%96%E7%A8%8B/" rel="prev" title="C++提高编程：泛型编程与STL深度解析">
+      <i class="fa fa-chevron-left"></i> C++提高编程：泛型编程与STL深度解析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Eqemu%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D"><span class="nav-text">基于qemu的Linux系统移植</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%AF-%E7%9B%AE%E6%A0%87"><span class="nav-text">🎯 目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E6%8E%A8%E8%8D%90%E6%96%B9%E6%A1%88%EF%BC%9A%E4%BD%BF%E7%94%A8-QEMU-ARM-%E6%9E%B6%E6%9E%84%E6%A8%A1%E6%8B%9F"><span class="nav-text">✅ 推荐方案：使用 QEMU + ARM 架构模拟</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%A7%B1-%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-text">🧱 一、环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E5%B7%A5%E5%85%B7%EF%BC%88%E5%9C%A8-Ubuntu-Debian-%E7%B3%BB%E7%BB%9F%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-text">1. 安装必要工具（在 Ubuntu&#x2F;Debian 系统为例）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BA%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95"><span class="nav-text">2. 创建工作目录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E4%BA%8C%E3%80%81%E7%BC%96%E8%AF%91-U-Boot%EF%BC%88%E4%BB%A5-qemu-arm-virt-%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-text">🛠️ 二、编译 U-Boot（以 qemu_arm_virt 为例）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD-U-Boot-%E6%BA%90%E7%A0%81"><span class="nav-text">1. 下载 U-Boot 源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E5%B9%B6%E7%BC%96%E8%AF%91%EF%BC%88ARM32%EF%BC%89"><span class="nav-text">2. 配置并编译（ARM32）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89ARM64-%E7%BC%96%E8%AF%91"><span class="nav-text">3. （可选）ARM64 编译</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%90%A7-%E4%B8%89%E3%80%81%E7%BC%96%E8%AF%91-Linux-%E5%86%85%E6%A0%B8"><span class="nav-text">🐧 三、编译 Linux 内核</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81"><span class="nav-text">1. 下载内核源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E5%86%85%E6%A0%B8%EF%BC%88ARM32%EF%BC%89"><span class="nav-text">2. 配置内核（ARM32）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E5%92%8C%E8%AE%BE%E5%A4%87%E6%A0%91"><span class="nav-text">3. 编译内核和设备树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89ARM64-%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91"><span class="nav-text">4. （可选）ARM64 内核编译</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%81-%E5%9B%9B%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%88RootFS%EF%BC%89"><span class="nav-text">📁 四、制作根文件系统（RootFS）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95-1%EF%BC%9A%E4%BD%BF%E7%94%A8-BusyBox-Initramfs%EF%BC%88%E6%8E%A8%E8%8D%90%E5%85%A5%E9%97%A8%EF%BC%89"><span class="nav-text">方法 1：使用 BusyBox + Initramfs（推荐入门）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E5%B9%B6%E7%BC%96%E8%AF%91-BusyBox"><span class="nav-text">1. 下载并编译 BusyBox</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BA-initramfs-%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-text">2. 创建 initramfs 目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%89%93%E5%8C%85%E6%88%90-initramfs"><span class="nav-text">3. 打包成 initramfs</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95-2%EF%BC%9A%E4%BD%BF%E7%94%A8-Buildroot%EF%BC%88%E6%9B%B4%E5%AE%8C%E6%95%B4%EF%BC%8C%E6%8E%A8%E8%8D%90%E8%BF%9B%E9%98%B6%EF%BC%89"><span class="nav-text">方法 2：使用 Buildroot（更完整，推荐进阶）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%96%A5%EF%B8%8F-%E4%BA%94%E3%80%81%E4%BD%BF%E7%94%A8-QEMU-%E5%90%AF%E5%8A%A8%E6%95%B4%E4%B8%AA%E7%B3%BB%E7%BB%9F"><span class="nav-text">🖥️ 五、使用 QEMU 启动整个系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F-1%EF%BC%9A%E7%9B%B4%E6%8E%A5%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8-initramfs%EF%BC%88%E8%B7%B3%E8%BF%87-U-Boot%EF%BC%89"><span class="nav-text">方式 1：直接启动内核 + initramfs（跳过 U-Boot）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F-2%EF%BC%9A%E4%BD%BF%E7%94%A8-U-Boot-%E5%BC%95%E5%AF%BC%EF%BC%88%E6%9B%B4%E6%8E%A5%E8%BF%91%E7%9C%9F%E5%AE%9E%E5%BC%80%E5%8F%91%E6%9D%BF%E6%B5%81%E7%A8%8B%EF%BC%89"><span class="nav-text">方式 2：使用 U-Boot 引导（更接近真实开发板流程）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8-U-Boot%EF%BC%9A"><span class="nav-text">启动 U-Boot：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8-U-Boot-%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E6%89%8B%E5%8A%A8%E5%8A%A0%E8%BD%BD%E5%86%85%E6%A0%B8%EF%BC%9A"><span class="nav-text">在 U-Boot 命令行中手动加载内核：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E6%96%B9%E5%BC%8F-3%EF%BC%9AARM64-%E7%A4%BA%E4%BE%8B%EF%BC%88aarch64%EF%BC%89"><span class="nav-text">✅ 方式 3：ARM64 示例（aarch64）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%9A-%E5%85%AD%E3%80%81%E5%AD%A6%E4%B9%A0%E4%BB%B7%E5%80%BC"><span class="nav-text">📚 六、学习价值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%9A%80-%E8%BF%9B%E9%98%B6%E5%BB%BA%E8%AE%AE"><span class="nav-text">🚀 进阶建议</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%A7%A9-%E9%99%84%EF%BC%9A%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-text">🧩 附：常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8-x86%EF%BC%9F"><span class="nav-text">Q：为什么不用 x86？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q%EF%BC%9A%E8%83%BD%E5%90%A6%E6%A8%A1%E6%8B%9F%E7%9C%9F%E5%AE%9E%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%8C%E6%AF%94%E5%A6%82-Raspberry-Pi%EF%BC%9F"><span class="nav-text">Q：能否模拟真实开发板，比如 Raspberry Pi？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q%EF%BC%9Ainitramfs-%E5%90%AF%E5%8A%A8%E5%90%8E%E6%B2%A1%E6%9C%89%E7%BD%91%E7%BB%9C-USB%EF%BC%9F"><span class="nav-text">Q：initramfs 启动后没有网络&#x2F;USB？</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
