@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍IIC通信协议。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IIC通信协议">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/23/%E5%B5%8C%E5%85%A5%E5%BC%8F/IIC%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍IIC通信协议。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-23T07:40:00.000Z">
+<meta property="article:modified_time" content="2025-09-23T07:41:32.394Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="IIC">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/23/%E5%B5%8C%E5%85%A5%E5%BC%8F/IIC%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>IIC通信协议 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/23/%E5%B5%8C%E5%85%A5%E5%BC%8F/IIC%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IIC通信协议
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-23 15:40:00 / 修改时间：15:41:32" itemprop="dateCreated datePublished" datetime="2025-09-23T15:40:00+08:00">2025-09-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍IIC通信协议。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="IIC-通信协议基础与嵌入式应用"><a href="#IIC-通信协议基础与嵌入式应用" class="headerlink" title="IIC 通信协议基础与嵌入式应用"></a>IIC 通信协议基础与嵌入式应用</h1><h2 id="一、IIC-协议简介"><a href="#一、IIC-协议简介" class="headerlink" title="一、IIC 协议简介"></a>一、IIC 协议简介</h2><p>IIC（Inter-Integrated Circuit，集成电路间总线）是由飞利浦（Philips）公司于 1982 年推出的同步串行通信协议，专为短距离、低速的芯片间数据传输设计。其核心优势在于<strong>仅需两根信号线</strong>即可实现多设备间的双向通信，大幅简化了嵌入式系统的硬件接线（无需片选线），广泛应用于传感器（温湿度、光照）、EEPROM（存储芯片）、LCD 控制器、ADC&#x2F;DAC 等外设与 MCU 的通信场景。</p>
+<p>IIC 协议的核心特征的：</p>
+<ol>
+<li><p><strong>双线制</strong>：仅需 SDA（Serial Data，串行数据线）和 SCL（Serial Clock，串行时钟线）两根信号线，均为双向传输</p>
+</li>
+<li><p><strong>多主从架构</strong>：总线可挂载多个主设备（如 MCU）和多个从设备（如传感器），通过地址区分不同从设备</p>
+</li>
+<li><p><strong>同步通信</strong>：通过 SCL 提供时钟同步，数据传输速率可灵活调整（标准模式 100kHz、快速模式 400kHz、高速模式 3.4MHz）</p>
+</li>
+<li><p><strong>开漏输出</strong>：SDA 和 SCL 均采用开漏输出设计，需外接上拉电阻（通常 4.7kΩ~10kΩ）至电源，实现 “线与” 逻辑（多设备同时拉低时总线为低，均释放时为高）</p>
+</li>
+</ol>
+<h2 id="二、IIC-协议核心特性"><a href="#二、IIC-协议核心特性" class="headerlink" title="二、IIC 协议核心特性"></a>二、IIC 协议核心特性</h2><h3 id="（一）物理层规范"><a href="#（一）物理层规范" class="headerlink" title="（一）物理层规范"></a>（一）物理层规范</h3><p>IIC 的物理层定义了总线的硬件连接与电平标准，是协议正常工作的基础：</p>
+<table>
+<thead>
+<tr>
+<th>信号线</th>
+<th>功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SDA</td>
+<td>双向串行数据线，用于传输 8 位数据（MSB 先传），数据在 SCL 高电平时保持稳定</td>
+</tr>
+<tr>
+<td>SCL</td>
+<td>双向串行时钟线，由主设备生成，用于同步 SDA 上的数据传输，控制数据采样时机</td>
+</tr>
+<tr>
+<td>上拉电阻</td>
+<td>必须外接，确保 SDA&#x2F;SCL 在无设备驱动时处于高电平，阻值根据传输速率选择（100kHz 用 4.7kΩ）</td>
+</tr>
+<tr>
+<td>总线拓扑</td>
+<td>所有设备的 SDA&#x2F;SCL 分别共接，主设备负责发起通信、生成时钟，从设备被动响应</td>
+</tr>
+</tbody></table>
+<p><strong>电平标准</strong>：</p>
+<ul>
+<li><p>高电平（VIH）：通常为 2.7V~5V（兼容 3.3V&#x2F;5V 系统，需注意设备电平匹配）</p>
+</li>
+<li><p>低电平（VIL）：通常≤0.8V（开漏输出通过拉低总线实现低电平，释放总线后由上拉电阻拉回高电平）</p>
+</li>
+</ul>
+<h3 id="（二）通信拓扑结构"><a href="#（二）通信拓扑结构" class="headerlink" title="（二）通信拓扑结构"></a>（二）通信拓扑结构</h3><p>IIC 总线采用 “主从” 通信模式，支持多主设备共存（需避免总线冲突），典型拓扑如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">          +5V/3.3V</span><br><span class="line">            |</span><br><span class="line">            R（上拉电阻）</span><br><span class="line">            |</span><br><span class="line">SDA: 主设备1（MCU）&lt;--&gt; 主设备2（FPGA）&lt;--&gt; 从设备1（SHT30）&lt;--&gt; 从设备2（AT24C02）</span><br><span class="line">            |              |                |                |</span><br><span class="line">SCL: 主设备1（MCU）&lt;--&gt; 主设备2（FPGA）&lt;--&gt; 从设备1（SHT30）&lt;--&gt; 从设备2（AT24C02）</span><br><span class="line">            |              |                |                |</span><br><span class="line">          GND             GND              GND              GND</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>主设备</strong>：发起通信（生成起始 &#x2F; 停止条件）、控制时钟频率、决定通信对象（从设备地址）</p>
+</li>
+<li><p><strong>从设备</strong>：拥有唯一地址，仅在被主设备寻址后才响应数据传输</p>
+</li>
+<li><p><strong>多主冲突处理</strong>：当两个主设备同时发起通信时，通过 “时钟同步” 和 “数据仲裁” 避免冲突（检测到总线电平与自身输出不一致时，主动放弃主设备身份）</p>
+</li>
+</ul>
+<h2 id="三、IIC-协议通信时序（核心）"><a href="#三、IIC-协议通信时序（核心）" class="headerlink" title="三、IIC 协议通信时序（核心）"></a>三、IIC 协议通信时序（核心）</h2><p>IIC 的通信过程由<strong>起始条件</strong>、<strong>地址传输</strong>、<strong>数据传输</strong>、<strong>应答信号</strong>、<strong>停止条件</strong>5 个关键环节组成，时序的正确性直接决定通信是否成功。</p>
+<h3 id="（一）关键时序定义"><a href="#（一）关键时序定义" class="headerlink" title="（一）关键时序定义"></a>（一）关键时序定义</h3><h4 id="1-起始条件（S）：通信开始标志"><a href="#1-起始条件（S）：通信开始标志" class="headerlink" title="1. 起始条件（S）：通信开始标志"></a>1. 起始条件（S）：通信开始标志</h4><ul>
+<li><p>时序要求：SCL 保持高电平时，SDA 从高电平跳转为低电平（下降沿触发）</p>
+</li>
+<li><p>作用：告知总线上所有从设备 “即将开始通信”，从设备开始监听 SDA 上的地址信息</p>
+</li>
+<li><p>时序示意图（文字描述）：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SCL: 1 1 1 1 1 1 1 1  # 高电平期间</span><br><span class="line">SDA: 1 1 1 0 0 0 0 0  # 下降沿触发起始条件</span><br><span class="line">         ↑</span><br><span class="line">       起始点</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-停止条件（P）：通信结束标志"><a href="#2-停止条件（P）：通信结束标志" class="headerlink" title="2. 停止条件（P）：通信结束标志"></a>2. 停止条件（P）：通信结束标志</h4><ul>
+<li><p>时序要求：SCL 保持高电平时，SDA 从低电平跳转为高电平（上升沿触发）</p>
+</li>
+<li><p>作用：告知总线上所有从设备 “通信结束”，从设备恢复待机状态</p>
+</li>
+<li><p>时序示意图（文字描述）：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SCL: 1 1 1 1 1 1 1 1  # 高电平期间</span><br><span class="line">SDA: 0 0 0 0 1 1 1 1  # 上升沿触发停止条件</span><br><span class="line">         ↑</span><br><span class="line">       停止点</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-数据传输时序"><a href="#3-数据传输时序" class="headerlink" title="3. 数据传输时序"></a>3. 数据传输时序</h4><ul>
+<li><p>时序要求：<strong>SCL 低电平时 SDA 可变化</strong>（准备数据），<strong>SCL 高电平时 SDA 必须稳定</strong>（从设备采样数据）</p>
+</li>
+<li><p>数据格式：每次传输 1 字节（8 位），按 “高位（MSB）在前，低位（LSB）在后” 的顺序传输</p>
+</li>
+<li><p>时序示意图（文字描述，以传输字节 0x53 为例）：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SCL: 0 1 0 1 0 1 0 1 0  # 高低电平交替，共9个时钟（8位数据+1位应答）</span><br><span class="line">SDA: 0 0 1 1 0 0 1 1 A  # 0x53的二进制为01010011，A为应答位</span><br><span class="line">      （bit7）     （bit0）</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-应答信号（ACK-NACK）：数据接收确认"><a href="#4-应答信号（ACK-NACK）：数据接收确认" class="headerlink" title="4. 应答信号（ACK&#x2F;NACK）：数据接收确认"></a>4. 应答信号（ACK&#x2F;NACK）：数据接收确认</h4><ul>
+<li><p>时序位置：每传输 1 字节（8 位）后，紧跟 1 位应答位（第 9 个 SCL 时钟）</p>
+</li>
+<li><p>应答规则：</p>
+</li>
+<li><ul>
+<li><strong>ACK（应答）</strong>：接收方（主设备 &#x2F; 从设备）在第 9 个 SCL 高电平时，将 SDA 拉为低电平，表示 “已成功接收数据”</li>
+</ul>
+</li>
+<li><ul>
+<li><strong>NACK（非应答）</strong>：接收方在第 9 个 SCL 高电平时，释放 SDA（由上拉电阻拉为高电平），表示 “未接收数据” 或 “数据接收完成”</li>
+</ul>
+</li>
+<li><p>常见场景：</p>
+</li>
+<li><ul>
+<li>主设备发送地址 &#x2F; 数据后，由从设备发送 ACK</li>
+</ul>
+</li>
+<li><ul>
+<li>主设备接收从设备数据后，由主设备发送 ACK（需继续接收）或 NACK（接收结束）</li>
+</ul>
+</li>
+</ul>
+<h3 id="（二）完整通信流程示例（主设备读从设备数据）"><a href="#（二）完整通信流程示例（主设备读从设备数据）" class="headerlink" title="（二）完整通信流程示例（主设备读从设备数据）"></a>（二）完整通信流程示例（主设备读从设备数据）</h3><p>以 “STM32（主设备）读取 SHT30 温湿度传感器（从设备）” 为例，完整时序步骤如下：</p>
+<ol>
+<li><p>主设备发送<strong>起始条件（S）</strong>，总线进入忙状态</p>
+</li>
+<li><p>主设备发送<strong>从设备写地址（8 位）</strong>：SHT30 的 7 位地址为 0x44，写操作时第 8 位为 0 → 完整地址 0x88</p>
+</li>
+<li><p>从设备接收地址后，发送<strong>ACK</strong>（SDA 拉低），表示 “地址匹配，准备接收指令”</p>
+</li>
+<li><p>主设备发送<strong>寄存器地址（8 位）</strong>：如 SHT30 的 “单次测量指令” 0x2C06（分两字节发送：0x2C、0x06），每字节后从设备回复 ACK</p>
+</li>
+<li><p>主设备发送<strong>重复起始条件（Sr）</strong>：无需发送停止条件，直接发起新的起始（用于切换 “写” 到 “读” 操作）</p>
+</li>
+<li><p>主设备发送<strong>从设备读地址（8 位）</strong>：SHT30 的 7 位地址 0x44，读操作时第 8 位为 1 → 完整地址 0x89</p>
+</li>
+<li><p>从设备接收读地址后，发送<strong>ACK</strong>，表示 “准备发送数据”</p>
+</li>
+<li><p>从设备发送<strong>温湿度数据（共 6 字节）</strong>：每字节后主设备回复 ACK（前 5 字节），第 6 字节后主设备回复 NACK（数据接收完成）</p>
+</li>
+<li><p>主设备发送<strong>停止条件（P）</strong>，总线恢复空闲状态</p>
+</li>
+</ol>
+<h2 id="四、IIC-协议地址机制"><a href="#四、IIC-协议地址机制" class="headerlink" title="四、IIC 协议地址机制"></a>四、IIC 协议地址机制</h2><p>IIC 通过 “从设备地址” 区分总线上的不同设备，地址长度分为<strong>7 位地址</strong>（最常用）和<strong>10 位地址</strong>（用于设备数量多的场景），其中 7 位地址占比超过 90%。</p>
+<h3 id="（一）7-位地址格式"><a href="#（一）7-位地址格式" class="headerlink" title="（一）7 位地址格式"></a>（一）7 位地址格式</h3><p>7 位地址是 IIC 的标准地址格式，共包含 8 位（7 位地址 + 1 位读写位），结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bit7 bit6 bit5 bit4 bit3 bit2 bit1 | bit0</span><br><span class="line">  7位从设备地址                    | 读写位（R/W）</span><br><span class="line">                                   | 0=写操作，1=读操作</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>固定地址</strong>：部分从设备的 7 位地址固定（如 SHT30 为 0x44&#x2F;0x45，AT24C02 为 0xA0~0xA7）</p>
+</li>
+<li><p><strong>可编程地址</strong>：部分从设备通过引脚（如 A0&#x2F;A1&#x2F;A2）配置地址的低 3 位，实现多设备共存（如 AT24C02 的 A0&#x2F;A1&#x2F;A2 引脚接 GND 或 VCC，可生成 8 个不同地址）</p>
+</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<ul>
+<li><p>AT24C02（EEPROM）的 A0&#x3D;A1&#x3D;A2&#x3D;GND → 7 位地址为 0x50 → 写地址 0xA0（0x50&lt;&lt;1 | 0），读地址 0xA1（0x50&lt;&lt;1 | 1）</p>
+</li>
+<li><p>SHT30（温湿度传感器）的 ADDR 引脚接 GND → 7 位地址 0x44 → 写地址 0x88，读地址 0x89</p>
+</li>
+</ul>
+<h3 id="（二）广播地址"><a href="#（二）广播地址" class="headerlink" title="（二）广播地址"></a>（二）广播地址</h3><p>IIC 协议定义了<strong>0x00（7 位地址）</strong> 为广播地址，主设备发送该地址时，总线上所有从设备都会响应（仅支持写操作），常用于 “批量复位所有从设备” 等场景。</p>
+<h2 id="五、嵌入式应用示例（STM32-HAL-库）"><a href="#五、嵌入式应用示例（STM32-HAL-库）" class="headerlink" title="五、嵌入式应用示例（STM32 HAL 库）"></a>五、嵌入式应用示例（STM32 HAL 库）</h2><p>以 “STM32F103 通过 IIC 读取 AT24C02（EEPROM）数据” 为例，展示 IIC 协议的实际代码实现（基于 STM32 HAL 库）。</p>
+<h3 id="（一）硬件连接"><a href="#（一）硬件连接" class="headerlink" title="（一）硬件连接"></a>（一）硬件连接</h3><table>
+<thead>
+<tr>
+<th>STM32 引脚</th>
+<th>功能</th>
+<th>AT24C02 引脚</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PB6</td>
+<td>I2C1_SCL</td>
+<td>SCL</td>
+<td>时钟线</td>
+</tr>
+<tr>
+<td>PB7</td>
+<td>I2C1_SDA</td>
+<td>SDA</td>
+<td>数据线</td>
+</tr>
+<tr>
+<td>3.3V</td>
+<td>电源</td>
+<td>VCC</td>
+<td>电源</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>地</td>
+<td>GND</td>
+<td>地</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>地址配置</td>
+<td>A0&#x2F;A1&#x2F;A2</td>
+<td>地址引脚</td>
+</tr>
+</tbody></table>
+<h3 id="（二）代码实现"><a href="#（二）代码实现" class="headerlink" title="（二）代码实现"></a>（二）代码实现</h3><h4 id="1-IIC-外设初始化（HAL-库）"><a href="#1-IIC-外设初始化（HAL-库）" class="headerlink" title="1. IIC 外设初始化（HAL 库）"></a>1. IIC 外设初始化（HAL 库）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;stm32f1xx_hal.h&quot;</span><br><span class="line"></span><br><span class="line">I2C_HandleTypeDef hi2c1;  // IIC句柄</span><br><span class="line"></span><br><span class="line">// IIC初始化函数（标准模式100kHz）</span><br><span class="line">void MX_I2C1_Init(void) &#123;</span><br><span class="line">  hi2c1.Instance = I2C1;</span><br><span class="line">  hi2c1.Init.ClockSpeed = 100000;  // 时钟频率100kHz（标准模式）</span><br><span class="line">  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;  // 占空比1:2</span><br><span class="line">  hi2c1.Init.OwnAddress1 = 0;  // 主设备无需设置自身地址</span><br><span class="line">  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;  // 7位地址模式</span><br><span class="line">  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;</span><br><span class="line">  hi2c1.Init.OwnAddress2 = 0;</span><br><span class="line">  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;</span><br><span class="line">  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;</span><br><span class="line">  if (HAL_I2C_Init(&amp;hi2c1) != HAL_OK) &#123;</span><br><span class="line">    Error_Handler();  // 初始化失败处理</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// GPIO初始化（IIC引脚配置为开漏、上拉）</span><br><span class="line">void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle) &#123;</span><br><span class="line">  GPIO_InitTypeDef GPIO_InitStruct = &#123;0&#125;;</span><br><span class="line">  if (i2cHandle-&gt;Instance == I2C1) &#123;</span><br><span class="line">    __HAL_RCC_GPIOB_CLK_ENABLE();  // 使能GPIOB时钟</span><br><span class="line">    __HAL_RCC_I2C1_CLK_ENABLE();   // 使能I2C1时钟</span><br><span class="line"></span><br><span class="line">    // PB6（SCL）配置</span><br><span class="line">    GPIO_InitStruct.Pin = GPIO_PIN_6;</span><br><span class="line">    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;  // 复用开漏输出</span><br><span class="line">    GPIO_InitStruct.Pull = GPIO_PULLUP;      // 上拉</span><br><span class="line">    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;</span><br><span class="line">    HAL_GPIO_Init(GPIOB, &amp;GPIO_InitStruct);</span><br><span class="line"></span><br><span class="line">    // PB7（SDA）配置</span><br><span class="line">    GPIO_InitStruct.Pin = GPIO_PIN_7;</span><br><span class="line">    HAL_GPIO_Init(GPIOB, &amp;GPIO_InitStruct);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-AT24C02-读写函数"><a href="#2-AT24C02-读写函数" class="headerlink" title="2. AT24C02 读写函数"></a>2. AT24C02 读写函数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#define AT24C02_ADDR_WRITE 0xA0  // AT24C02写地址</span><br><span class="line">#define AT24C02_ADDR_READ  0xA1  // AT24C02读地址</span><br><span class="line"></span><br><span class="line">// 向AT24C02指定地址写入1字节数据</span><br><span class="line">HAL_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data) &#123;</span><br><span class="line">  return HAL_I2C_Mem_Write(&amp;hi2c1,          // IIC句柄</span><br><span class="line">                           AT24C02_ADDR_WRITE,  // 从设备写地址</span><br><span class="line">                           addr,             // EEPROM内部地址</span><br><span class="line">                           I2C_MEMADD_SIZE_8BIT,  // 内部地址长度（8位）</span><br><span class="line">                           &amp;data,            // 待写数据</span><br><span class="line">                           1,                // 数据长度</span><br><span class="line">                           100);             // 超时时间（ms）</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 从AT24C02指定地址读取1字节数据</span><br><span class="line">HAL_StatusTypeDef AT24C02_ReadByte(uint8_t addr, uint8_t* data) &#123;</span><br><span class="line">  return HAL_I2C_Mem_Read(&amp;hi2c1,           // IIC句柄</span><br><span class="line">                          AT24C02_ADDR_READ,   // 从设备读地址</span><br><span class="line">                          addr,             // EEPROM内部地址</span><br><span class="line">                          I2C_MEMADD_SIZE_8BIT,  // 内部地址长度（8位）</span><br><span class="line">                          data,             // 接收数据缓存</span><br><span class="line">                          1,                // 数据长度</span><br><span class="line">                          100);             // 超时时间（ms）</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-主函数调用示例"><a href="#3-主函数调用示例" class="headerlink" title="3. 主函数调用示例"></a>3. 主函数调用示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">int main(void) &#123;</span><br><span class="line">  HAL_Init();  // HAL库初始化</span><br><span class="line">  SystemClock_Config();  // 系统时钟配置</span><br><span class="line">  MX_I2C1_Init();        // IIC初始化</span><br><span class="line"></span><br><span class="line">  uint8_t write_data = 0x5A;  // 待写入数据</span><br><span class="line">  uint8_t read_data = 0;       // 读取到的数据</span><br><span class="line"></span><br><span class="line">  // 1. 向AT24C02地址0x00写入0x5A</span><br><span class="line">  if (AT24C02_WriteByte(0x00, write_data) == HAL_OK) &#123;</span><br><span class="line">    HAL_Delay(5);  // EEPROM写入需要时间，延迟等待</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 2. 从AT24C02地址0x00读取数据</span><br><span class="line">  if (AT24C02_ReadByte(0x00, &amp;read_data) == HAL_OK) &#123;</span><br><span class="line">    // 读取成功，read_data应为0x5A</span><br><span class="line">    if (read_data == write_data) &#123;</span><br><span class="line">      // 通信成功，可添加LED指示或串口打印</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  while (1) &#123;</span><br><span class="line">    // 主循环</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、IIC-常见问题与调试技巧"><a href="#六、IIC-常见问题与调试技巧" class="headerlink" title="六、IIC 常见问题与调试技巧"></a>六、IIC 常见问题与调试技巧</h2><h3 id="（一）常见问题及解决方案"><a href="#（一）常见问题及解决方案" class="headerlink" title="（一）常见问题及解决方案"></a>（一）常见问题及解决方案</h3><table>
+<thead>
+<tr>
+<th>问题现象</th>
+<th>可能原因</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通信无响应（HAL 返回 ERROR）</td>
+<td>1. 上拉电阻缺失 &#x2F; 阻值错误2. 从设备地址错误3. 引脚连接错误</td>
+<td>1. 检查 SDA&#x2F;SCL 是否接 4.7kΩ~10kΩ 上拉电阻2. 确认从设备地址及读写位3. 核对引脚（SDA&#x2F;SCL 勿接反）</td>
+</tr>
+<tr>
+<td>数据读取错误</td>
+<td>1. 时序不匹配（时钟频率过高）2. 未等待 EEPROM 写入完成3. 电平不兼容（3.3V&#x2F;5V 混接）</td>
+<td>1. 降低 IIC 时钟频率（从 100kHz 开始测试）2. EEPROM 写入后延迟 5~10ms3. 使用电平转换芯片（如 TXS0108）</td>
+</tr>
+<tr>
+<td>多设备共存时冲突</td>
+<td>1. 从设备地址重复2. 多主设备同时发起通信</td>
+<td>1. 通过 A0&#x2F;A1&#x2F;A2 引脚配置不同地址2. 避免多主设备同时操作总线，增加冲突检测逻辑</td>
+</tr>
+</tbody></table>
+<h3 id="（二）调试工具推荐"><a href="#（二）调试工具推荐" class="headerlink" title="（二）调试工具推荐"></a>（二）调试工具推荐</h3><ol>
+<li><p><strong>逻辑分析仪</strong>：抓取 SDA&#x2F;SCL 的实际波形，对比标准时序（如起始 &#x2F; 停止条件、数据采样时机），快速定位时序错误（推荐工具：DSLogic、Saleae）</p>
+</li>
+<li><p><strong>示波器</strong>：测量 SDA&#x2F;SCL 的电平是否正常（高电平是否≥2.7V，低电平是否≤0.8V），检查上拉电阻是否生效</p>
+</li>
+<li><p><strong>串口打印</strong>：在代码中添加调试信息（如 “发送起始条件”“接收 ACK”），通过串口助手观察通信流程，定位哪一步出错</p>
+</li>
+</ol>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><p>IIC 协议凭借 “双线制、多主从、低功耗” 的优势，成为嵌入式系统中芯片间通信的主流选择。掌握其核心时序（起始 &#x2F; 停止条件、应答机制）和地址规则，是实现稳定通信的关键。本文通过 STM32 HAL 库示例，展示了 IIC 在实际项目中的应用，同时提供了常见问题的调试思路，可满足大多数中小型嵌入式项目的需求。</p>
+<p>进阶学习方向：</p>
+<ol>
+<li><p>多主设备通信（冲突检测与仲裁）</p>
+</li>
+<li><p>IIC 高速模式（Fast-mode Plus，1MHz）与超高速模式（HS-mode，3.4MHz）</p>
+</li>
+<li><p>IIC 总线扩展（通过 I2C Hub 芯片增加挂载设备数量）</p>
+</li>
+<li><p>软件模拟 IIC（无需依赖硬件 IIC 外设，灵活性更高）</p>
+</li>
+</ol>
+<p>合理运用 IIC 协议，可大幅简化嵌入式系统的硬件设计，提升开发效率，是嵌入式工程师必备的通信协议技能之一。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" rel="tag"># 通信协议</a>
+              <a href="/tags/IIC/" rel="tag"># IIC</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/22/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/TensorFlow/" rel="prev" title="TensorFlow深度学习框架：核心原理、组件、流程与实战详解">
+      <i class="fa fa-chevron-left"></i> TensorFlow深度学习框架：核心原理、组件、流程与实战详解
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IIC-%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BA%94%E7%94%A8"><span class="nav-text">IIC 通信协议基础与嵌入式应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81IIC-%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B"><span class="nav-text">一、IIC 协议简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81IIC-%E5%8D%8F%E8%AE%AE%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-text">二、IIC 协议核心特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E7%89%A9%E7%90%86%E5%B1%82%E8%A7%84%E8%8C%83"><span class="nav-text">（一）物理层规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89%E9%80%9A%E4%BF%A1%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84"><span class="nav-text">（二）通信拓扑结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81IIC-%E5%8D%8F%E8%AE%AE%E9%80%9A%E4%BF%A1%E6%97%B6%E5%BA%8F%EF%BC%88%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="nav-text">三、IIC 协议通信时序（核心）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E5%85%B3%E9%94%AE%E6%97%B6%E5%BA%8F%E5%AE%9A%E4%B9%89"><span class="nav-text">（一）关键时序定义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%B5%B7%E5%A7%8B%E6%9D%A1%E4%BB%B6%EF%BC%88S%EF%BC%89%EF%BC%9A%E9%80%9A%E4%BF%A1%E5%BC%80%E5%A7%8B%E6%A0%87%E5%BF%97"><span class="nav-text">1. 起始条件（S）：通信开始标志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%81%9C%E6%AD%A2%E6%9D%A1%E4%BB%B6%EF%BC%88P%EF%BC%89%EF%BC%9A%E9%80%9A%E4%BF%A1%E7%BB%93%E6%9D%9F%E6%A0%87%E5%BF%97"><span class="nav-text">2. 停止条件（P）：通信结束标志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E6%97%B6%E5%BA%8F"><span class="nav-text">3. 数据传输时序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%BA%94%E7%AD%94%E4%BF%A1%E5%8F%B7%EF%BC%88ACK-NACK%EF%BC%89%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%A5%E6%94%B6%E7%A1%AE%E8%AE%A4"><span class="nav-text">4. 应答信号（ACK&#x2F;NACK）：数据接收确认</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AE%8C%E6%95%B4%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B%E7%A4%BA%E4%BE%8B%EF%BC%88%E4%B8%BB%E8%AE%BE%E5%A4%87%E8%AF%BB%E4%BB%8E%E8%AE%BE%E5%A4%87%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-text">（二）完整通信流程示例（主设备读从设备数据）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81IIC-%E5%8D%8F%E8%AE%AE%E5%9C%B0%E5%9D%80%E6%9C%BA%E5%88%B6"><span class="nav-text">四、IIC 协议地址机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%897-%E4%BD%8D%E5%9C%B0%E5%9D%80%E6%A0%BC%E5%BC%8F"><span class="nav-text">（一）7 位地址格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89%E5%B9%BF%E6%92%AD%E5%9C%B0%E5%9D%80"><span class="nav-text">（二）广播地址</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B%EF%BC%88STM32-HAL-%E5%BA%93%EF%BC%89"><span class="nav-text">五、嵌入式应用示例（STM32 HAL 库）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E7%A1%AC%E4%BB%B6%E8%BF%9E%E6%8E%A5"><span class="nav-text">（一）硬件连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">（二）代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IIC-%E5%A4%96%E8%AE%BE%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88HAL-%E5%BA%93%EF%BC%89"><span class="nav-text">1. IIC 外设初始化（HAL 库）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-AT24C02-%E8%AF%BB%E5%86%99%E5%87%BD%E6%95%B0"><span class="nav-text">2. AT24C02 读写函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E4%B8%BB%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-text">3. 主函数调用示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81IIC-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7"><span class="nav-text">六、IIC 常见问题与调试技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">（一）常见问题及解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90"><span class="nav-text">（二）调试工具推荐</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">七、总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">97</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
