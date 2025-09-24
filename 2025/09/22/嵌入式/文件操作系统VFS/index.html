@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍cpio。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解cpio：Linux下的归档工具与嵌入式领域核心应用">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/22/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9FVFS/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍cpio。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-22T12:00:00.000Z">
+<meta property="article:modified_time" content="2025-09-24T12:18:29.029Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="cpio">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/22/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9FVFS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>深入理解cpio：Linux下的归档工具与嵌入式领域核心应用 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/22/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9FVFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深入理解cpio：Linux下的归档工具与嵌入式领域核心应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-09-22 20:00:00" itemprop="dateCreated datePublished" datetime="2025-09-22T20:00:00+08:00">2025-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-09-24 20:18:29" itemprop="dateModified" datetime="2025-09-24T20:18:29+08:00">2025-09-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍cpio。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>我们从零基础开始，一步一步来理解 <strong>虚拟文件系统（VFS，Virtual File System）</strong>。</p>
+<hr>
+<h2 id="一、什么是文件系统？"><a href="#一、什么是文件系统？" class="headerlink" title="一、什么是文件系统？"></a>一、什么是文件系统？</h2><p>在讲 VFS 之前，先搞清楚 <strong>文件系统（File System）</strong> 是什么。</p>
+<ul>
+<li><strong>文件系统</strong> 是操作系统用来组织、存储和管理磁盘（或其他存储设备）上文件的一种机制。</li>
+<li>不同的操作系统、不同的存储设备，可能使用不同的文件系统。例如：<ul>
+<li>Windows 常用：NTFS、FAT32</li>
+<li>Linux 常用：ext4、XFS、Btrfs</li>
+<li>macOS 常用：APFS、HFS+</li>
+</ul>
+</li>
+</ul>
+<p>每种文件系统都有自己的规则：怎么存文件名、怎么记录文件大小、怎么分配磁盘空间等等。</p>
+<hr>
+<h2 id="二、问题来了：操作系统怎么同时支持这么多文件系统？"><a href="#二、问题来了：操作系统怎么同时支持这么多文件系统？" class="headerlink" title="二、问题来了：操作系统怎么同时支持这么多文件系统？"></a>二、问题来了：操作系统怎么同时支持这么多文件系统？</h2><p>假设你用的是 Linux，你可能同时挂载了：</p>
+<ul>
+<li>一个 ext4 格式的硬盘（Linux 原生）</li>
+<li>一个 FAT32 的 U 盘（来自 Windows）</li>
+<li>一个 NTFS 的移动硬盘</li>
+<li>甚至一个网络文件系统（比如 NFS）</li>
+</ul>
+<p>如果每个程序都要知道“这个文件在 ext4 上怎么读，那个在 FAT32 上怎么写”，那太麻烦了！</p>
+<p><strong>于是，操作系统引入了一个“中间层”——这就是虚拟文件系统（VFS）。</strong></p>
+<hr>
+<h2 id="三、VFS-是什么？——核心思想"><a href="#三、VFS-是什么？——核心思想" class="headerlink" title="三、VFS 是什么？——核心思想"></a>三、VFS 是什么？——核心思想</h2><blockquote>
+<p><strong>VFS 是一个抽象层，它为上层应用程序和内核提供统一的文件操作接口，屏蔽底层不同文件系统的差异。</strong></p>
+</blockquote>
+<p>你可以把它想象成一个“翻译官”或“通用插座”：</p>
+<ul>
+<li>应用程序说：“我要打开 &#x2F;home&#x2F;user&#x2F;file.txt”</li>
+<li>VFS 说：“好的，我来处理。这个路径在哪个文件系统上？哦，在 ext4 分区上。”</li>
+<li>然后 VFS 调用 ext4 文件系统的具体实现去真正打开文件。</li>
+<li>如果路径是在 U 盘上（FAT32），VFS 就调用 FAT32 的实现。</li>
+</ul>
+<p><strong>对应用程序来说，完全感觉不到底层差异！</strong> 它只需要用统一的系统调用（如 <code>open()</code>, <code>read()</code>, <code>write()</code>）就行。</p>
+<hr>
+<h2 id="四、VFS-的关键组成部分（简化版）"><a href="#四、VFS-的关键组成部分（简化版）" class="headerlink" title="四、VFS 的关键组成部分（简化版）"></a>四、VFS 的关键组成部分（简化版）</h2><p>VFS 通过几个核心的“抽象对象”来统一管理不同文件系统：</p>
+<h3 id="1-超级块（Superblock）"><a href="#1-超级块（Superblock）" class="headerlink" title="1. 超级块（Superblock）"></a>1. <strong>超级块（Superblock）</strong></h3><ul>
+<li>描述一个<strong>已挂载的文件系统</strong>的整体信息。</li>
+<li>比如：文件系统类型（ext4？FAT32？）、总大小、可用空间、挂载点等。</li>
+<li>每个挂载的文件系统在 VFS 中都有一个对应的超级块。</li>
+</ul>
+<h3 id="2-索引节点（Inode）"><a href="#2-索引节点（Inode）" class="headerlink" title="2. 索引节点（Inode）"></a>2. <strong>索引节点（Inode）</strong></h3><ul>
+<li>描述一个<strong>文件或目录的元数据</strong>（不是文件名！）。</li>
+<li>包括：文件大小、权限、所有者、时间戳、数据块位置等。</li>
+<li>注意：文件名并不存在 inode 里，而是存在目录项中。</li>
+</ul>
+<h3 id="3-目录项（Dentry，Directory-Entry）"><a href="#3-目录项（Dentry，Directory-Entry）" class="headerlink" title="3. 目录项（Dentry，Directory Entry）"></a>3. <strong>目录项（Dentry，Directory Entry）</strong></h3><ul>
+<li>表示<strong>路径中的一个组件</strong>，比如 <code>/home/user/file.txt</code> 中的 <code>home</code>、<code>user</code>、<code>file.txt</code>。</li>
+<li>Dentry 把<strong>文件名</strong>和对应的 <strong>inode</strong> 关联起来。</li>
+<li>VFS 会缓存 dentry，加速路径查找（比如你反复访问同一个文件）。</li>
+</ul>
+<h3 id="4-文件对象（File）"><a href="#4-文件对象（File）" class="headerlink" title="4. 文件对象（File）"></a>4. <strong>文件对象（File）</strong></h3><ul>
+<li>表示一个<strong>打开的文件实例</strong>。</li>
+<li>包含：当前读写位置（文件偏移）、访问模式（只读&#x2F;读写）、指向 inode 的指针等。</li>
+<li>每次你 <code>open()</code> 一个文件，内核就创建一个 file 对象。</li>
+</ul>
+<hr>
+<h2 id="五、举个例子：打开一个文件的过程"><a href="#五、举个例子：打开一个文件的过程" class="headerlink" title="五、举个例子：打开一个文件的过程"></a>五、举个例子：打开一个文件的过程</h2><p>假设你在 Linux 中执行：</p>
+<pre style="background: none"><code class="language-bash" data-language="bash" identifier="0af040d060d54a0cb45c0185e45d26fe-0" index="0" total="1">cat /mnt/usb/data.txt</code></pre>
+
+<p>而 <code>/mnt/usb</code> 是一个 FAT32 格式的 U 盘。</p>
+<p>VFS 的工作流程如下：</p>
+<ol>
+<li><strong>解析路径</strong>：VFS 从根目录开始，逐级查找 <code>/mnt</code> → <code>/mnt/usb</code> → <code>/mnt/usb/data.txt</code>。</li>
+<li><strong>查找 dentry</strong>：每一步都查找或创建 dentry，最终找到 <code>data.txt</code> 对应的 dentry。</li>
+<li><strong>获取 inode</strong>：通过 dentry 找到该文件的 inode（FAT32 文件系统会提供自己的 inode 表示）。</li>
+<li><strong>创建 file 对象</strong>：调用 <code>open()</code> 系统调用，VFS 创建一个 file 对象。</li>
+<li><strong>调用具体文件系统的操作</strong>：VFS 知道这个 inode 属于 FAT32 文件系统，于是调用 FAT32 的 <code>read</code> 函数来真正读取数据。</li>
+<li><strong>返回数据给用户程序</strong>：<code>cat</code> 命令拿到数据并显示。</li>
+</ol>
+<p>整个过程，<code>cat</code> 完全不知道底层是 FAT32 还是 ext4！</p>
+<hr>
+<h2 id="六、为什么叫“虚拟”文件系统？"><a href="#六、为什么叫“虚拟”文件系统？" class="headerlink" title="六、为什么叫“虚拟”文件系统？"></a>六、为什么叫“虚拟”文件系统？</h2><ul>
+<li>因为 VFS 本身<strong>不存储任何真实数据</strong>，也不直接管理磁盘。</li>
+<li>它只是一个<strong>抽象框架</strong>，定义了“所有文件系统都应该实现哪些操作”。</li>
+<li>真正干活的是具体的文件系统（ext4、FAT32 等），它们向 VFS “注册”自己的一套操作函数（比如 <code>.open</code>, <code>.read</code>, <code>.write</code>）。</li>
+</ul>
+<p>这就像“接口”和“实现类”的关系（如果你学过面向对象编程）。</p>
+<hr>
+<h2 id="七、VFS-支持的不仅仅是磁盘文件系统！"><a href="#七、VFS-支持的不仅仅是磁盘文件系统！" class="headerlink" title="七、VFS 支持的不仅仅是磁盘文件系统！"></a>七、VFS 支持的不仅仅是磁盘文件系统！</h2><p>VFS 的设计非常通用，所以 Linux 中很多“看起来像文件”的东西也通过 VFS 实现：</p>
+<ul>
+<li><strong>proc 文件系统（&#x2F;proc）</strong>：展示进程信息（如 <code>/proc/1234/status</code>）</li>
+<li><strong>sysfs（&#x2F;sys）</strong>：展示内核和设备信息</li>
+<li><strong>tmpfs</strong>：基于内存的临时文件系统</li>
+<li><strong>pipe、socket</strong>：某些情况下也被抽象为文件</li>
+</ul>
+<p>这些都不是传统意义上的“磁盘文件”，但通过 VFS，你可以用 <code>read()</code>&#x2F;<code>write()</code> 像操作普通文件一样操作它们！</p>
+<hr>
+<h2 id="八、总结：VFS-的作用"><a href="#八、总结：VFS-的作用" class="headerlink" title="八、总结：VFS 的作用"></a>八、总结：VFS 的作用</h2><table>
+<thead>
+<tr>
+<th>作用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>统一接口</strong></td>
+<td>应用程序无需关心底层文件系统类型</td>
+</tr>
+<tr>
+<td><strong>抽象隔离</strong></td>
+<td>将通用操作与具体实现分离</td>
+</tr>
+<tr>
+<td><strong>提高兼容性</strong></td>
+<td>轻松支持多种文件系统共存</td>
+</tr>
+<tr>
+<td><strong>提升性能</strong></td>
+<td>通过 dentry&#x2F;inode 缓存加速路径查找</td>
+</tr>
+<tr>
+<td><strong>扩展性强</strong></td>
+<td>新文件系统只需实现 VFS 规定的接口即可接入</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="九、类比帮助理解"><a href="#九、类比帮助理解" class="headerlink" title="九、类比帮助理解"></a>九、类比帮助理解</h2><p>想象你去不同国家旅行：</p>
+<ul>
+<li>在中国吃饭用筷子</li>
+<li>在美国吃饭用刀叉</li>
+<li>在印度可能用手</li>
+</ul>
+<p>但如果你有一个“万能餐具适配器”（VFS），你只需要说“我要吃饭”，它自动给你配上当地正确的餐具。</p>
+<p>你（应用程序）不用学每种餐具怎么用，适配器（VFS）帮你搞定！</p>
+<hr>
+<p>如果你是初学者，现在只需要记住：</p>
+<blockquote>
+<p><strong>VFS 是 Linux 内核中一个“通用文件操作层”，让所有程序都能用同样的方式访问各种不同的文件系统。</strong></p>
+</blockquote>
+<p>等你以后学操作系统、Linux 内核或做系统编程时，会更深入理解它的实现细节。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cpio/" rel="tag"># cpio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/18/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%9F%BA%E4%BA%8Eqemu%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D/" rel="prev" title="基于qemu的Linux系统移植">
+      <i class="fa fa-chevron-left"></i> 基于qemu的Linux系统移植
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/09/22/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E4%BB%80%E4%B9%88%E6%98%AFcpio/" rel="next" title="深入理解cpio：Linux下的归档工具与嵌入式领域核心应用">
+      深入理解cpio：Linux下的归档工具与嵌入式领域核心应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="nav-text">一、什么是文件系统？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%97%AE%E9%A2%98%E6%9D%A5%E4%BA%86%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%80%8E%E4%B9%88%E5%90%8C%E6%97%B6%E6%94%AF%E6%8C%81%E8%BF%99%E4%B9%88%E5%A4%9A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="nav-text">二、问题来了：操作系统怎么同时支持这么多文件系统？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81VFS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E2%80%94%E2%80%94%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="nav-text">三、VFS 是什么？——核心思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81VFS-%E7%9A%84%E5%85%B3%E9%94%AE%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86%EF%BC%88%E7%AE%80%E5%8C%96%E7%89%88%EF%BC%89"><span class="nav-text">四、VFS 的关键组成部分（简化版）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%B6%85%E7%BA%A7%E5%9D%97%EF%BC%88Superblock%EF%BC%89"><span class="nav-text">1. 超级块（Superblock）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9%EF%BC%88Inode%EF%BC%89"><span class="nav-text">2. 索引节点（Inode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%9B%AE%E5%BD%95%E9%A1%B9%EF%BC%88Dentry%EF%BC%8CDirectory-Entry%EF%BC%89"><span class="nav-text">3. 目录项（Dentry，Directory Entry）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%96%87%E4%BB%B6%E5%AF%B9%E8%B1%A1%EF%BC%88File%EF%BC%89"><span class="nav-text">4. 文件对象（File）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A%E6%89%93%E5%BC%80%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-text">五、举个例子：打开一个文件的过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AB%E2%80%9C%E8%99%9A%E6%8B%9F%E2%80%9D%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="nav-text">六、为什么叫“虚拟”文件系统？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81VFS-%E6%94%AF%E6%8C%81%E7%9A%84%E4%B8%8D%E4%BB%85%E4%BB%85%E6%98%AF%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%81"><span class="nav-text">七、VFS 支持的不仅仅是磁盘文件系统！</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9AVFS-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-text">八、总结：VFS 的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E7%B1%BB%E6%AF%94%E5%B8%AE%E5%8A%A9%E7%90%86%E8%A7%A3"><span class="nav-text">九、类比帮助理解</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">98</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
