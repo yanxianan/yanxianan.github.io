@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文记录一些vim编辑器的常用操作命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vim操作命令笔记：从入门到高效的必备指南">
+<meta property="og:url" content="https://yanxianan.github.io/2025/09/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/vim%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文记录一些vim编辑器的常用操作命令。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-24T01:40:00.000Z">
+<meta property="article:modified_time" content="2025-09-24T07:41:34.620Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="vim">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/09/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/vim%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Vim操作命令笔记：从入门到高效的必备指南 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/09/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/vim%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vim操作命令笔记：从入门到高效的必备指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-24 09:40:00 / 修改时间：15:41:34" itemprop="dateCreated datePublished" datetime="2025-09-24T09:40:00+08:00">2025-09-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文记录一些vim编辑器的常用操作命令。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Vim 是 Linux&#x2F;UNIX 环境下最经典的文本编辑器之一，核心优势是“<strong>模式化编辑</strong>”和“<strong>键盘流高效操作</strong>”——无需依赖鼠标，通过快捷键即可完成文本编辑、搜索替换、窗口管理等所有操作。对于嵌入式开发、后端开发等频繁编辑代码的场景，熟练使用 Vim 能大幅提升效率。本文按“基础→进阶→实用技巧”的逻辑，整理 Vim 核心操作命令，适合新手入门和老手查漏补缺。</p>
+<h2 id="一、Vim-核心：模式切换（新手必懂！）"><a href="#一、Vim-核心：模式切换（新手必懂！）" class="headerlink" title="一、Vim 核心：模式切换（新手必懂！）"></a>一、Vim 核心：模式切换（新手必懂！）</h2><p>Vim 与其他编辑器（如 VS Code、记事本）的最大区别是“<strong>多模式编辑</strong>”，不同模式下快捷键功能不同。核心模式有 4 种，切换逻辑是入门关键：</p>
+<table>
+<thead>
+<tr>
+<th>模式名称</th>
+<th>核心作用</th>
+<th>进入方式</th>
+<th>退出方式（回正常模式）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正常模式（Normal）</td>
+<td>光标移动、快捷键操作（核心模式）</td>
+<td>打开 Vim 默认进入；其他模式按 <code>ESC</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td>插入模式（Insert）</td>
+<td>输入文本（类似普通编辑器）</td>
+<td>正常模式下按 <code>i/a/o/I/A/O</code></td>
+<td>按 <code>ESC</code></td>
+</tr>
+<tr>
+<td>命令行模式（Command）</td>
+<td>执行命令（如保存、退出、搜索）</td>
+<td>正常模式下按 <code>:</code>（冒号）</td>
+<td>执行命令后自动回正常模式；或按 <code>ESC</code></td>
+</tr>
+<tr>
+<td>可视模式（Visual）</td>
+<td>选中文本（批量操作）</td>
+<td>正常模式下按 <code>v/V/&lt;Ctrl+v&gt;</code></td>
+<td>按 <code>ESC</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>🔔 关键提醒：<strong>所有快捷键都需在“正常模式”下触发</strong>，如果操作没反应，先按 <code>ESC</code> 确认回到正常模式！</p>
+</blockquote>
+<h2 id="二、基础操作：光标移动与文本编辑"><a href="#二、基础操作：光标移动与文本编辑" class="headerlink" title="二、基础操作：光标移动与文本编辑"></a>二、基础操作：光标移动与文本编辑</h2><h3 id="1-正常模式：光标移动（高效核心）"><a href="#1-正常模式：光标移动（高效核心）" class="headerlink" title="1. 正常模式：光标移动（高效核心）"></a>1. 正常模式：光标移动（高效核心）</h3><p>正常模式下，光标移动不依赖方向键，用字母键即可完成，速度更快。按“移动范围”分类如下：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>h/j/k/l</code></td>
+<td>左&#x2F;下&#x2F;上&#x2F;右移动（替代 ←↓↑→ 键）</td>
+<td>按 <code>j</code> 向下移动一行</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>光标跳至<strong>下一个单词开头</strong></td>
+<td>从“hello world”的 <code>h</code> 跳至 <code>w</code></td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>光标跳至<strong>上一个单词开头</strong></td>
+<td>从“world”的 <code>w</code> 跳回 <code>h</code></td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>光标跳至<strong>当前单词结尾</strong></td>
+<td>从“hello”的 <code>h</code> 跳至 <code>o</code></td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>光标跳至<strong>当前行开头</strong>（数字 0）</td>
+<td>行首有缩进时，跳至最左侧</td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>光标跳至<strong>当前行第一个非空白字符</strong></td>
+<td>跳过行首缩进，定位到代码开头</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>光标跳至<strong>当前行结尾</strong></td>
+<td>快速编辑行尾注释</td>
+</tr>
+<tr>
+<td><code>gg</code></td>
+<td>光标跳至<strong>文件开头</strong></td>
+<td>打开大文件后定位到首行</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>光标跳至<strong>文件结尾</strong></td>
+<td>查看日志文件最后几行</td>
+</tr>
+<tr>
+<td><code>nG</code></td>
+<td>光标跳至<strong>第 n 行</strong>（n 为数字）</td>
+<td>按 <code>10G</code> 跳至第 10 行</td>
+</tr>
+<tr>
+<td><code>H</code></td>
+<td>光标跳至<strong>当前屏幕顶部</strong></td>
+<td>快速回到屏幕可视范围顶部</td>
+</tr>
+<tr>
+<td><code>M</code></td>
+<td>光标跳至<strong>当前屏幕中间</strong></td>
+<td>屏幕内容多时定位到中间</td>
+</tr>
+<tr>
+<td><code>L</code></td>
+<td>光标跳至<strong>当前屏幕底部</strong></td>
+<td>快速查看屏幕底部内容</td>
+</tr>
+<tr>
+<td><code>Ctrl+f</code></td>
+<td>屏幕<strong>向下翻一页</strong>（forward）</td>
+<td>类似 PageDown 键</td>
+</tr>
+<tr>
+<td><code>Ctrl+b</code></td>
+<td>屏幕<strong>向上翻一页</strong>（backward）</td>
+<td>类似 PageUp 键</td>
+</tr>
+<tr>
+<td><code>Ctrl+d</code></td>
+<td>屏幕<strong>向下翻半页</strong>（down）</td>
+<td>缓慢滚动查看内容</td>
+</tr>
+<tr>
+<td><code>Ctrl+u</code></td>
+<td>屏幕<strong>向上翻半页</strong>（up）</td>
+<td>同上</td>
+</tr>
+</tbody></table>
+<h3 id="2-插入模式：文本输入（6种进入方式）"><a href="#2-插入模式：文本输入（6种进入方式）" class="headerlink" title="2. 插入模式：文本输入（6种进入方式）"></a>2. 插入模式：文本输入（6种进入方式）</h3><p>正常模式下按以下键进入插入模式，区别在于“光标位置”，根据场景选择更高效：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>进入插入模式的位置</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>i</code></td>
+<td>光标<strong>当前位置前</strong>插入</td>
+<td>在单词中间补字符（如“heo”→补“l”）</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>光标<strong>当前位置后</strong>插入</td>
+<td>在单词末尾加字符（如“hello”→加“!”）</td>
+</tr>
+<tr>
+<td><code>o</code></td>
+<td>在光标<strong>当前行下方新建一行</strong>插入</td>
+<td>向下新增代码行</td>
+</tr>
+<tr>
+<td><code>I</code></td>
+<td>光标跳至<strong>当前行开头</strong>插入</td>
+<td>在行首加注释（如“&#x2F;&#x2F;”）</td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td>光标跳至<strong>当前行结尾</strong>插入</td>
+<td>在行尾加分号（如 C&#x2F;C++ 语句结尾）</td>
+</tr>
+<tr>
+<td><code>O</code></td>
+<td>在光标<strong>当前行上方新建一行</strong>插入</td>
+<td>向上新增代码行</td>
+</tr>
+</tbody></table>
+<h3 id="3-正常模式：文本编辑（删除-复制-粘贴-撤销）"><a href="#3-正常模式：文本编辑（删除-复制-粘贴-撤销）" class="headerlink" title="3. 正常模式：文本编辑（删除&#x2F;复制&#x2F;粘贴&#x2F;撤销）"></a>3. 正常模式：文本编辑（删除&#x2F;复制&#x2F;粘贴&#x2F;撤销）</h3><p>这部分是 Vim 最常用的编辑操作，所有删除的内容会自动存入“寄存器”，支持后续粘贴，无需担心误删。</p>
+<h4 id="（1）删除操作（d-delete）"><a href="#（1）删除操作（d-delete）" class="headerlink" title="（1）删除操作（d &#x3D; delete）"></a>（1）删除操作（d &#x3D; delete）</h4><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>x</code></td>
+<td>删除光标<strong>当前位置的字符</strong></td>
+<td>光标在“h”上，按 <code>x</code> 删除“h”</td>
+</tr>
+<tr>
+<td><code>dw</code></td>
+<td>删除光标<strong>从当前位置到下一个单词开头</strong>的内容</td>
+<td>“hello world”中，光标在“h”→按 <code>dw</code> 删除“hello”</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>删除光标<strong>从当前位置到上一个单词开头</strong>的内容</td>
+<td>“hello world”中，光标在“w”→按 <code>db</code> 删除“ world”</td>
+</tr>
+<tr>
+<td><code>dd</code></td>
+<td>删除光标<strong>当前行</strong></td>
+<td>快速删除一行代码</td>
+</tr>
+<tr>
+<td><code>ndd</code></td>
+<td>删除光标<strong>当前行开始的 n 行</strong>（n 为数字）</td>
+<td>按 <code>3dd</code> 删除当前行及下方 2 行</td>
+</tr>
+<tr>
+<td><code>d$</code></td>
+<td>删除光标<strong>从当前位置到行尾</strong>的内容</td>
+<td>清除行尾多余字符</td>
+</tr>
+<tr>
+<td><code>d^</code></td>
+<td>删除光标<strong>从当前位置到行首</strong>的内容</td>
+<td>清除行首多余空格</td>
+</tr>
+<tr>
+<td><code>dG</code></td>
+<td>删除光标<strong>从当前行到文件结尾</strong>的内容</td>
+<td>清空文件后半部分</td>
+</tr>
+<tr>
+<td><code>dgg</code></td>
+<td>删除光标<strong>从当前行到文件开头</strong>的内容</td>
+<td>清空文件前半部分</td>
+</tr>
+</tbody></table>
+<h4 id="（2）复制操作（y-yank，意为“-Yank-复制”）"><a href="#（2）复制操作（y-yank，意为“-Yank-复制”）" class="headerlink" title="（2）复制操作（y &#x3D; yank，意为“ Yank 复制”）"></a>（2）复制操作（y &#x3D; yank，意为“ Yank 复制”）</h4><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>yw</code></td>
+<td>复制光标<strong>从当前位置到下一个单词开头</strong>的内容</td>
+<td>复制一个单词</td>
+</tr>
+<tr>
+<td><code>yy</code></td>
+<td>复制光标<strong>当前行</strong></td>
+<td>复制一行代码</td>
+</tr>
+<tr>
+<td><code>nyy</code></td>
+<td>复制光标<strong>当前行开始的 n 行</strong></td>
+<td>按 <code>5yy</code> 复制 5 行代码</td>
+</tr>
+<tr>
+<td><code>y$</code></td>
+<td>复制光标<strong>从当前位置到行尾</strong>的内容</td>
+<td>复制行尾部分内容</td>
+</tr>
+<tr>
+<td><code>y^</code></td>
+<td>复制光标<strong>从当前位置到行首</strong>的内容</td>
+<td>复制行首部分内容</td>
+</tr>
+<tr>
+<td><code>yG</code></td>
+<td>复制光标<strong>从当前行到文件结尾</strong>的内容</td>
+<td>复制文件后半部分</td>
+</tr>
+<tr>
+<td><code>ygg</code></td>
+<td>复制光标<strong>从当前行到文件开头</strong>的内容</td>
+<td>复制文件前半部分</td>
+</tr>
+</tbody></table>
+<h4 id="（3）粘贴操作（p-put，意为“-Put-粘贴”）"><a href="#（3）粘贴操作（p-put，意为“-Put-粘贴”）" class="headerlink" title="（3）粘贴操作（p &#x3D; put，意为“ Put 粘贴”）"></a>（3）粘贴操作（p &#x3D; put，意为“ Put 粘贴”）</h4><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>p</code></td>
+<td>在光标<strong>当前位置后</strong>粘贴内容</td>
+<td>复制一行后，按 <code>p</code> 粘贴到下一行</td>
+</tr>
+<tr>
+<td><code>P</code></td>
+<td>在光标<strong>当前位置前</strong>粘贴内容</td>
+<td>复制一行后，按 <code>P</code> 粘贴到上一行</td>
+</tr>
+<tr>
+<td><code>np</code></td>
+<td>粘贴 n 次复制的内容（n 为数字）</td>
+<td>按 <code>3p</code> 粘贴 3 次</td>
+</tr>
+</tbody></table>
+<h4 id="（4）撤销与恢复（u-undo，Ctrl-r-redo）"><a href="#（4）撤销与恢复（u-undo，Ctrl-r-redo）" class="headerlink" title="（4）撤销与恢复（u &#x3D; undo，Ctrl+r &#x3D; redo）"></a>（4）撤销与恢复（u &#x3D; undo，Ctrl+r &#x3D; redo）</h4><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>u</code></td>
+<td>撤销上一步操作</td>
+<td>误删一行后，按 <code>u</code> 恢复</td>
+</tr>
+<tr>
+<td><code>Ctrl+r</code></td>
+<td>恢复（反撤销）上一步被撤销的操作</td>
+<td>撤销多了，按 <code>Ctrl+r</code> 找回</td>
+</tr>
+<tr>
+<td><code>U</code></td>
+<td>撤销当前行的所有修改</td>
+<td>一行改乱了，按 <code>U</code> 恢复原样</td>
+</tr>
+</tbody></table>
+<h2 id="三、进阶操作：搜索替换与窗口管理"><a href="#三、进阶操作：搜索替换与窗口管理" class="headerlink" title="三、进阶操作：搜索替换与窗口管理"></a>三、进阶操作：搜索替换与窗口管理</h2><h3 id="1-搜索操作（正常模式-命令行模式）"><a href="#1-搜索操作（正常模式-命令行模式）" class="headerlink" title="1. 搜索操作（正常模式 + 命令行模式）"></a>1. 搜索操作（正常模式 + 命令行模式）</h3><p>Vim 支持快速搜索文本，且能高亮匹配结果，适合大文件中找关键词。</p>
+<h4 id="（1）正常模式：快速搜索"><a href="#（1）正常模式：快速搜索" class="headerlink" title="（1）正常模式：快速搜索"></a>（1）正常模式：快速搜索</h4><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/关键词</code></td>
+<td>从光标位置<strong>向下搜索</strong>“关键词”</td>
+<td>按 <code>/printf</code> 搜索所有 printf 函数</td>
+</tr>
+<tr>
+<td><code>?关键词</code></td>
+<td>从光标位置<strong>向上搜索</strong>“关键词”</td>
+<td>按 <code>?error</code> 向上找 error 日志</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>跳至<strong>下一个</strong>匹配结果</td>
+<td>搜索后按 <code>n</code> 继续找下一个</td>
+</tr>
+<tr>
+<td><code>N</code></td>
+<td>跳至<strong>上一个</strong>匹配结果</td>
+<td>按 <code>N</code> 回到上一个匹配位置</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>快速搜索<strong>当前光标所在单词</strong>（向下）</td>
+<td>光标在“hello”上，按 <code>*</code> 搜索所有 hello</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>快速搜索<strong>当前光标所在单词</strong>（向上）</td>
+<td>同上，向上搜索</td>
+</tr>
+</tbody></table>
+<h4 id="（2）命令行模式：搜索配置"><a href="#（2）命令行模式：搜索配置" class="headerlink" title="（2）命令行模式：搜索配置"></a>（2）命令行模式：搜索配置</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:set hlsearch</code></td>
+<td>开启搜索结果<strong>高亮显示</strong>（默认开启）</td>
+<td>按 <code>:set hlsearch</code> 启用</td>
+</tr>
+<tr>
+<td><code>:set nohlsearch</code></td>
+<td>关闭搜索结果高亮显示</td>
+<td>按 <code>:nohlsearch</code> 临时关闭高亮</td>
+</tr>
+<tr>
+<td><code>:set ignorecase</code></td>
+<td>搜索时<strong>忽略大小写</strong>（如 Hello 和 hello 视为相同）</td>
+<td>按 <code>:set ic</code> 简写启用</td>
+</tr>
+<tr>
+<td><code>:set noignorecase</code></td>
+<td>搜索时<strong>区分大小写</strong></td>
+<td>按 <code>:set noic</code> 简写关闭</td>
+</tr>
+</tbody></table>
+<h3 id="2-替换操作（命令行模式，-s-命令）"><a href="#2-替换操作（命令行模式，-s-命令）" class="headerlink" title="2. 替换操作（命令行模式，:s 命令）"></a>2. 替换操作（命令行模式，:s 命令）</h3><p>Vim 的替换功能支持“局部替换”和“全局替换”，语法灵活，核心格式为：<br><code>:范围 s/旧内容/新内容/选项</code></p>
+<table>
+<thead>
+<tr>
+<th>命令示例</th>
+<th>功能描述</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:s/old/new</code></td>
+<td>替换<strong>当前行</strong>第一个“old”为“new”</td>
+<td>一行内改单个关键词</td>
+</tr>
+<tr>
+<td><code>:s/old/new/g</code></td>
+<td>替换<strong>当前行</strong>所有“old”为“new”</td>
+<td>一行内改多个相同关键词</td>
+</tr>
+<tr>
+<td><code>:#,#s/old/new/g</code></td>
+<td>替换<strong>第 # 行到第 # 行</strong>所有“old”为“new”</td>
+<td>按 <code>:10,20s/printf/print/g</code> 改 10-20 行的 printf 为 print</td>
+</tr>
+<tr>
+<td><code>:%s/old/new/g</code></td>
+<td>替换<strong>整个文件</strong>所有“old”为“new”</td>
+<td>批量修改变量名（如把 foo 改为 bar）</td>
+</tr>
+<tr>
+<td><code>:%s/old/new/gc</code></td>
+<td>替换整个文件所有“old”为“new”，且<strong>每次替换前确认</strong></td>
+<td>避免误改，按 <code>y</code> 确认替换，<code>n</code> 跳过</td>
+</tr>
+<tr>
+<td><code>:%s/^/\/\/ /g</code></td>
+<td>在<strong>所有行首</strong>加“&#x2F;&#x2F; ”（注释行）</td>
+<td>批量注释 C&#x2F;C++ 代码</td>
+</tr>
+<tr>
+<td><code>:%s/^\/\/ //g</code></td>
+<td>移除<strong>所有行首</strong>的“&#x2F;&#x2F; ”（取消注释）</td>
+<td>批量取消注释</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>🔔 说明：<code>^</code> 代表行首，<code>$</code> 代表行尾；选项 <code>g</code> 代表“全局（global）”，<code>c</code> 代表“确认（confirm）”。</p>
+</blockquote>
+<h3 id="3-窗口管理（多文件编辑必备）"><a href="#3-窗口管理（多文件编辑必备）" class="headerlink" title="3. 窗口管理（多文件编辑必备）"></a>3. 窗口管理（多文件编辑必备）</h3><p>Vim 支持分屏显示多个文件，适合对比代码、同时编辑头文件和源文件，核心命令在命令行模式下执行：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能描述</th>
+<th>操作示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:sp 文件名</code></td>
+<td>水平分屏（上下分屏），新窗口打开“文件名”</td>
+<td>按 <code>:sp main.c</code> 水平分屏打开 main.c</td>
+</tr>
+<tr>
+<td><code>:vsp 文件名</code></td>
+<td>垂直分屏（左右分屏），新窗口打开“文件名”</td>
+<td>按 <code>:vsp test.h</code> 垂直分屏打开 test.h</td>
+</tr>
+<tr>
+<td><code>Ctrl+w+h/j/k/l</code></td>
+<td>切换到<strong>左&#x2F;下&#x2F;上&#x2F;右</strong>侧的窗口</td>
+<td>按 <code>Ctrl+w+j</code> 切换到下方窗口</td>
+</tr>
+<tr>
+<td><code>Ctrl+w+w</code></td>
+<td>循环切换所有窗口</td>
+<td>快速在多个分屏间切换</td>
+</tr>
+<tr>
+<td><code>Ctrl+w+=</code></td>
+<td>所有分屏窗口<strong>平均分配大小</strong></td>
+<td>分屏大小乱了，快速恢复平衡</td>
+</tr>
+<tr>
+<td><code>Ctrl+w+-</code></td>
+<td>当前窗口<strong>高度减小</strong>（水平分屏时）</td>
+<td>缩小当前窗口高度</td>
+</tr>
+<tr>
+<td><code>Ctrl+w++</code></td>
+<td>当前窗口<strong>高度增大</strong>（水平分屏时）</td>
+<td>增大当前窗口高度</td>
+</tr>
+<tr>
+<td><code>:q</code></td>
+<td>关闭当前窗口（若只有一个窗口则退出Vim）</td>
+<td>按 <code>:q</code> 关闭不需要的分屏</td>
+</tr>
+<tr>
+<td><code>:qall</code></td>
+<td>关闭所有窗口并退出Vim</td>
+<td>结束编辑时用</td>
+</tr>
+<tr>
+<td><code>:wall</code></td>
+<td>保存所有窗口的文件</td>
+<td>批量保存多个编辑的文件</td>
+</tr>
+</tbody></table>
+<h2 id="四、实用技巧：提升效率的关键操作"><a href="#四、实用技巧：提升效率的关键操作" class="headerlink" title="四、实用技巧：提升效率的关键操作"></a>四、实用技巧：提升效率的关键操作</h2><h3 id="1-文件操作（命令行模式）"><a href="#1-文件操作（命令行模式）" class="headerlink" title="1. 文件操作（命令行模式）"></a>1. 文件操作（命令行模式）</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:e 文件名</code></td>
+<td>在当前窗口<strong>打开新文件</strong>（关闭当前文件）</td>
+<td>按 <code>:e config.h</code> 打开 config.h</td>
+</tr>
+<tr>
+<td><code>:new</code></td>
+<td>新建一个空白文件并水平分屏显示</td>
+<td>快速新建临时文件</td>
+</tr>
+<tr>
+<td><code>:w</code></td>
+<td>保存当前文件</td>
+<td>编辑中随时保存，避免丢失</td>
+</tr>
+<tr>
+<td><code>:w 新文件名</code></td>
+<td>另存为“新文件名”（不覆盖原文件）</td>
+<td>按 <code>:w main_bak.c</code> 备份 main.c</td>
+</tr>
+<tr>
+<td><code>:wq</code></td>
+<td>保存当前文件并退出Vim</td>
+<td>编辑完成后常用</td>
+</tr>
+<tr>
+<td><code>:q!</code></td>
+<td>强制退出Vim，<strong>不保存</strong>修改</td>
+<td>编辑错了，放弃修改退出</td>
+</tr>
+<tr>
+<td><code>:ls</code></td>
+<td>查看当前打开的所有文件（缓冲区列表）</td>
+<td>按 <code>:ls</code> 查看已打开的文件编号</td>
+</tr>
+<tr>
+<td><code>:b 编号/文件名</code></td>
+<td>切换到“编号”或“文件名”对应的文件</td>
+<td>按 <code>:b 2</code> 切换到第2个缓冲区的文件</td>
+</tr>
+</tbody></table>
+<h3 id="2-可视模式：批量操作（v-V-Ctrl-v）"><a href="#2-可视模式：批量操作（v-V-Ctrl-v）" class="headerlink" title="2. 可视模式：批量操作（v&#x2F;V&#x2F;Ctrl+v）"></a>2. 可视模式：批量操作（v&#x2F;V&#x2F;Ctrl+v）</h3><p>可视模式用于“选中一块文本”后批量操作，比鼠标选中更精准，支持三种选中方式：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>可视模式类型</th>
+<th>选中方式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>v</code></td>
+<td>字符可视模式</td>
+<td>按 <code>v</code> 后移动光标，选中单个字符</td>
+<td>选中单词、短语</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td>行可视模式</td>
+<td>按 <code>V</code> 后移动光标，选中整行</td>
+<td>批量删除&#x2F;复制多行代码</td>
+</tr>
+<tr>
+<td><code>Ctrl+v</code></td>
+<td>块可视模式（列模式）</td>
+<td>按 <code>Ctrl+v</code> 后移动光标，选中矩形块</td>
+<td>批量添加&#x2F;删除列注释</td>
+</tr>
+</tbody></table>
+<h4 id="块可视模式示例：批量添加行注释（C-C-代码）"><a href="#块可视模式示例：批量添加行注释（C-C-代码）" class="headerlink" title="块可视模式示例：批量添加行注释（C&#x2F;C++ 代码）"></a>块可视模式示例：批量添加行注释（C&#x2F;C++ 代码）</h4><ol>
+<li>光标移到要注释的第一行开头；</li>
+<li>按 <code>Ctrl+v</code> 进入块可视模式；</li>
+<li>按 <code>j</code> 向下移动光标，选中所有要注释的行的“行首”；</li>
+<li>按 <code>I</code>（大写 I）进入插入模式，输入 <code>// </code>（双斜杠+空格）；</li>
+<li>按 <code>ESC</code>，所有选中的行首会自动添加 <code>// </code>，完成批量注释。</li>
+</ol>
+<h3 id="3-寄存器：灵活粘贴（进阶技巧）"><a href="#3-寄存器：灵活粘贴（进阶技巧）" class="headerlink" title="3. 寄存器：灵活粘贴（进阶技巧）"></a>3. 寄存器：灵活粘贴（进阶技巧）</h3><p>Vim 的“寄存器”类似剪贴板，默认删除&#x2F;复制的内容会存入“无名寄存器”（<code>&quot;&quot;</code>），但也支持自定义寄存器（a-z），适合同时复制多段内容：</p>
+<table>
+<thead>
+<tr>
+<th>操作示例</th>
+<th>功能描述</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&quot;ayy</code></td>
+<td>复制当前行到“a 寄存器”</td>
+<td>第一个要复制的内容存 a 寄存器</td>
+</tr>
+<tr>
+<td><code>&quot;byw</code></td>
+<td>复制当前单词到“b 寄存器”</td>
+<td>第二个要复制的内容存 b 寄存器</td>
+</tr>
+<tr>
+<td><code>&quot;ap</code></td>
+<td>粘贴“a 寄存器”的内容</td>
+<td>粘贴第一个内容</td>
+</tr>
+<tr>
+<td><code>&quot;bp</code></td>
+<td>粘贴“b 寄存器”的内容</td>
+<td>粘贴第二个内容</td>
+</tr>
+<tr>
+<td><code>&quot;0p</code></td>
+<td>粘贴最近一次复制的内容（不受删除操作影响）</td>
+<td>避免删除操作覆盖复制的内容</td>
+</tr>
+</tbody></table>
+<h3 id="4-宏录制：重复执行操作（自动化）"><a href="#4-宏录制：重复执行操作（自动化）" class="headerlink" title="4. 宏录制：重复执行操作（自动化）"></a>4. 宏录制：重复执行操作（自动化）</h3><p>Vim 宏（Macro）可录制一系列操作，后续通过快捷键重复执行，适合“重复相同编辑动作”（如格式化多行代码）：</p>
+<h4 id="宏录制步骤："><a href="#宏录制步骤：" class="headerlink" title="宏录制步骤："></a>宏录制步骤：</h4><ol>
+<li>正常模式下按 <code>q+字母</code>（如 <code>qa</code>），开始录制宏（存入 a 寄存器），状态栏会显示 <code>recording</code>；</li>
+<li>执行要重复的操作（如删除行尾空格、添加分号）；</li>
+<li>按 <code>q</code> 结束录制；</li>
+<li>按 <code>@+字母</code>（如 <code>@a</code>）执行宏；按 <code>n@a</code>（如 <code>5@a</code>）重复执行 5 次宏。</li>
+</ol>
+<h4 id="示例：给-10-行代码末尾加分号"><a href="#示例：给-10-行代码末尾加分号" class="headerlink" title="示例：给 10 行代码末尾加分号"></a>示例：给 10 行代码末尾加分号</h4><ol>
+<li>光标移到第一行末尾；</li>
+<li>按 <code>qa</code> 开始录制宏；</li>
+<li>按 <code>A;ESC</code>（A 到行尾插入，加 <code>;</code>，回正常模式）；</li>
+<li>按 <code>j</code> 移动到下一行；</li>
+<li>按 <code>q</code> 结束录制；</li>
+<li>按 <code>9@a</code> 执行 9 次宏，完成剩余 9 行的操作。</li>
+</ol>
+<h3 id="5-Vim-配置：个性化设置（-vimrc-文件）"><a href="#5-Vim-配置：个性化设置（-vimrc-文件）" class="headerlink" title="5. Vim 配置：个性化设置（.vimrc 文件）"></a>5. Vim 配置：个性化设置（.vimrc 文件）</h3><p>Vim 启动时会加载用户目录下的 <code>.vimrc</code> 文件（Linux 路径 <code>~/.vimrc</code>，Windows 路径 <code>C:\Users\用户名\_vimrc</code>），在该文件中添加配置可自定义 Vim 行为，常用配置如下：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&quot; 基础配置</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">nu</span>              <span class="comment">&quot; 显示行号</span></span><br><span class="line"><span class="keyword">set</span> autoindent      <span class="comment">&quot; 自动缩进（新行继承上一行缩进）</span></span><br><span class="line"><span class="keyword">set</span> smartindent     <span class="comment">&quot; 智能缩进（代码块缩进更合理，适合编程）</span></span><br><span class="line"><span class="keyword">set</span> tabstop=<span class="number">4</span>       <span class="comment">&quot; Tab 键对应 4 个空格</span></span><br><span class="line"><span class="keyword">set</span> <span class="built_in">shiftwidth</span>=<span class="number">4</span>    <span class="comment">&quot; 自动缩进时的缩进宽度（与 tabstop 一致）</span></span><br><span class="line"><span class="keyword">set</span> expandtab       <span class="comment">&quot; 将 Tab 键转为空格（避免不同编辑器 Tab 显示不一致）</span></span><br><span class="line"><span class="keyword">set</span> hlsearch        <span class="comment">&quot; 搜索结果高亮</span></span><br><span class="line"><span class="keyword">set</span> ignorecase      <span class="comment">&quot; 搜索忽略大小写</span></span><br><span class="line"><span class="keyword">set</span> cursorline      <span class="comment">&quot; 高亮当前光标所在行（方便定位）</span></span><br><span class="line"><span class="keyword">set</span> wrap            <span class="comment">&quot; 自动换行（长行内容不超出屏幕）</span></span><br><span class="line"><span class="keyword">set</span> encoding=utf-<span class="number">8</span>  <span class="comment">&quot; 支持 UTF-8 编码（避免中文乱码）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 快捷键映射（自定义快捷键）</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;F2&gt;</span> :<span class="keyword">w</span><span class="symbol">&lt;CR&gt;</span>     <span class="comment">&quot; 按 F2 键保存文件（&lt;CR&gt; 代表回车）</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;F3&gt;</span> :q<span class="symbol">&lt;CR&gt;</span>     <span class="comment">&quot; 按 F3 键退出当前窗口</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;F5&gt;</span> :!gcc % -<span class="keyword">o</span> %&lt; &amp;&amp; ./%&lt; <span class="symbol">&lt;CR&gt;</span>  <span class="comment">&quot; 按 F5 键编译并运行 C 程序（% 代表当前文件名）</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置后保存 <code>.vimrc</code>，重启 Vim 即可生效；也可在 Vim 中按 <code>:source ~/.vimrc</code> 临时生效。</p>
+</blockquote>
+<h2 id="五、总结：Vim-学习建议"><a href="#五、总结：Vim-学习建议" class="headerlink" title="五、总结：Vim 学习建议"></a>五、总结：Vim 学习建议</h2><ol>
+<li><strong>先练基础模式</strong>：新手初期重点掌握“正常模式→插入模式”切换、光标移动（h&#x2F;j&#x2F;k&#x2F;l&#x2F;w&#x2F;b）、删除&#x2F;复制&#x2F;粘贴（dd&#x2F;yy&#x2F;p），这些是所有操作的基础；</li>
+<li><strong>拒绝鼠标依赖</strong>：刻意不用鼠标，强迫自己用快捷键，1-2 周后会形成肌肉记忆；</li>
+<li><strong>按需查命令</strong>：遇到复杂操作（如批量替换、分屏）时，对照本文或 <code>:help 命令</code>（如 <code>:help :s</code> 查看替换命令帮助）查找，逐步积累；</li>
+<li><strong>个性化配置</strong>：根据自己的开发语言（如 C&#x2F;C++、Python）调整 <code>.vimrc</code>，提升长期使用体验。</li>
+</ol>
+<p>Vim 的核心魅力是“用键盘流实现高效编辑”，熟练后能大幅减少手部在键盘和鼠标间的切换，尤其适合长时间代码开发。坚持练习，你会发现它比图形化编辑器更“顺手”！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/vim/" rel="tag"># vim</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/23/%E5%B5%8C%E5%85%A5%E5%BC%8F/IIC%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" rel="prev" title="IIC通信协议">
+      <i class="fa fa-chevron-left"></i> IIC通信协议
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Vim-%E6%A0%B8%E5%BF%83%EF%BC%9A%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%EF%BC%88%E6%96%B0%E6%89%8B%E5%BF%85%E6%87%82%EF%BC%81%EF%BC%89"><span class="nav-text">一、Vim 核心：模式切换（新手必懂！）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%EF%BC%9A%E5%85%89%E6%A0%87%E7%A7%BB%E5%8A%A8%E4%B8%8E%E6%96%87%E6%9C%AC%E7%BC%96%E8%BE%91"><span class="nav-text">二、基础操作：光标移动与文本编辑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F%EF%BC%9A%E5%85%89%E6%A0%87%E7%A7%BB%E5%8A%A8%EF%BC%88%E9%AB%98%E6%95%88%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="nav-text">1. 正常模式：光标移动（高效核心）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8F%92%E5%85%A5%E6%A8%A1%E5%BC%8F%EF%BC%9A%E6%96%87%E6%9C%AC%E8%BE%93%E5%85%A5%EF%BC%886%E7%A7%8D%E8%BF%9B%E5%85%A5%E6%96%B9%E5%BC%8F%EF%BC%89"><span class="nav-text">2. 插入模式：文本输入（6种进入方式）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F%EF%BC%9A%E6%96%87%E6%9C%AC%E7%BC%96%E8%BE%91%EF%BC%88%E5%88%A0%E9%99%A4-%E5%A4%8D%E5%88%B6-%E7%B2%98%E8%B4%B4-%E6%92%A4%E9%94%80%EF%BC%89"><span class="nav-text">3. 正常模式：文本编辑（删除&#x2F;复制&#x2F;粘贴&#x2F;撤销）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C%EF%BC%88d-delete%EF%BC%89"><span class="nav-text">（1）删除操作（d &#x3D; delete）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%A4%8D%E5%88%B6%E6%93%8D%E4%BD%9C%EF%BC%88y-yank%EF%BC%8C%E6%84%8F%E4%B8%BA%E2%80%9C-Yank-%E5%A4%8D%E5%88%B6%E2%80%9D%EF%BC%89"><span class="nav-text">（2）复制操作（y &#x3D; yank，意为“ Yank 复制”）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E7%B2%98%E8%B4%B4%E6%93%8D%E4%BD%9C%EF%BC%88p-put%EF%BC%8C%E6%84%8F%E4%B8%BA%E2%80%9C-Put-%E7%B2%98%E8%B4%B4%E2%80%9D%EF%BC%89"><span class="nav-text">（3）粘贴操作（p &#x3D; put，意为“ Put 粘贴”）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E6%92%A4%E9%94%80%E4%B8%8E%E6%81%A2%E5%A4%8D%EF%BC%88u-undo%EF%BC%8CCtrl-r-redo%EF%BC%89"><span class="nav-text">（4）撤销与恢复（u &#x3D; undo，Ctrl+r &#x3D; redo）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C%EF%BC%9A%E6%90%9C%E7%B4%A2%E6%9B%BF%E6%8D%A2%E4%B8%8E%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86"><span class="nav-text">三、进阶操作：搜索替换与窗口管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%90%9C%E7%B4%A2%E6%93%8D%E4%BD%9C%EF%BC%88%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-text">1. 搜索操作（正常模式 + 命令行模式）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F%EF%BC%9A%E5%BF%AB%E9%80%9F%E6%90%9C%E7%B4%A2"><span class="nav-text">（1）正常模式：快速搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A8%A1%E5%BC%8F%EF%BC%9A%E6%90%9C%E7%B4%A2%E9%85%8D%E7%BD%AE"><span class="nav-text">（2）命令行模式：搜索配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9B%BF%E6%8D%A2%E6%93%8D%E4%BD%9C%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A8%A1%E5%BC%8F%EF%BC%8C-s-%E5%91%BD%E4%BB%A4%EF%BC%89"><span class="nav-text">2. 替换操作（命令行模式，:s 命令）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%EF%BC%88%E5%A4%9A%E6%96%87%E4%BB%B6%E7%BC%96%E8%BE%91%E5%BF%85%E5%A4%87%EF%BC%89"><span class="nav-text">3. 窗口管理（多文件编辑必备）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7%EF%BC%9A%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87%E7%9A%84%E5%85%B3%E9%94%AE%E6%93%8D%E4%BD%9C"><span class="nav-text">四、实用技巧：提升效率的关键操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-text">1. 文件操作（命令行模式）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%AF%E8%A7%86%E6%A8%A1%E5%BC%8F%EF%BC%9A%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C%EF%BC%88v-V-Ctrl-v%EF%BC%89"><span class="nav-text">2. 可视模式：批量操作（v&#x2F;V&#x2F;Ctrl+v）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9D%97%E5%8F%AF%E8%A7%86%E6%A8%A1%E5%BC%8F%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%89%B9%E9%87%8F%E6%B7%BB%E5%8A%A0%E8%A1%8C%E6%B3%A8%E9%87%8A%EF%BC%88C-C-%E4%BB%A3%E7%A0%81%EF%BC%89"><span class="nav-text">块可视模式示例：批量添加行注释（C&#x2F;C++ 代码）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%9A%E7%81%B5%E6%B4%BB%E7%B2%98%E8%B4%B4%EF%BC%88%E8%BF%9B%E9%98%B6%E6%8A%80%E5%B7%A7%EF%BC%89"><span class="nav-text">3. 寄存器：灵活粘贴（进阶技巧）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%AE%8F%E5%BD%95%E5%88%B6%EF%BC%9A%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C%EF%BC%88%E8%87%AA%E5%8A%A8%E5%8C%96%EF%BC%89"><span class="nav-text">4. 宏录制：重复执行操作（自动化）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%8F%E5%BD%95%E5%88%B6%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-text">宏录制步骤：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E7%BB%99-10-%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%9C%AB%E5%B0%BE%E5%8A%A0%E5%88%86%E5%8F%B7"><span class="nav-text">示例：给 10 行代码末尾加分号</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Vim-%E9%85%8D%E7%BD%AE%EF%BC%9A%E4%B8%AA%E6%80%A7%E5%8C%96%E8%AE%BE%E7%BD%AE%EF%BC%88-vimrc-%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-text">5. Vim 配置：个性化设置（.vimrc 文件）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9AVim-%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="nav-text">五、总结：Vim 学习建议</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">64</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">98</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
