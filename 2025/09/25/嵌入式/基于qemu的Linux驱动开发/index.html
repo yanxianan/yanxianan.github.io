@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文为基于qemu的Linux驱动开发实战。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-09-25T01:50:00.000Z">
-<meta property="article:modified_time" content="2025-09-25T02:21:07.834Z">
+<meta property="article:modified_time" content="2025-09-25T02:41:02.609Z">
 <meta property="article:author" content="Yxa">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="qemu">
@@ -193,7 +193,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2025-09-25 09:50:00 / 修改时间：10:21:07" itemprop="dateCreated datePublished" datetime="2025-09-25T09:50:00+08:00">2025-09-25</time>
+              <time title="创建时间：2025-09-25 09:50:00 / 修改时间：10:41:02" itemprop="dateCreated datePublished" datetime="2025-09-25T09:50:00+08:00">2025-09-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -222,7 +222,7 @@
 
 <hr>
 <h2 id="🛠-第二步：编写-Makefile（用于编译）"><a href="#🛠-第二步：编写-Makefile（用于编译）" class="headerlink" title="🛠 第二步：编写 Makefile（用于编译）"></a>🛠 第二步：编写 Makefile（用于编译）</h2><p>在同一目录下创建 <code>Makefile</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># Makefile</span><br><span class="line">ifneq ($(KERNELRELEASE),)</span><br><span class="line">	obj-m += hello.o</span><br><span class="line">else</span><br><span class="line">	KERNELDIR ?= /lib/modules/$(shell uname -r)/build</span><br><span class="line">	PWD := $(shell pwd)</span><br><span class="line"></span><br><span class="line">default:</span><br><span class="line">	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules</span><br><span class="line"></span><br><span class="line">clean:</span><br><span class="line">	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># Makefile</span><br><span class="line">obj-m += hello.o</span><br><span class="line"></span><br><span class="line">KDIR := ~/ext4linux/linux-6.6.106</span><br><span class="line"></span><br><span class="line"># 指定架构和交叉编译前缀</span><br><span class="line">ARCH := arm</span><br><span class="line">CROSS_COMPILE := arm-linux-gnueabihf-</span><br><span class="line"></span><br><span class="line">all:</span><br><span class="line">	make -C $(KDIR) M=$(PWD) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules</span><br><span class="line"></span><br><span class="line">clean:</span><br><span class="line">	make -C $(KDIR) M=$(PWD) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) clean</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>💡 注意：如果你是在 QEMU 中直接编译（不推荐，因为可能缺少内核头文件），请确保安装了 <code>linux-headers-$(uname -r)</code>。更推荐在<strong>宿主机上交叉编译</strong>，然后把 <code>.ko</code> 文件传到 QEMU 里。</p>
