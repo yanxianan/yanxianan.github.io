@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍 C ++中的命名以及引用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++中的命名以及引用">
+<meta property="og:url" content="https://yanxianan.github.io/2025/10/20/C_C++/C++%E9%83%A8%E5%88%86%E7%9F%A5%E8%AF%86%E7%82%B9/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍 C ++中的命名以及引用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-20T01:40:00.000Z">
+<meta property="article:modified_time" content="2025-10-20T02:37:27.571Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="驼峰命名">
+<meta property="article:tag" content="左值引用">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/10/20/C_C++/C++%E9%83%A8%E5%88%86%E7%9F%A5%E8%AF%86%E7%82%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++中的命名以及引用 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/10/20/C_C++/C++%E9%83%A8%E5%88%86%E7%9F%A5%E8%AF%86%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++中的命名以及引用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-10-20 09:40:00 / 修改时间：10:37:27" itemprop="dateCreated datePublished" datetime="2025-10-20T09:40:00+08:00">2025-10-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍 C ++中的命名以及引用。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文讲解 <strong>驼峰命名法</strong>、<strong>左值引用</strong> 和 <strong>右值引用</strong>，这些都是 C++（以及许多其他编程语言）中的重要概念。</p>
+<hr>
+<h2 id="一、驼峰命名法（Camel-Case）"><a href="#一、驼峰命名法（Camel-Case）" class="headerlink" title="一、驼峰命名法（Camel Case）"></a>一、驼峰命名法（Camel Case）</h2><h3 id="✅-定义："><a href="#✅-定义：" class="headerlink" title="✅ 定义："></a>✅ 定义：</h3><p>驼峰命名法是一种变量、函数或类名的命名风格，特点是<strong>单词首字母大写（除第一个单词外）</strong>，整体连在一起，形似驼峰，故得名。</p>
+<h3 id="📌-两种常见形式："><a href="#📌-两种常见形式：" class="headerlink" title="📌 两种常见形式："></a>📌 两种常见形式：</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>名称</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>小驼峰（lower camelCase）</strong></td>
+<td>第一个单词小写，后续单词首字母大写</td>
+<td><code>findContentChildren</code>、<code>userName</code></td>
+<td><strong>常用于函数名、变量名</strong>（C++&#x2F;Java&#x2F;JavaScript 等）</td>
+</tr>
+<tr>
+<td><strong>大驼峰（Upper CamelCase &#x2F; PascalCase）</strong></td>
+<td>所有单词首字母都大写</td>
+<td><code>MyClass</code>、<code>HttpRequest</code></td>
+<td><strong>常用于类名、结构体名</strong></td>
+</tr>
+</tbody></table>
+<h3 id="💡-为什么叫“驼峰”？"><a href="#💡-为什么叫“驼峰”？" class="headerlink" title="💡 为什么叫“驼峰”？"></a>💡 为什么叫“驼峰”？</h3><p>因为大写字母像“驼峰”一样凸起：<br><code>findContentChildren</code> → <code>find</code>（低） + <code>Content</code>（高） + <code>Children</code>（高）</p>
+<h3 id="✅-C-中的惯例："><a href="#✅-C-中的惯例：" class="headerlink" title="✅ C++ 中的惯例："></a>✅ C++ 中的惯例：</h3><ul>
+<li>函数名、变量名：<strong>小驼峰</strong>（如 <code>maxValue</code>, <code>getUserInput</code>）</li>
+<li>类名、结构体名：<strong>大驼峰</strong>（如 <code>StudentRecord</code>, <code>BinaryTree</code>）</li>
+</ul>
+<blockquote>
+<p>📝 注意：C++ 标准库（如 STL）多用<strong>下划线命名法</strong>（如 <code>push_back</code>, <code>vector_size</code>），但用户代码常用驼峰。</p>
+</blockquote>
+<hr>
+<h2 id="二、左值引用（Lvalue-Reference）"><a href="#二、左值引用（Lvalue-Reference）" class="headerlink" title="二、左值引用（Lvalue Reference）"></a>二、左值引用（Lvalue Reference）</h2><h3 id="✅-语法："><a href="#✅-语法：" class="headerlink" title="✅ 语法："></a>✅ 语法：</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Type &amp;ref = variable;</span><br></pre></td></tr></table></figure>
+
+<h3 id="🔍-什么是“左值”（Lvalue）？"><a href="#🔍-什么是“左值”（Lvalue）？" class="headerlink" title="🔍 什么是“左值”（Lvalue）？"></a>🔍 什么是“左值”（Lvalue）？</h3><ul>
+<li><strong>左值</strong>：有<strong>内存地址</strong>、可以出现在赋值表达式<strong>左边</strong>的值。</li>
+<li>通常是<strong>具名变量</strong>（有名字、可取地址）。</li>
+</ul>
+<h3 id="✅-左值引用的特点："><a href="#✅-左值引用的特点：" class="headerlink" title="✅ 左值引用的特点："></a>✅ 左值引用的特点：</h3><ul>
+<li>是<strong>已有对象的别名</strong>。</li>
+<li>必须在定义时初始化。</li>
+<li>修改引用 &#x3D; 修改原对象。</li>
+</ul>
+<h3 id="📌-示例："><a href="#📌-示例：" class="headerlink" title="📌 示例："></a>📌 示例：</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="type">int</span> &amp;ref = a;   <span class="comment">// ref 是 a 的引用（别名）</span></span><br><span class="line">ref = <span class="number">20</span>;       <span class="comment">// 等价于 a = 20;</span></span><br><span class="line">cout &lt;&lt; a;      <span class="comment">// 输出 20</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="🧠-关键点："><a href="#🧠-关键点：" class="headerlink" title="🧠 关键点："></a>🧠 关键点：</h3><ul>
+<li>左值引用绑定到<strong>左值</strong>（如变量、数组元素等）。</li>
+<li>不能直接绑定到临时对象（右值），除非是 <code>const</code> 引用。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> &amp;r1 = <span class="number">42</span>;        <span class="comment">// ❌ 错误！42 是右值（临时值）</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> &amp;r2 = <span class="number">42</span>;  <span class="comment">// ✅ 正确！const 左值引用可以绑定右值</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、右值引用（Rvalue-Reference）——-C-11-新特性"><a href="#三、右值引用（Rvalue-Reference）——-C-11-新特性" class="headerlink" title="三、右值引用（Rvalue Reference）—— C++11 新特性"></a>三、右值引用（Rvalue Reference）—— C++11 新特性</h2><h3 id="✅-语法：-1"><a href="#✅-语法：-1" class="headerlink" title="✅ 语法："></a>✅ 语法：</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Type &amp;&amp;ref = temporary_value;</span><br></pre></td></tr></table></figure>
+
+<h3 id="🔍-什么是“右值”（Rvalue）？"><a href="#🔍-什么是“右值”（Rvalue）？" class="headerlink" title="🔍 什么是“右值”（Rvalue）？"></a>🔍 什么是“右值”（Rvalue）？</h3><ul>
+<li><strong>右值</strong>：<strong>临时对象</strong>或<strong>字面量</strong>，没有持久内存地址，通常出现在表达式<strong>右边</strong>。</li>
+<li>例如：<code>42</code>、<code>func()</code> 返回的临时对象、<code>a + b</code> 的结果。</li>
+</ul>
+<h3 id="✅-右值引用的作用："><a href="#✅-右值引用的作用：" class="headerlink" title="✅ 右值引用的作用："></a>✅ 右值引用的作用：</h3><ol>
+<li><strong>实现移动语义（Move Semantics）</strong>：避免不必要的深拷贝，提升性能。</li>
+<li><strong>实现完美转发（Perfect Forwarding）</strong>。</li>
+</ol>
+<h3 id="📌-示例：-1"><a href="#📌-示例：-1" class="headerlink" title="📌 示例："></a>📌 示例：</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">string <span class="title">getTempString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">string s1 = <span class="string">&quot;World&quot;</span>;</span><br><span class="line">string &amp;&amp;r1 = <span class="built_in">getTempString</span>(); <span class="comment">// 绑定到临时 string 对象</span></span><br><span class="line">string &amp;&amp;r2 = s1 + <span class="string">&quot;!!!&quot;</span>;      <span class="comment">// 绑定到临时结果</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="🚀-移动语义示例（核心用途）："><a href="#🚀-移动语义示例（核心用途）：" class="headerlink" title="🚀 移动语义示例（核心用途）："></a>🚀 移动语义示例（核心用途）：</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">createLargeVector</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(<span class="number">1000000</span>, <span class="number">1</span>); <span class="comment">// 返回一个大 vector（临时对象）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vector&lt;<span class="type">int</span>&gt; v = <span class="built_in">createLargeVector</span>(); <span class="comment">// C++11 起：自动“移动”而非“拷贝”</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果没有右值引用，这里会<strong>深拷贝</strong>整个 vector（很慢）。</li>
+<li>有了右值引用，编译器调用<strong>移动构造函数</strong>，直接“偷走”资源，效率极高。</li>
+</ul>
+<h3 id="⚠️-注意："><a href="#⚠️-注意：" class="headerlink" title="⚠️ 注意："></a>⚠️ 注意：</h3><ul>
+<li>右值引用只能绑定到<strong>右值</strong>（临时对象、即将销毁的对象）。</li>
+<li>不能绑定到普通变量（左值）：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="type">int</span> &amp;&amp;rr = a;   <span class="comment">// ❌ 错误！a 是左值</span></span><br><span class="line"><span class="type">int</span> &amp;&amp;rr = std::<span class="built_in">move</span>(a); <span class="comment">// ✅ 正确！std::move 将 a “伪装”成右值</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="四、对比总结"><a href="#四、对比总结" class="headerlink" title="四、对比总结"></a>四、对比总结</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>左值引用 (<code>T&amp;</code>)</th>
+<th>右值引用 (<code>T&amp;&amp;</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>绑定对象</td>
+<td>左值（具名变量）</td>
+<td>右值（临时对象）</td>
+</tr>
+<tr>
+<td>是否可修改原对象</td>
+<td>是</td>
+<td>是（但对象即将销毁）</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>避免拷贝传参、返回引用</td>
+<td>移动语义、完美转发</td>
+</tr>
+<tr>
+<td>示例</td>
+<td><code>int &amp;r = x;</code></td>
+<td><code>int &amp;&amp;r = 42;</code> 或 <code>std::move(x)</code></td>
+</tr>
+<tr>
+<td>C++ 版本</td>
+<td>C++98</td>
+<td>C++11 起</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="五、实际应用建议"><a href="#五、实际应用建议" class="headerlink" title="五、实际应用建议"></a>五、实际应用建议</h2><ul>
+<li><strong>函数参数传递大对象</strong> → 用 <code>const T&amp;</code>（避免拷贝，只读）<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">(<span class="type">const</span> vector&lt;<span class="type">int</span>&gt; &amp;v)</span></span>;</span><br></pre></td></tr></table></figure></li>
+<li><strong>需要转移资源</strong>（如实现移动构造函数）→ 用 <code>T&amp;&amp;</code><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">MyClass</span>(MyClass &amp;&amp;other) <span class="keyword">noexcept</span> &#123; <span class="comment">/* 移动资源 */</span> &#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>通用引用（模板中）</strong> → <code>T&amp;&amp;</code> 可能是左值或右值（依赖类型推导）</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E9%A9%BC%E5%B3%B0%E5%91%BD%E5%90%8D/" rel="tag"># 驼峰命名</a>
+              <a href="/tags/%E5%B7%A6%E5%80%BC%E5%BC%95%E7%94%A8/" rel="tag"># 左值引用</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/26/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9FVFS/" rel="prev" title="虚拟文件系统VFS">
+      <i class="fa fa-chevron-left"></i> 虚拟文件系统VFS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%A9%BC%E5%B3%B0%E5%91%BD%E5%90%8D%E6%B3%95%EF%BC%88Camel-Case%EF%BC%89"><span class="nav-text">一、驼峰命名法（Camel Case）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E5%AE%9A%E4%B9%89%EF%BC%9A"><span class="nav-text">✅ 定义：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%A4%E7%A7%8D%E5%B8%B8%E8%A7%81%E5%BD%A2%E5%BC%8F%EF%BC%9A"><span class="nav-text">📌 两种常见形式：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%92%A1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AB%E2%80%9C%E9%A9%BC%E5%B3%B0%E2%80%9D%EF%BC%9F"><span class="nav-text">💡 为什么叫“驼峰”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-C-%E4%B8%AD%E7%9A%84%E6%83%AF%E4%BE%8B%EF%BC%9A"><span class="nav-text">✅ C++ 中的惯例：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%B7%A6%E5%80%BC%E5%BC%95%E7%94%A8%EF%BC%88Lvalue-Reference%EF%BC%89"><span class="nav-text">二、左值引用（Lvalue Reference）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E8%AF%AD%E6%B3%95%EF%BC%9A"><span class="nav-text">✅ 语法：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%94%8D-%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E5%B7%A6%E5%80%BC%E2%80%9D%EF%BC%88Lvalue%EF%BC%89%EF%BC%9F"><span class="nav-text">🔍 什么是“左值”（Lvalue）？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E5%B7%A6%E5%80%BC%E5%BC%95%E7%94%A8%E7%9A%84%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="nav-text">✅ 左值引用的特点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%93%8C-%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-text">📌 示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%A7%A0-%E5%85%B3%E9%94%AE%E7%82%B9%EF%BC%9A"><span class="nav-text">🧠 关键点：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%EF%BC%88Rvalue-Reference%EF%BC%89%E2%80%94%E2%80%94-C-11-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">三、右值引用（Rvalue Reference）—— C++11 新特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E8%AF%AD%E6%B3%95%EF%BC%9A-1"><span class="nav-text">✅ 语法：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%94%8D-%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E5%8F%B3%E5%80%BC%E2%80%9D%EF%BC%88Rvalue%EF%BC%89%EF%BC%9F"><span class="nav-text">🔍 什么是“右值”（Rvalue）？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E7%9A%84%E4%BD%9C%E7%94%A8%EF%BC%9A"><span class="nav-text">✅ 右值引用的作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%93%8C-%E7%A4%BA%E4%BE%8B%EF%BC%9A-1"><span class="nav-text">📌 示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%9A%80-%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89%E7%A4%BA%E4%BE%8B%EF%BC%88%E6%A0%B8%E5%BF%83%E7%94%A8%E9%80%94%EF%BC%89%EF%BC%9A"><span class="nav-text">🚀 移动语义示例（核心用途）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9A%A0%EF%B8%8F-%E6%B3%A8%E6%84%8F%EF%BC%9A"><span class="nav-text">⚠️ 注意：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AF%B9%E6%AF%94%E6%80%BB%E7%BB%93"><span class="nav-text">四、对比总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-text">五、实际应用建议</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">102</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
