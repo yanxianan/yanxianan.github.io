@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍SPI通信相关知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SPI串行通信协议">
+<meta property="og:url" content="https://yanxianan.github.io/2025/10/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/SPI%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍SPI通信相关知识。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-24T07:30:00.000Z">
+<meta property="article:modified_time" content="2025-10-24T08:02:57.993Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="SPI通信">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/10/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/SPI%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SPI串行通信协议 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/10/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/SPI%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SPI串行通信协议
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-10-24 15:30:00 / 修改时间：16:02:57" itemprop="dateCreated datePublished" datetime="2025-10-24T15:30:00+08:00">2025-10-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍SPI通信相关知识。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>当然可以！SPI（Serial Peripheral Interface，串行外设接口）是一种<strong>高速、全双工、同步、主从式</strong>的串行通信协议，由 Motorola 在 1980 年代提出，广泛用于微控制器与各类外设（如 Flash、ADC、DAC、LCD、传感器、RF 模块等）之间的短距离通信。</p>
+<hr>
+<h2 id="一、SPI-的核心特点"><a href="#一、SPI-的核心特点" class="headerlink" title="一、SPI 的核心特点"></a>一、SPI 的核心特点</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>通信方式</strong></td>
+<td>同步（由主设备提供时钟）</td>
+</tr>
+<tr>
+<td><strong>数据流向</strong></td>
+<td>全双工（主从可同时收发）</td>
+</tr>
+<tr>
+<td><strong>速度</strong></td>
+<td>高速（可达几十 Mbps，甚至上百 Mbps）</td>
+</tr>
+<tr>
+<td><strong>线数</strong></td>
+<td>通常 4 线（可简化为 3 线或 2 线）</td>
+</tr>
+<tr>
+<td><strong>拓扑结构</strong></td>
+<td>主从架构（1 主 + N 从）</td>
+</tr>
+<tr>
+<td><strong>驱动方式</strong></td>
+<td>推挽输出（信号边沿陡峭，抗干扰强）</td>
+</tr>
+<tr>
+<td><strong>协议复杂度</strong></td>
+<td>无地址、无应答、无校验（简单高效）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、SPI-的信号线（4-线制标准）"><a href="#二、SPI-的信号线（4-线制标准）" class="headerlink" title="二、SPI 的信号线（4 线制标准）"></a>二、SPI 的信号线（4 线制标准）</h2><table>
+<thead>
+<tr>
+<th>信号线</th>
+<th>全称</th>
+<th>方向</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SCLK</strong></td>
+<td>Serial Clock</td>
+<td>主 → 从</td>
+<td>时钟信号，由主设备产生，同步数据传输</td>
+</tr>
+<tr>
+<td><strong>MOSI</strong></td>
+<td>Master Out Slave In</td>
+<td>主 → 从</td>
+<td>主设备发送，从设备接收的数据线</td>
+</tr>
+<tr>
+<td><strong>MISO</strong></td>
+<td>Master In Slave Out</td>
+<td>从 → 主</td>
+<td>从设备发送，主设备接收的数据线</td>
+</tr>
+<tr>
+<td><strong>CS&#x2F;SS</strong></td>
+<td>Chip Select &#x2F; Slave Select</td>
+<td>主 → 从</td>
+<td>片选信号，低电平有效，用于选择特定从设备</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>📌 注意：每个从设备需要<strong>独立的 CS 信号线</strong>，因此从设备越多，主设备占用的 GPIO 越多。</p>
+</blockquote>
+<hr>
+<h2 id="三、SPI-的工作原理"><a href="#三、SPI-的工作原理" class="headerlink" title="三、SPI 的工作原理"></a>三、SPI 的工作原理</h2><h3 id="1-主从架构"><a href="#1-主从架构" class="headerlink" title="1. 主从架构"></a>1. <strong>主从架构</strong></h3><ul>
+<li><strong>主设备（Master）</strong>：通常是 MCU，负责产生 SCLK 和 CS 信号，发起通信。</li>
+<li><strong>从设备（Slave）</strong>：如传感器、Flash 等，被动响应主设备。</li>
+</ul>
+<h3 id="2-通信流程"><a href="#2-通信流程" class="headerlink" title="2. 通信流程"></a>2. <strong>通信流程</strong></h3><ol>
+<li>主设备将目标从设备的 <strong>CS 拉低</strong>（激活从设备）。</li>
+<li>主设备开始发送 <strong>SCLK 时钟</strong>。</li>
+<li>在每个时钟边沿：<ul>
+<li>主设备通过 <strong>MOSI</strong> 发送 1 位数据；</li>
+<li>从设备通过 <strong>MISO</strong> 同时发送 1 位数据（全双工）。</li>
+</ul>
+</li>
+<li>通常传输 <strong>8 位（1 字节）为单位</strong>，可连续发送多字节。</li>
+<li>通信结束后，主设备将 <strong>CS 拉高</strong>，结束本次传输。</li>
+</ol>
+<blockquote>
+<p>✅ 优势：无需应答、无地址开销，效率极高。</p>
+</blockquote>
+<hr>
+<h2 id="四、SPI-的时序模式：CPOL-与-CPHA"><a href="#四、SPI-的时序模式：CPOL-与-CPHA" class="headerlink" title="四、SPI 的时序模式：CPOL 与 CPHA"></a>四、SPI 的时序模式：CPOL 与 CPHA</h2><p>SPI 有 <strong>4 种工作模式</strong>，由两个参数决定：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CPOL（Clock Polarity）</strong></td>
+<td>时钟空闲时的电平： • CPOL&#x3D;0：空闲时 SCLK&#x3D;0（低电平） • CPOL&#x3D;1：空闲时 SCLK&#x3D;1（高电平）</td>
+</tr>
+<tr>
+<td><strong>CPHA（Clock Phase）</strong></td>
+<td>数据采样时机： • CPHA&#x3D;0：在<strong>第一个</strong>时钟边沿采样 • CPHA&#x3D;1：在<strong>第二个</strong>时钟边沿采样</td>
+</tr>
+</tbody></table>
+<h3 id="四种模式组合："><a href="#四种模式组合：" class="headerlink" title="四种模式组合："></a>四种模式组合：</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>CPOL</th>
+<th>CPHA</th>
+<th>时钟空闲电平</th>
+<th>采样边沿</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mode 0</strong></td>
+<td>0</td>
+<td>0</td>
+<td>低</td>
+<td>上升沿（0→1）</td>
+</tr>
+<tr>
+<td><strong>Mode 1</strong></td>
+<td>0</td>
+<td>1</td>
+<td>低</td>
+<td>下降沿（1→0）</td>
+</tr>
+<tr>
+<td><strong>Mode 2</strong></td>
+<td>1</td>
+<td>0</td>
+<td>高</td>
+<td>下降沿（1→0）</td>
+</tr>
+<tr>
+<td><strong>Mode 3</strong></td>
+<td>1</td>
+<td>1</td>
+<td>高</td>
+<td>上升沿（0→1）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>⚠️ <strong>主从设备必须使用相同的模式</strong>，否则通信失败！</p>
+</blockquote>
+<hr>
+<h2 id="五、SPI-的接线方式"><a href="#五、SPI-的接线方式" class="headerlink" title="五、SPI 的接线方式"></a>五、SPI 的接线方式</h2><h3 id="1-标准-1-主-N-从（独立片选）"><a href="#1-标准-1-主-N-从（独立片选）" class="headerlink" title="1. 标准 1 主 N 从（独立片选）"></a>1. <strong>标准 1 主 N 从（独立片选）</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">+--------+      +--------+      +--------+</span><br><span class="line">| Slave1 |      | Slave2 |      | SlaveN |</span><br><span class="line">+--------+      +--------+      +--------+</span><br><span class="line">   ↑  ↑             ↑  ↑             ↑  ↑</span><br><span class="line">  MISO MOSI       MISO MOSI        MISO MOSI</span><br><span class="line">   │    │           │    │           │    │</span><br><span class="line">   └────┼───────────┼────┼───────────┘    │</span><br><span class="line">        │           │    │                │</span><br><span class="line">      ┌─┴───────────┴────┴────────────────┴─┐</span><br><span class="line">      │               Master                 │</span><br><span class="line">      │  SCLK ───────────────────────────────┘</span><br><span class="line">      │  CS1 ────────────┐</span><br><span class="line">      │  CS2 ────────────────┐</span><br><span class="line">      │  CSN ────────────────────┐</span><br><span class="line">      └──────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点：简单可靠，从设备互不影响。</li>
+<li>缺点：每增加一个从设备，需多一个 CS 引脚。</li>
+</ul>
+<h3 id="2-菊花链（Daisy-Chain）"><a href="#2-菊花链（Daisy-Chain）" class="headerlink" title="2. 菊花链（Daisy Chain）"></a>2. <strong>菊花链（Daisy Chain）</strong></h3><ul>
+<li>所有从设备<strong>共用一个 CS</strong>，MISO 串接：<br>Master → MOSI → Slave1 → Slave2 → … → MISO → Master</li>
+<li>适用于级联移位寄存器等场景（如 LED 驱动）。</li>
+<li>缺点：不能单独访问某个从设备，延迟大。</li>
+</ul>
+<hr>
+<h2 id="六、SPI-的优缺点"><a href="#六、SPI-的优缺点" class="headerlink" title="六、SPI 的优缺点"></a>六、SPI 的优缺点</h2><h3 id="✅-优点："><a href="#✅-优点：" class="headerlink" title="✅ 优点："></a>✅ 优点：</h3><ul>
+<li><strong>高速</strong>：无协议开销，可达系统时钟的 1&#x2F;2（如 STM32 可达 50+ Mbps）。</li>
+<li><strong>全双工</strong>：收发同时进行，效率高。</li>
+<li><strong>硬件实现简单</strong>：多数 MCU 内置 SPI 控制器。</li>
+<li><strong>信号质量好</strong>：推挽输出，边沿陡峭，抗干扰强。</li>
+<li><strong>灵活的数据长度</strong>：支持 4~16 位（甚至更多）每帧。</li>
+</ul>
+<h3 id="❌-缺点："><a href="#❌-缺点：" class="headerlink" title="❌ 缺点："></a>❌ 缺点：</h3><ul>
+<li><strong>引脚占用多</strong>：每个从设备需独立 CS。</li>
+<li><strong>无流控&#x2F;应答机制</strong>：无法确认从设备是否收到（需软件实现）。</li>
+<li><strong>无标准协议层</strong>：不同厂商设备命令格式各异，需查手册。</li>
+<li><strong>不支持多主</strong>：只能有一个主设备（除非用额外逻辑仲裁）。</li>
+<li><strong>距离短</strong>：一般用于板内通信（&lt; 30cm），高速时更短。</li>
+</ul>
+<hr>
+<h2 id="七、SPI-vs-I²C-vs-UART（简要对比）"><a href="#七、SPI-vs-I²C-vs-UART（简要对比）" class="headerlink" title="七、SPI vs I²C vs UART（简要对比）"></a>七、SPI vs I²C vs UART（简要对比）</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>SPI</th>
+<th>I²C</th>
+<th>UART</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线数</td>
+<td>3~4（+CS）</td>
+<td>2</td>
+<td>2（TX&#x2F;RX）</td>
+</tr>
+<tr>
+<td>速度</td>
+<td>高（Mbps~100+ Mbps）</td>
+<td>低（100kbps~3.4Mbps）</td>
+<td>中（9600~10Mbps）</td>
+</tr>
+<tr>
+<td>全&#x2F;半双工</td>
+<td>全双工</td>
+<td>半双工</td>
+<td>全双工（异步）</td>
+</tr>
+<tr>
+<td>主从结构</td>
+<td>1 主多从</td>
+<td>多主多从</td>
+<td>点对点</td>
+</tr>
+<tr>
+<td>地址机制</td>
+<td>片选（硬件）</td>
+<td>软件地址</td>
+<td>无（点对点）</td>
+</tr>
+<tr>
+<td>抗干扰</td>
+<td>强（推挽）</td>
+<td>弱（开漏）</td>
+<td>中（依赖电平标准）</td>
+</tr>
+<tr>
+<td>距离</td>
+<td>短（板内）</td>
+<td>短</td>
+<td>可较长（加驱动）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="八、典型应用场景"><a href="#八、典型应用场景" class="headerlink" title="八、典型应用场景"></a>八、典型应用场景</h2><ul>
+<li><strong>Flash 存储器</strong>：W25Q128（SPI Flash）</li>
+<li><strong>显示屏</strong>：OLED（SSD1306）、TFT LCD</li>
+<li><strong>ADC&#x2F;DAC</strong>：MCP3008（ADC）、MCP4921（DAC）</li>
+<li><strong>传感器</strong>：MPU6050（陀螺仪）、BMP280（气压）</li>
+<li><strong>RF 模块</strong>：nRF24L01、LoRa（SX1278）</li>
+<li><strong>音频编解码器</strong>：PCM5102</li>
+</ul>
+<hr>
+<h2 id="九、使用注意事项"><a href="#九、使用注意事项" class="headerlink" title="九、使用注意事项"></a>九、使用注意事项</h2><ol>
+<li><strong>模式匹配</strong>：务必确认主从设备的 CPOL&#x2F;CPHA 一致。</li>
+<li><strong>CS 时序</strong>：有些设备要求 CS 在字节间不能释放（如 Flash 写命令）。</li>
+<li><strong>电源与地</strong>：高速 SPI 对电源噪声敏感，需良好去耦。</li>
+<li><strong>走线等长</strong>：MOSI&#x2F;MISO&#x2F;SCLK 尽量等长，减少 skew。</li>
+<li><strong>上拉&#x2F;下拉</strong>：CS 通常需上拉电阻，防止上电时误触发。</li>
+</ol>
+<hr>
+<h2 id="十、扩展：QSPI-Dual-Quad-SPI"><a href="#十、扩展：QSPI-Dual-Quad-SPI" class="headerlink" title="十、扩展：QSPI &#x2F; Dual&#x2F;Quad SPI"></a>十、扩展：QSPI &#x2F; Dual&#x2F;Quad SPI</h2><p>为提升速度，许多 Flash 支持 <strong>Dual SPI（2 位并行）</strong> 或 <strong>Quad SPI（4 位并行）</strong>，使用额外的 IO 引脚同时传输多位数据，速率提升 2~4 倍。STM32 等 MCU 也支持 <strong>QSPI 接口</strong>，用于高速访问外部 Flash。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SPI%E9%80%9A%E4%BF%A1/" rel="tag"># SPI通信</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/10/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%BC%80%E6%BC%8F%E8%BE%93%E5%87%BA%E5%8F%8A%E5%85%B6%E6%8A%97%E5%B9%B2%E6%89%B0%E8%83%BD%E5%8A%9B/" rel="prev" title="开漏输出及其抗干扰能力">
+      <i class="fa fa-chevron-left"></i> 开漏输出及其抗干扰能力
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/10/24/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/" rel="next" title="进程和线程">
+      进程和线程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81SPI-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9"><span class="nav-text">一、SPI 的核心特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81SPI-%E7%9A%84%E4%BF%A1%E5%8F%B7%E7%BA%BF%EF%BC%884-%E7%BA%BF%E5%88%B6%E6%A0%87%E5%87%86%EF%BC%89"><span class="nav-text">二、SPI 的信号线（4 线制标准）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81SPI-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-text">三、SPI 的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BB%E4%BB%8E%E6%9E%B6%E6%9E%84"><span class="nav-text">1. 主从架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B"><span class="nav-text">2. 通信流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81SPI-%E7%9A%84%E6%97%B6%E5%BA%8F%E6%A8%A1%E5%BC%8F%EF%BC%9ACPOL-%E4%B8%8E-CPHA"><span class="nav-text">四、SPI 的时序模式：CPOL 与 CPHA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E7%A7%8D%E6%A8%A1%E5%BC%8F%E7%BB%84%E5%90%88%EF%BC%9A"><span class="nav-text">四种模式组合：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81SPI-%E7%9A%84%E6%8E%A5%E7%BA%BF%E6%96%B9%E5%BC%8F"><span class="nav-text">五、SPI 的接线方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%87%E5%87%86-1-%E4%B8%BB-N-%E4%BB%8E%EF%BC%88%E7%8B%AC%E7%AB%8B%E7%89%87%E9%80%89%EF%BC%89"><span class="nav-text">1. 标准 1 主 N 从（独立片选）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%8F%8A%E8%8A%B1%E9%93%BE%EF%BC%88Daisy-Chain%EF%BC%89"><span class="nav-text">2. 菊花链（Daisy Chain）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81SPI-%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-text">六、SPI 的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="nav-text">✅ 优点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9D%8C-%E7%BC%BA%E7%82%B9%EF%BC%9A"><span class="nav-text">❌ 缺点：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81SPI-vs-I%C2%B2C-vs-UART%EF%BC%88%E7%AE%80%E8%A6%81%E5%AF%B9%E6%AF%94%EF%BC%89"><span class="nav-text">七、SPI vs I²C vs UART（简要对比）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">八、典型应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-text">九、使用注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E6%89%A9%E5%B1%95%EF%BC%9AQSPI-Dual-Quad-SPI"><span class="nav-text">十、扩展：QSPI &#x2F; Dual&#x2F;Quad SPI</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">72</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">108</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
