@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍条件执行、分支预测以及编译器优化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="条件执行、分支预测以及编译器优化">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%E3%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E4%BB%A5%E5%8F%8A%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍条件执行、分支预测以及编译器优化。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-03T02:20:00.000Z">
+<meta property="article:modified_time" content="2025-11-03T02:26:44.533Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="条件执行">
+<meta property="article:tag" content="分支预测">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%E3%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E4%BB%A5%E5%8F%8A%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>条件执行、分支预测以及编译器优化 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%E3%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E4%BB%A5%E5%8F%8A%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          条件执行、分支预测以及编译器优化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-03 10:20:00 / 修改时间：10:26:44" itemprop="dateCreated datePublished" datetime="2025-11-03T10:20:00+08:00">2025-11-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍条件执行、分支预测以及编译器优化。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="条件执行"><a href="#条件执行" class="headerlink" title="条件执行"></a>条件执行</h1><hr>
+<p>“<strong>条件执行</strong>”（Conditional Execution）是某些指令集架构（特别是 <strong>ARM</strong>）中一个非常有特色的机制，但在 <strong>RISC-V</strong>、x86 等架构中并不存在（或实现方式不同）。</p>
+<h2 id="一、什么是条件执行？"><a href="#一、什么是条件执行？" class="headerlink" title="一、什么是条件执行？"></a>一、什么是条件执行？</h2><blockquote>
+<p><strong>条件执行</strong> 是指：<strong>一条指令是否执行，取决于当前处理器状态寄存器（如 CPSR&#x2F;FLAGS）中的某个条件标志（如 Z、C、N、V）是否满足特定条件</strong>。</p>
+</blockquote>
+<p>换句话说：<strong>不是通过跳转（branch）来控制流程，而是让指令“自己决定”是否生效</strong>。</p>
+<hr>
+<h2 id="二、以-ARM-为例（经典-ARMv7-架构）"><a href="#二、以-ARM-为例（经典-ARMv7-架构）" class="headerlink" title="二、以 ARM 为例（经典 ARMv7 架构）"></a>二、以 ARM 为例（经典 ARMv7 架构）</h2><p>在 ARM（32 位）中，<strong>几乎每条指令的末尾都可以附加一个 2 位的条件码</strong>，共 16 种条件。</p>
+<h3 id="常见条件码示例："><a href="#常见条件码示例：" class="headerlink" title="常见条件码示例："></a>常见条件码示例：</h3><table>
+<thead>
+<tr>
+<th>后缀</th>
+<th>条件</th>
+<th>含义</th>
+<th>对应标志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EQ</code></td>
+<td>Equal</td>
+<td>相等（Z&#x3D;1）</td>
+<td>Z&#x3D;1</td>
+</tr>
+<tr>
+<td><code>NE</code></td>
+<td>Not Equal</td>
+<td>不相等（Z&#x3D;0）</td>
+<td>Z&#x3D;0</td>
+</tr>
+<tr>
+<td><code>GT</code></td>
+<td>Greater Than</td>
+<td>有符号大于</td>
+<td>(Z&#x3D;0) 且 (N&#x3D;V)</td>
+</tr>
+<tr>
+<td><code>LT</code></td>
+<td>Less Than</td>
+<td>有符号小于</td>
+<td>N≠V</td>
+</tr>
+<tr>
+<td><code>CS</code>&#x2F;<code>HS</code></td>
+<td>Carry Set &#x2F; Higher or Same</td>
+<td>无符号 ≥</td>
+<td>C&#x3D;1</td>
+</tr>
+<tr>
+<td><code>CC</code>&#x2F;<code>LO</code></td>
+<td>Carry Clear &#x2F; Lower</td>
+<td>无符号 &lt;</td>
+<td>C&#x3D;0</td>
+</tr>
+<tr>
+<td><code>AL</code></td>
+<td>Always</td>
+<td>总是执行（默认）</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<h3 id="示例代码（ARM-汇编）："><a href="#示例代码（ARM-汇编）：" class="headerlink" title="示例代码（ARM 汇编）："></a>示例代码（ARM 汇编）：</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmp</span> <span class="built_in">r0</span>, <span class="built_in">r1</span>        <span class="comment">; 比较 r0 和 r1，设置标志位（Z/N/C/V）</span></span><br><span class="line"><span class="keyword">addeq</span> <span class="built_in">r2</span>, <span class="built_in">r3</span>, <span class="built_in">r4</span>  <span class="comment">; 如果 r0 == r1（Z=1），则执行 r2 = r3 + r4</span></span><br><span class="line"><span class="keyword">movne</span> <span class="built_in">r5</span>, <span class="number">#0</span>      <span class="comment">; 如果 r0 != r1（Z=0），则 r5 = 0</span></span><br></pre></td></tr></table></figure>
+
+<p>👉 <strong>注意</strong>：即使 <code>addeq</code> 不满足条件，它仍然会“执行”，但<strong>不会改变寄存器或内存</strong>，也不会触发异常，只是“空转”一个周期（现代 ARM 可能优化掉）。</p>
+<hr>
+<h2 id="三、条件执行的好处"><a href="#三、条件执行的好处" class="headerlink" title="三、条件执行的好处"></a>三、条件执行的好处</h2><ol>
+<li><strong>避免短分支（short branches）</strong><ul>
+<li>传统方式：用 <code>cmp + beq + add</code> 需要跳转，可能清空流水线</li>
+<li>条件执行：直接 <code>cmp + addeq</code>，<strong>无跳转、无流水线冲刷</strong></li>
+</ul>
+</li>
+<li><strong>提高代码密度和性能</strong><ul>
+<li>少一条跳转指令</li>
+<li>适合实现 <code>if-then-else</code> 中的简单操作</li>
+</ul>
+</li>
+<li><strong>简化编译器优化</strong><ul>
+<li>编译器可将简单条件语句直接映射为条件指令</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="四、为什么-RISC-V-没有条件执行？"><a href="#四、为什么-RISC-V-没有条件执行？" class="headerlink" title="四、为什么 RISC-V 没有条件执行？"></a>四、为什么 RISC-V 没有条件执行？</h2><p>RISC-V 的设计哲学是 <strong>“保持基础指令集极简”</strong>，原因包括：</p>
+<h3 id="1-硬件复杂度增加"><a href="#1-硬件复杂度增加" class="headerlink" title="1. 硬件复杂度增加"></a>1. <strong>硬件复杂度增加</strong></h3><ul>
+<li>每条指令都要检查条件码，增加译码逻辑</li>
+<li>对超标量、乱序执行处理器不利（需额外处理条件依赖）</li>
+</ul>
+<h3 id="2-现代处理器有更好替代方案"><a href="#2-现代处理器有更好替代方案" class="headerlink" title="2. 现代处理器有更好替代方案"></a>2. <strong>现代处理器有更好替代方案</strong></h3><ul>
+<li><strong>分支预测（Branch Prediction）</strong> 非常成熟，短分支开销极低</li>
+<li><strong>条件传送（Conditional Move）</strong> 或 <strong>选择指令（如 <code>csel</code>）</strong> 可在某些架构中实现类似效果（但 RISC-V 也不包含，除非通过扩展）</li>
+</ul>
+<h3 id="3-代码体积-vs-性能权衡"><a href="#3-代码体积-vs-性能权衡" class="headerlink" title="3. 代码体积 vs 性能权衡"></a>3. <strong>代码体积 vs 性能权衡</strong></h3><ul>
+<li>条件执行虽减少跳转，但每条指令都带条件码，可能浪费编码空间</li>
+<li>RISC-V 用 <strong>压缩指令扩展（C extension）</strong> 来解决代码密度问题，而非条件执行</li>
+</ul>
+<h3 id="RISC-V-的等效写法（用分支）："><a href="#RISC-V-的等效写法（用分支）：" class="headerlink" title="RISC-V 的等效写法（用分支）："></a>RISC-V 的等效写法（用分支）：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">    bne x0, x1, skip    # if (x0 != x1) goto skip</span><br><span class="line">    add x2, x3, x4      # x2 = x3 + x4</span><br><span class="line">skip:</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>或者用编译器优化为无分支形式（如位运算技巧），但<strong>硬件不提供条件执行支持</strong>。</p>
+<hr>
+<h2 id="五、其他架构对比"><a href="#五、其他架构对比" class="headerlink" title="五、其他架构对比"></a>五、其他架构对比</h2><table>
+<thead>
+<tr>
+<th>架构</th>
+<th>是否支持条件执行</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ARM（32位）</strong></td>
+<td>✅ 是</td>
+<td>几乎所有指令可加条件后缀</td>
+</tr>
+<tr>
+<td><strong>ARM64（AArch64）</strong></td>
+<td>❌ 否</td>
+<td><strong>移除了通用条件执行</strong>，仅保留条件选择指令（如 <code>csel</code>）</td>
+</tr>
+<tr>
+<td><strong>x86</strong></td>
+<td>❌ 否</td>
+<td>用 <code>setcc</code>、<code>cmovcc</code>（条件传送）实现部分功能</td>
+</tr>
+<tr>
+<td><strong>RISC-V</strong></td>
+<td>❌ 否</td>
+<td>完全依赖分支或软件优化</td>
+</tr>
+<tr>
+<td><strong>MIPS</strong></td>
+<td>❌ 否</td>
+<td>无条件执行</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>🔸 有趣的是：<strong>ARM64 也放弃了通用条件执行</strong>，说明现代高性能设计更倾向于“简单指令 + 强大分支预测”。</p>
+</blockquote>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>条件执行（ARMv7）</th>
+<th>RISC-V 方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制流</td>
+<td>指令自身带条件</td>
+<td>显式 <code>beq</code>&#x2F;<code>bne</code> 等分支</td>
+</tr>
+<tr>
+<td>硬件开销</td>
+<td>较高（每条指令需判条件）</td>
+<td>低（指令简单）</td>
+</tr>
+<tr>
+<td>流水线影响</td>
+<td>避免跳转冲刷</td>
+<td>依赖分支预测</td>
+</tr>
+<tr>
+<td>代码风格</td>
+<td>紧凑、无跳转</td>
+<td>清晰、显式控制流</td>
+</tr>
+<tr>
+<td>现代趋势</td>
+<td>被淘汰（ARM64 已弃用）</td>
+<td>符合 RISC 简洁哲学</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="分支预测"><a href="#分支预测" class="headerlink" title="分支预测"></a>分支预测</h1><p><strong>分支预测（Branch Prediction）</strong> 和 <strong>编译器优化（Compiler Optimization）</strong> 是现代计算机体系结构与软件工程中两个极其关键的技术，它们共同作用，大幅提升程序的执行效率。下面我们分别详细讲解，并说明它们如何协同工作。</p>
+<hr>
+<h2 id="一、分支预测（Branch-Prediction）"><a href="#一、分支预测（Branch-Prediction）" class="headerlink" title="一、分支预测（Branch Prediction）"></a>一、分支预测（Branch Prediction）</h2><h3 id="1-为什么需要分支预测？"><a href="#1-为什么需要分支预测？" class="headerlink" title="1. 为什么需要分支预测？"></a>1. 为什么需要分支预测？</h3><p>现代处理器采用 <strong>流水线（Pipeline）</strong> 技术，将一条指令的执行分为多个阶段（如取指、译码、执行、访存、写回），多条指令可以“并行”处理。</p>
+<p>但遇到 <strong>条件分支指令</strong>（如 <code>if</code>、<code>for</code>、<code>while</code> 对应的 <code>beq</code>、<code>bne</code> 等）时，处理器<strong>无法立即知道下一条该取哪条指令</strong>（跳转 or 顺序执行？）。</p>
+<p>如果等待分支结果再取指，会导致流水线 <strong>停顿（stall）</strong>，严重降低性能。</p>
+<blockquote>
+<p>📌 <strong>分支预测的目标</strong>：在分支结果确定前，<strong>猜测</strong>程序会走哪条路径，并提前取指执行。</p>
+</blockquote>
+<hr>
+<h3 id="2-分支预测的类型"><a href="#2-分支预测的类型" class="headerlink" title="2. 分支预测的类型"></a>2. 分支预测的类型</h3><h4 id="（1）静态分支预测（Static-Branch-Prediction）"><a href="#（1）静态分支预测（Static-Branch-Prediction）" class="headerlink" title="（1）静态分支预测（Static Branch Prediction）"></a>（1）静态分支预测（Static Branch Prediction）</h4><ul>
+<li><strong>不依赖运行时信息</strong>，由编译器或硬件固定规则决定。</li>
+<li>常见策略：<ul>
+<li><strong>总是预测不跳转</strong>（顺序执行）</li>
+<li><strong>向后跳转预测为跳转</strong>（用于循环，如 <code>for</code> 的结尾跳回头部）</li>
+</ul>
+</li>
+<li>优点：简单、零硬件开销  </li>
+<li>缺点：准确率低（约 60–70%）</li>
+</ul>
+<h4 id="（2）动态分支预测（Dynamic-Branch-Prediction）"><a href="#（2）动态分支预测（Dynamic-Branch-Prediction）" class="headerlink" title="（2）动态分支预测（Dynamic Branch Prediction）"></a>（2）动态分支预测（Dynamic Branch Prediction）</h4><ul>
+<li><strong>根据程序历史行为动态调整预测</strong>，准确率可达 90%+。</li>
+<li>常见实现：</li>
+</ul>
+<h5 id="✅-1-位饱和计数器（1-bit-predictor）"><a href="#✅-1-位饱和计数器（1-bit-predictor）" class="headerlink" title="✅ 1 位饱和计数器（1-bit predictor）"></a>✅ 1 位饱和计数器（1-bit predictor）</h5><ul>
+<li>每个分支记录“上次是否跳转”</li>
+<li>缺点：频繁切换的分支（如 <code>if (rand() % 2)</code>）会反复预测错误</li>
+</ul>
+<h5 id="✅-2-位饱和计数器（2-bit-predictor，最常用）"><a href="#✅-2-位饱和计数器（2-bit-predictor，最常用）" class="headerlink" title="✅ 2 位饱和计数器（2-bit predictor，最常用）"></a>✅ 2 位饱和计数器（2-bit predictor，最常用）</h5><ul>
+<li>状态机：<strong>强不跳 &#x2F; 弱不跳 &#x2F; 弱跳 &#x2F; 强跳</strong></li>
+<li>更稳定，避免噪声干扰</li>
+<li>现代 CPU（如 Intel、ARM）普遍使用</li>
+</ul>
+<h5 id="✅-全局历史预测（Global-History-GShare）"><a href="#✅-全局历史预测（Global-History-GShare）" class="headerlink" title="✅ 全局历史预测（Global History &#x2F; GShare）"></a>✅ 全局历史预测（Global History &#x2F; GShare）</h5><ul>
+<li>不仅看当前分支历史，还看<strong>最近所有分支的行为</strong>（全局模式）</li>
+<li>能捕捉 <code>if (a) &#123; if (b) ... &#125;</code> 这类相关性</li>
+</ul>
+<h5 id="✅-分支目标缓冲（BTB-Branch-Target-Buffer）"><a href="#✅-分支目标缓冲（BTB-Branch-Target-Buffer）" class="headerlink" title="✅ 分支目标缓冲（BTB, Branch Target Buffer）"></a>✅ 分支目标缓冲（BTB, Branch Target Buffer）</h5><ul>
+<li>缓存分支指令的<strong>目标地址</strong>，避免每次计算跳转地址</li>
+<li>通常与预测器配合使用</li>
+</ul>
+<hr>
+<h3 id="3-预测错误的代价"><a href="#3-预测错误的代价" class="headerlink" title="3. 预测错误的代价"></a>3. 预测错误的代价</h3><ul>
+<li><strong>清空流水线</strong>（flush pipeline）</li>
+<li><strong>重新取指</strong>，浪费多个时钟周期（现代 CPU 可能损失 10–20 周期）</li>
+<li>因此，<strong>高准确率预测至关重要</strong></li>
+</ul>
+<hr>
+<h2 id="二、编译器优化（Compiler-Optimization）"><a href="#二、编译器优化（Compiler-Optimization）" class="headerlink" title="二、编译器优化（Compiler Optimization）"></a>二、编译器优化（Compiler Optimization）</h2><p>编译器（如 GCC、Clang）在将高级语言（C&#x2F;C++）翻译成机器码时，会进行一系列优化，目标是：<strong>在不改变程序语义的前提下，提升性能、减小体积、降低功耗</strong>。</p>
+<h3 id="1-与分支相关的关键优化"><a href="#1-与分支相关的关键优化" class="headerlink" title="1. 与分支相关的关键优化"></a>1. 与分支相关的关键优化</h3><h4 id="（1）分支预测提示（Branch-Hinting）"><a href="#（1）分支预测提示（Branch-Hinting）" class="headerlink" title="（1）分支预测提示（Branch Hinting）"></a>（1）<strong>分支预测提示（Branch Hinting）</strong></h4><ul>
+<li><p>程序员可用 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__builtin_expect</span><br></pre></td></tr></table></figure>
+
+<p>（GCC）提示“大概率走哪条路径”：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect(ptr != <span class="literal">NULL</span>, <span class="number">1</span>)) &#123;</span><br><span class="line">    <span class="comment">// 编译器会假设 ptr != NULL 为“很可能成立”</span></span><br><span class="line">    <span class="comment">// 从而优化指令布局</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译器据此调整代码顺序，让<strong>更可能执行的路径连续存放</strong>，减少跳转。</p>
+</li>
+</ul>
+<h4 id="（2）基本块重排（Basic-Block-Reordering）"><a href="#（2）基本块重排（Basic-Block-Reordering）" class="headerlink" title="（2）基本块重排（Basic Block Reordering）"></a>（2）<strong>基本块重排（Basic Block Reordering）</strong></h4><ul>
+<li>将高频执行的代码块放在前面，低频（如错误处理）放在后面</li>
+<li>减少跳转距离，提升指令缓存命中率</li>
+</ul>
+<h4 id="（3）消除冗余分支"><a href="#（3）消除冗余分支" class="headerlink" title="（3）消除冗余分支"></a>（3）<strong>消除冗余分支</strong></h4><ul>
+<li><p>通过常量传播、死代码消除等，直接删掉不会执行的分支</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="number">0</span>) &#123; ... &#125;  <span class="comment">// 整个块被优化掉</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="（4）循环优化"><a href="#（4）循环优化" class="headerlink" title="（4）循环优化"></a>（4）<strong>循环优化</strong></h4><ul>
+<li><p>循环展开（Loop Unrolling）：减少循环控制分支次数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">4</span>; i++) sum += a[i];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 展开后</span></span><br><span class="line">sum += a[<span class="number">0</span>]; sum += a[<span class="number">1</span>]; sum += a[<span class="number">2</span>]; sum += a[<span class="number">3</span>];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>循环不变量外提、强度削弱等</p>
+</li>
+</ul>
+<h4 id="（5）条件传送（Conditional-Move）替代分支"><a href="#（5）条件传送（Conditional-Move）替代分支" class="headerlink" title="（5）条件传送（Conditional Move）替代分支"></a>（5）<strong>条件传送（Conditional Move）替代分支</strong></h4><ul>
+<li><p>对于简单 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if-else</span><br></pre></td></tr></table></figure>
+
+<p>，编译器可能生成 </p>
+<p>无分支代码</p>
+<p>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> max = (a &gt; b) ? a : b;</span><br></pre></td></tr></table></figure>
+
+<p>→ 编译为（x86 示例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmp eax, ebx</span><br><span class="line">cmovle eax, ebx   ; if (a &lt;= b) eax = ebx</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>无跳转</strong>，避免预测错误风险</li>
+<li>但 RISC-V 默认不支持 <code>cmov</code>，需用分支或位运算模拟</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、分支预测-vs-编译器优化：如何协同？"><a href="#三、分支预测-vs-编译器优化：如何协同？" class="headerlink" title="三、分支预测 vs 编译器优化：如何协同？"></a>三、分支预测 vs 编译器优化：如何协同？</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>编译器能做什么</th>
+<th>处理器能做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>已知高概率分支</strong></td>
+<td>用 <code>__builtin_expect</code> 提示，重排代码</td>
+<td>静态预测器按“顺序执行”或“向后跳转”猜测</td>
+</tr>
+<tr>
+<td><strong>循环结构</strong></td>
+<td>循环展开、不变量外提</td>
+<td>动态预测器学习“循环末尾总是跳转”</td>
+</tr>
+<tr>
+<td><strong>简单条件赋值</strong></td>
+<td>生成条件传送（若架构支持）</td>
+<td>无需预测，无分支</td>
+</tr>
+<tr>
+<td><strong>复杂分支逻辑</strong></td>
+<td>尽量简化条件表达式</td>
+<td>用 BTB + 2-bit 预测器跟踪历史</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>💡 <strong>理想情况</strong>：编译器减少不必要的分支，处理器高效预测剩余分支。</p>
+</blockquote>
+<hr>
+<h2 id="四、RISC-V-与-ARM-x86-的差异"><a href="#四、RISC-V-与-ARM-x86-的差异" class="headerlink" title="四、RISC-V 与 ARM&#x2F;x86 的差异"></a>四、RISC-V 与 ARM&#x2F;x86 的差异</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>RISC-V</th>
+<th>ARM&#x2F;x86</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>条件执行</strong></td>
+<td>❌ 不支持</td>
+<td>ARMv7 ✅，x86 ❌</td>
+</tr>
+<tr>
+<td><strong>条件传送指令</strong></td>
+<td>❌ 基础 ISA 无（需用分支或扩展）</td>
+<td>x86 ✅（<code>cmov</code>），ARM64 ✅（<code>csel</code>）</td>
+</tr>
+<tr>
+<td><strong>编译器优化空间</strong></td>
+<td>更依赖分支预测</td>
+<td>可用 <code>cmov</code>&#x2F;<code>csel</code> 消除部分分支</td>
+</tr>
+<tr>
+<td><strong>对预测器依赖</strong></td>
+<td>更高</td>
+<td>略低（有更多无分支选项）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="五、实际影响举例"><a href="#五、实际影响举例" class="headerlink" title="五、实际影响举例"></a>五、实际影响举例</h2><h3 id="例子：错误处理路径"><a href="#例子：错误处理路径" class="headerlink" title="例子：错误处理路径"></a>例子：错误处理路径</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">process</span><span class="params">(<span class="type">int</span>* p)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (p == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        log_error(<span class="string">&quot;Null pointer!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 正常处理（99% 情况）</span></span><br><span class="line">    *p = <span class="number">42</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>优化后</strong>：编译器将 <code>log_error</code> 块放到函数末尾，主路径无跳转</li>
+<li><strong>预测器</strong>：学习到“几乎不走错误路径”，预测准确率高</li>
+<li><strong>结果</strong>：主路径执行极快，几乎无流水线停顿</li>
+</ul>
+<hr>
+<h2 id="六、总结-1"><a href="#六、总结-1" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th>技术</th>
+<th>作用层级</th>
+<th>目标</th>
+<th>关键手段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分支预测</strong></td>
+<td><strong>硬件（CPU）</strong></td>
+<td>减少因分支导致的流水线停顿</td>
+<td>静态&#x2F;动态预测、BTB、全局历史</td>
+</tr>
+<tr>
+<td><strong>编译器优化</strong></td>
+<td><strong>软件（编译期）</strong></td>
+<td>生成更高效、更少分支的代码</td>
+<td>分支提示、基本块重排、循环优化、条件传送</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>✅ <strong>现代高性能程序 &#x3D; 编译器聪明地生成代码 + CPU 聪明地执行代码</strong></p>
+</blockquote>
+<p>两者相辅相成：<strong>编译器尽量减少“难预测”的分支，CPU 尽力准确预测剩下的分支</strong>。</p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/tags/%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C/" rel="tag"># 条件执行</a>
+              <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/" rel="tag"># 分支预测</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%86%85%E9%83%A8%E4%B8%AD%E6%96%AD%E5%92%8C%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" rel="prev" title="内部中断和外部中断">
+      <i class="fa fa-chevron-left"></i> 内部中断和外部中断
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/openSBI/" rel="next" title="RISC-V的OpenSBI">
+      RISC-V的OpenSBI <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">条件执行</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%EF%BC%9F"><span class="nav-text">一、什么是条件执行？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%A5-ARM-%E4%B8%BA%E4%BE%8B%EF%BC%88%E7%BB%8F%E5%85%B8-ARMv7-%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-text">二、以 ARM 为例（经典 ARMv7 架构）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%9D%A1%E4%BB%B6%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-text">常见条件码示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%EF%BC%88ARM-%E6%B1%87%E7%BC%96%EF%BC%89%EF%BC%9A"><span class="nav-text">示例代码（ARM 汇编）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="nav-text">三、条件执行的好处</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88-RISC-V-%E6%B2%A1%E6%9C%89%E6%9D%A1%E4%BB%B6%E6%89%A7%E8%A1%8C%EF%BC%9F"><span class="nav-text">四、为什么 RISC-V 没有条件执行？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%A2%9E%E5%8A%A0"><span class="nav-text">1. 硬件复杂度增加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%8E%B0%E4%BB%A3%E5%A4%84%E7%90%86%E5%99%A8%E6%9C%89%E6%9B%B4%E5%A5%BD%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88"><span class="nav-text">2. 现代处理器有更好替代方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BB%A3%E7%A0%81%E4%BD%93%E7%A7%AF-vs-%E6%80%A7%E8%83%BD%E6%9D%83%E8%A1%A1"><span class="nav-text">3. 代码体积 vs 性能权衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RISC-V-%E7%9A%84%E7%AD%89%E6%95%88%E5%86%99%E6%B3%95%EF%BC%88%E7%94%A8%E5%88%86%E6%94%AF%EF%BC%89%EF%BC%9A"><span class="nav-text">RISC-V 的等效写法（用分支）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%85%B6%E4%BB%96%E6%9E%B6%E6%9E%84%E5%AF%B9%E6%AF%94"><span class="nav-text">五、其他架构对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">六、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B"><span class="nav-text">分支预测</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%EF%BC%88Branch-Prediction%EF%BC%89"><span class="nav-text">一、分支预测（Branch Prediction）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%EF%BC%9F"><span class="nav-text">1. 为什么需要分支预测？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-text">2. 分支预测的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E9%9D%99%E6%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%EF%BC%88Static-Branch-Prediction%EF%BC%89"><span class="nav-text">（1）静态分支预测（Static Branch Prediction）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%8A%A8%E6%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%EF%BC%88Dynamic-Branch-Prediction%EF%BC%89"><span class="nav-text">（2）动态分支预测（Dynamic Branch Prediction）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%9C%85-1-%E4%BD%8D%E9%A5%B1%E5%92%8C%E8%AE%A1%E6%95%B0%E5%99%A8%EF%BC%881-bit-predictor%EF%BC%89"><span class="nav-text">✅ 1 位饱和计数器（1-bit predictor）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%9C%85-2-%E4%BD%8D%E9%A5%B1%E5%92%8C%E8%AE%A1%E6%95%B0%E5%99%A8%EF%BC%882-bit-predictor%EF%BC%8C%E6%9C%80%E5%B8%B8%E7%94%A8%EF%BC%89"><span class="nav-text">✅ 2 位饱和计数器（2-bit predictor，最常用）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%9C%85-%E5%85%A8%E5%B1%80%E5%8E%86%E5%8F%B2%E9%A2%84%E6%B5%8B%EF%BC%88Global-History-GShare%EF%BC%89"><span class="nav-text">✅ 全局历史预测（Global History &#x2F; GShare）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%9C%85-%E5%88%86%E6%94%AF%E7%9B%AE%E6%A0%87%E7%BC%93%E5%86%B2%EF%BC%88BTB-Branch-Target-Buffer%EF%BC%89"><span class="nav-text">✅ 分支目标缓冲（BTB, Branch Target Buffer）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%A2%84%E6%B5%8B%E9%94%99%E8%AF%AF%E7%9A%84%E4%BB%A3%E4%BB%B7"><span class="nav-text">3. 预测错误的代价</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96%EF%BC%88Compiler-Optimization%EF%BC%89"><span class="nav-text">二、编译器优化（Compiler Optimization）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8E%E5%88%86%E6%94%AF%E7%9B%B8%E5%85%B3%E7%9A%84%E5%85%B3%E9%94%AE%E4%BC%98%E5%8C%96"><span class="nav-text">1. 与分支相关的关键优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E6%8F%90%E7%A4%BA%EF%BC%88Branch-Hinting%EF%BC%89"><span class="nav-text">（1）分支预测提示（Branch Hinting）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%9F%BA%E6%9C%AC%E5%9D%97%E9%87%8D%E6%8E%92%EF%BC%88Basic-Block-Reordering%EF%BC%89"><span class="nav-text">（2）基本块重排（Basic Block Reordering）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%B6%88%E9%99%A4%E5%86%97%E4%BD%99%E5%88%86%E6%94%AF"><span class="nav-text">（3）消除冗余分支</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E5%BE%AA%E7%8E%AF%E4%BC%98%E5%8C%96"><span class="nav-text">（4）循环优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%885%EF%BC%89%E6%9D%A1%E4%BB%B6%E4%BC%A0%E9%80%81%EF%BC%88Conditional-Move%EF%BC%89%E6%9B%BF%E4%BB%A3%E5%88%86%E6%94%AF"><span class="nav-text">（5）条件传送（Conditional Move）替代分支</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B-vs-%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96%EF%BC%9A%E5%A6%82%E4%BD%95%E5%8D%8F%E5%90%8C%EF%BC%9F"><span class="nav-text">三、分支预测 vs 编译器优化：如何协同？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81RISC-V-%E4%B8%8E-ARM-x86-%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="nav-text">四、RISC-V 与 ARM&#x2F;x86 的差异</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E9%99%85%E5%BD%B1%E5%93%8D%E4%B8%BE%E4%BE%8B"><span class="nav-text">五、实际影响举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%EF%BC%9A%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E8%B7%AF%E5%BE%84"><span class="nav-text">例子：错误处理路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93-1"><span class="nav-text">六、总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">115</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

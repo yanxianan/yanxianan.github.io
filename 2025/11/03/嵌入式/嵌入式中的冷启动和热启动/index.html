@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍冷启动和热启动。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式系统中的冷启动与热启动">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E5%92%8C%E7%83%AD%E5%90%AF%E5%8A%A8/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍冷启动和热启动。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-03T09:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-03T09:07:38.971Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="冷启动">
+<meta property="article:tag" content="热启动">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E5%92%8C%E7%83%AD%E5%90%AF%E5%8A%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>嵌入式系统中的冷启动与热启动 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E5%92%8C%E7%83%AD%E5%90%AF%E5%8A%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式系统中的冷启动与热启动
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-03 17:00:00 / 修改时间：17:07:38" itemprop="dateCreated datePublished" datetime="2025-11-03T17:00:00+08:00">2025-11-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍冷启动和热启动。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在嵌入式系统中，<strong>热启动（Warm Boot &#x2F; Warm Reset）</strong> 和 <strong>冷启动（Cold Boot &#x2F; Cold Reset）</strong> 是两种不同的系统重启或初始化方式，它们在<strong>硬件状态、初始化范围、启动速度和应用场景</strong>上有显著区别。</p>
+<hr>
+<h2 id="一、冷启动（Cold-Boot）"><a href="#一、冷启动（Cold-Boot）" class="headerlink" title="一、冷启动（Cold Boot）"></a>一、冷启动（Cold Boot）</h2><h3 id="定义："><a href="#定义：" class="headerlink" title="定义："></a>定义：</h3><p>冷启动是指 <strong>系统从完全断电或完全复位状态开始的启动过程</strong>。此时，整个芯片（包括 CPU、内存、外设等）都处于<strong>初始上电状态</strong>，所有寄存器和存储单元的内容都是未定义或默认值。</p>
+<h3 id="触发方式："><a href="#触发方式：" class="headerlink" title="触发方式："></a>触发方式：</h3><ul>
+<li>上电（Power-on）</li>
+<li>硬件复位引脚（RESET#）被拉低</li>
+<li>看门狗超时导致的硬复位（部分系统）</li>
+</ul>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>硬件状态</strong></td>
+<td>所有寄存器、RAM、外设恢复到芯片手册定义的复位值</td>
+</tr>
+<tr>
+<td><strong>内存内容</strong></td>
+<td>RAM 数据丢失（除非有后备电源）；Flash&#x2F;ROM 保持不变</td>
+</tr>
+<tr>
+<td><strong>初始化范围</strong></td>
+<td><strong>完整初始化</strong>：时钟、电源、内存控制器、外设、中断控制器等全部重新配置</td>
+</tr>
+<tr>
+<td><strong>启动时间</strong></td>
+<td>较长（几十毫秒到几秒）</td>
+</tr>
+<tr>
+<td><strong>软件流程</strong></td>
+<td>从 BootROM 或复位向量开始，执行完整的 Bootloader → OS&#x2F;应用</td>
+</tr>
+</tbody></table>
+<h3 id="典型场景："><a href="#典型场景：" class="headerlink" title="典型场景："></a>典型场景：</h3><ul>
+<li>设备首次上电</li>
+<li>系统崩溃后硬件复位</li>
+<li>用户按下“复位按钮”</li>
+</ul>
+<blockquote>
+<p>✅ <strong>冷启动 &#x3D; “从零开始，一切重来”</strong></p>
+</blockquote>
+<hr>
+<h2 id="二、热启动（Warm-Boot）"><a href="#二、热启动（Warm-Boot）" class="headerlink" title="二、热启动（Warm Boot）"></a>二、热启动（Warm Boot）</h2><h3 id="定义：-1"><a href="#定义：-1" class="headerlink" title="定义："></a>定义：</h3><p>热启动是指 <strong>系统在不断电、CPU 和部分内存仍保持供电的情况下，仅对软件或部分硬件进行重新初始化</strong>。通常由<strong>软件触发</strong>，硬件状态（如 RAM 内容）可能被保留。</p>
+<h3 id="触发方式：-1"><a href="#触发方式：-1" class="headerlink" title="触发方式："></a>触发方式：</h3><ul>
+<li>软件写特定寄存器（如系统控制寄存器中的复位位）</li>
+<li>操作系统调用重启接口（如 Linux 的 <code>reboot()</code>）</li>
+<li>应用程序主动跳转到复位向量（不触发硬件复位）</li>
+</ul>
+<h3 id="特点：-1"><a href="#特点：-1" class="headerlink" title="特点："></a>特点：</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>硬件状态</strong></td>
+<td><strong>部分保留</strong>：RAM 数据通常保留；外设可能未复位</td>
+</tr>
+<tr>
+<td><strong>内存内容</strong></td>
+<td>RAM 中的数据<strong>可能仍然有效</strong>（可用于传递重启原因、调试信息）</td>
+</tr>
+<tr>
+<td><strong>初始化范围</strong></td>
+<td><strong>部分初始化</strong>：可能跳过时钟、DDR 初始化等耗时步骤</td>
+</tr>
+<tr>
+<td><strong>启动时间</strong></td>
+<td>较短（几毫秒到几百毫秒）</td>
+</tr>
+<tr>
+<td><strong>软件流程</strong></td>
+<td>可能直接跳转到 Bootloader 或应用入口，跳过底层硬件初始化</td>
+</tr>
+</tbody></table>
+<h3 id="典型场景：-1"><a href="#典型场景：-1" class="headerlink" title="典型场景："></a>典型场景：</h3><ul>
+<li>系统软件升级后重启</li>
+<li>应用程序崩溃后快速恢复</li>
+<li>调试时快速重启（保留 RAM 中的日志）</li>
+<li>低功耗唤醒后的“软复位”</li>
+</ul>
+<blockquote>
+<p>✅ <strong>热启动 &#x3D; “快速重启，尽量保留现场”</strong></p>
+</blockquote>
+<hr>
+<h2 id="三、关键区别对比表"><a href="#三、关键区别对比表" class="headerlink" title="三、关键区别对比表"></a>三、关键区别对比表</h2><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>冷启动（Cold Boot）</th>
+<th>热启动（Warm Boot）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>是否断电</strong></td>
+<td>是（或等效断电）</td>
+<td>否（系统持续供电）</td>
+</tr>
+<tr>
+<td><strong>RAM 数据</strong></td>
+<td>丢失</td>
+<td>通常保留</td>
+</tr>
+<tr>
+<td><strong>外设状态</strong></td>
+<td>完全复位</td>
+<td>可能保持原状态</td>
+</tr>
+<tr>
+<td><strong>时钟&#x2F;电源</strong></td>
+<td>重新初始化</td>
+<td>可能跳过</td>
+</tr>
+<tr>
+<td><strong>DDR 初始化</strong></td>
+<td>必须执行</td>
+<td>可能跳过（若 RAM 仍有效）</td>
+</tr>
+<tr>
+<td><strong>启动速度</strong></td>
+<td>慢</td>
+<td>快</td>
+</tr>
+<tr>
+<td><strong>触发方式</strong></td>
+<td>硬件复位、上电</td>
+<td>软件复位、跳转</td>
+</tr>
+<tr>
+<td><strong>用途</strong></td>
+<td>首次启动、严重错误恢复</td>
+<td>快速重启、OTA 升级、调试</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、嵌入式系统中的实现示例"><a href="#四、嵌入式系统中的实现示例" class="headerlink" title="四、嵌入式系统中的实现示例"></a>四、嵌入式系统中的实现示例</h2><h3 id="1-通过复位原因寄存器区分"><a href="#1-通过复位原因寄存器区分" class="headerlink" title="1. 通过复位原因寄存器区分"></a>1. <strong>通过复位原因寄存器区分</strong></h3><p>许多 MCU（如 STM32、ESP32、RISC-V SoC）提供 <strong>复位状态寄存器（RSTSR &#x2F; RESET_CAUSE）</strong>，软件可在启动时读取以判断是冷启还是热启：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (read_reset_cause() == WARM_RESET) &#123;</span><br><span class="line">    <span class="comment">// 跳过 DDR 初始化，直接使用 RAM</span></span><br><span class="line">    skip_ddr_init = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// 从 RAM 中读取上次保存的上下文</span></span><br><span class="line">    restore_context();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 执行完整初始化</span></span><br><span class="line">    init_clocks();</span><br><span class="line">    init_ddr();</span><br><span class="line">    init_peripherals();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-保留-RAM-区域（Retention-RAM）"><a href="#2-保留-RAM-区域（Retention-RAM）" class="headerlink" title="2. 保留 RAM 区域（Retention RAM）"></a>2. <strong>保留 RAM 区域（Retention RAM）</strong></h3><ul>
+<li>某些芯片提供 <strong>“备份域 RAM”</strong> 或 <strong>“低功耗 RAM”</strong>，即使在热启动中也保证数据不丢失</li>
+<li>用于存储重启标志、崩溃日志、系统状态等</li>
+</ul>
+<h3 id="3-RISC-V-中的热启动"><a href="#3-RISC-V-中的热启动" class="headerlink" title="3. RISC-V 中的热启动"></a>3. <strong>RISC-V 中的热启动</strong></h3><ul>
+<li>在 OpenSBI 或 Bootloader 中，可通过 <code>sbi_system_reset()</code> 触发热启动</li>
+<li>若平台支持，可设置 <code>reset_type = SBI_SRST_RESET_TYPE_SHUTDOWN</code> 或 <code>WARM_REBOOT</code></li>
+</ul>
+<hr>
+<h2 id="五、注意事项"><a href="#五、注意事项" class="headerlink" title="五、注意事项"></a>五、注意事项</h2><ol>
+<li><strong>热启动不等于“安全”</strong><br>如果外设处于异常状态（如 UART FIFO 满、DMA 挂起），热启动可能导致系统行为异常。<strong>关键外设仍需软件复位</strong>。</li>
+<li><strong>堆栈和全局变量不可依赖</strong><br>即使 RAM 保留，C 运行时环境（如 <code>.bss</code>、<code>.data</code> 段）通常会在启动时被重新初始化，<strong>不能假设全局变量值有效</strong>。</li>
+<li><strong>看门狗复位通常是冷启动</strong><br>大多数看门狗超时会触发<strong>系统级硬复位</strong>，属于冷启动。</li>
+</ol>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th>启动类型</th>
+<th>本质</th>
+<th>速度</th>
+<th>数据保留</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>冷启动</strong></td>
+<td>硬件完全复位</td>
+<td>慢</td>
+<td>❌ 无</td>
+<td>首次上电、严重故障恢复</td>
+</tr>
+<tr>
+<td><strong>热启动</strong></td>
+<td>软件控制重启</td>
+<td>快</td>
+<td>✅ 部分（RAM）</td>
+<td>快速恢复、升级、调试</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>💡 <strong>设计建议</strong>：<br>在嵌入式系统中，合理利用热启动可以显著提升用户体验（如设备“秒启”），但必须确保关键外设和状态机被正确重置。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/tags/%E5%86%B7%E5%90%AF%E5%8A%A8/" rel="tag"># 冷启动</a>
+              <a href="/tags/%E7%83%AD%E5%90%AF%E5%8A%A8/" rel="tag"># 热启动</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/03/%E5%B5%8C%E5%85%A5%E5%BC%8F/openSBI/" rel="prev" title="RISC-V的OpenSBI">
+      <i class="fa fa-chevron-left"></i> RISC-V的OpenSBI
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%86%B7%E5%90%AF%E5%8A%A8%EF%BC%88Cold-Boot%EF%BC%89"><span class="nav-text">一、冷启动（Cold Boot）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%EF%BC%9A"><span class="nav-text">定义：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A6%E5%8F%91%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="nav-text">触发方式：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="nav-text">特点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF%EF%BC%9A"><span class="nav-text">典型场景：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%83%AD%E5%90%AF%E5%8A%A8%EF%BC%88Warm-Boot%EF%BC%89"><span class="nav-text">二、热启动（Warm Boot）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%EF%BC%9A-1"><span class="nav-text">定义：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A6%E5%8F%91%E6%96%B9%E5%BC%8F%EF%BC%9A-1"><span class="nav-text">触发方式：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A-1"><span class="nav-text">特点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF%EF%BC%9A-1"><span class="nav-text">典型场景：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%AB%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="nav-text">三、关键区别对比表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-text">四、嵌入式系统中的实现示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%80%9A%E8%BF%87%E5%A4%8D%E4%BD%8D%E5%8E%9F%E5%9B%A0%E5%AF%84%E5%AD%98%E5%99%A8%E5%8C%BA%E5%88%86"><span class="nav-text">1. 通过复位原因寄存器区分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BF%9D%E7%95%99-RAM-%E5%8C%BA%E5%9F%9F%EF%BC%88Retention-RAM%EF%BC%89"><span class="nav-text">2. 保留 RAM 区域（Retention RAM）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-RISC-V-%E4%B8%AD%E7%9A%84%E7%83%AD%E5%90%AF%E5%8A%A8"><span class="nav-text">3. RISC-V 中的热启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-text">五、注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">115</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
