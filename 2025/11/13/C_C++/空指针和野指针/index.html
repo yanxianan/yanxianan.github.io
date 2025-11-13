@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍空指针和野指针。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="空指针和野指针">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍空指针和野指针。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T13:30:00.000Z">
+<meta property="article:modified_time" content="2025-11-13T12:34:09.370Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="指针">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>空指针和野指针 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          空指针和野指针
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-13 21:30:00 / 修改时间：20:34:09" itemprop="dateCreated datePublished" datetime="2025-11-13T21:30:00+08:00">2025-11-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍空指针和野指针。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>空指针（Null Pointer）</strong> 和 <strong>野指针（Wild Pointer &#x2F; Dangling Pointer）</strong> 是 C&#x2F;C++ 中非常常见且容易引发程序崩溃或未定义行为的两类指针问题。下面我们将从定义、成因、危害、示例、检测和防范等方面进行详细讲解。</p>
+<hr>
+<h2 id="一、空指针（Null-Pointer）"><a href="#一、空指针（Null-Pointer）" class="headerlink" title="一、空指针（Null Pointer）"></a>一、空指针（Null Pointer）</h2><h3 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h3><p><strong>空指针</strong>是一个<strong>明确不指向任何有效内存地址</strong>的指针，其值为 <code>NULL</code>（C）或 <code>nullptr</code>（C++11 起）。</p>
+<ul>
+<li>在 C 中：<code>NULL</code> 通常被定义为 <code>(void*)0</code> 或 <code>0</code></li>
+<li>在 C++ 中：推荐使用 <code>nullptr</code>（类型安全）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = <span class="literal">NULL</span>;      <span class="comment">// C 风格</span></span><br><span class="line"><span class="type">int</span> *q = nullptr;   <span class="comment">// C++11 风格（更安全）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-特点"><a href="#2-特点" class="headerlink" title="2. 特点"></a>2. 特点</h3><ul>
+<li>空指针是<strong>合法的指针值</strong>。</li>
+<li>解引用空指针（如 <code>*p</code>）会导致<strong>未定义行为（Undefined Behavior）</strong>，通常表现为程序崩溃（如段错误 Segmentation Fault）。</li>
+<li>可用于表示“无对象”、“初始化未完成”、“函数返回失败”等语义。</li>
+</ul>
+<h3 id="3-示例：安全使用空指针"><a href="#3-示例：安全使用空指针" class="headerlink" title="3. 示例：安全使用空指针"></a>3. 示例：安全使用空指针</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    *p = <span class="number">10</span>;  <span class="comment">// 不会执行，安全</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Pointer is null!\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-常见用途"><a href="#4-常见用途" class="headerlink" title="4. 常见用途"></a>4. 常见用途</h3><ul>
+<li><p>函数返回失败时返回 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NULL</span><br></pre></td></tr></table></figure>
+
+<p>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FILE *fp = fopen(<span class="string">&quot;not_exist.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (fp == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    perror(<span class="string">&quot;File open failed&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化指针变量（避免成为野指针）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *ptr = <span class="literal">NULL</span>; <span class="comment">// 明确表示“尚未指向任何东西”</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="✅-正确做法："><a href="#✅-正确做法：" class="headerlink" title="✅ 正确做法："></a>✅ 正确做法：</h3><blockquote>
+<p><strong>所有指针在声明后若未立即赋值，应初始化为 <code>NULL</code>&#x2F;<code>nullptr</code>。</strong></p>
+</blockquote>
+<hr>
+<h2 id="二、野指针（Wild-Pointer-Dangling-Pointer）"><a href="#二、野指针（Wild-Pointer-Dangling-Pointer）" class="headerlink" title="二、野指针（Wild Pointer &#x2F; Dangling Pointer）"></a>二、野指针（Wild Pointer &#x2F; Dangling Pointer）</h2><p>“野指针”其实包含两类常见情况：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>未初始化指针（Wild Pointer）</strong></td>
+<td>声明后未赋值，值是随机垃圾地址</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>悬空指针（Dangling Pointer）</strong></td>
+<td>曾指向有效内存，但该内存已被释放</td>
+</tr>
+</tbody></table>
+<p>我们分别讲解。</p>
+<hr>
+<h3 id="▶-类型-1：未初始化的野指针（Wild-Pointer）"><a href="#▶-类型-1：未初始化的野指针（Wild-Pointer）" class="headerlink" title="▶ 类型 1：未初始化的野指针（Wild Pointer）"></a>▶ 类型 1：未初始化的野指针（Wild Pointer）</h3><h4 id="成因："><a href="#成因：" class="headerlink" title="成因："></a>成因：</h4><p>指针变量声明后<strong>没有初始化</strong>，其值是栈上残留的随机值（垃圾地址）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p;  <span class="comment">// 危险！p 的值是未知的（比如 0x12345678）</span></span><br><span class="line">*p = <span class="number">10</span>; <span class="comment">// 尝试写入随机地址 → 极可能崩溃或破坏内存</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="危害："><a href="#危害：" class="headerlink" title="危害："></a>危害：</h4><ul>
+<li>写入非法内存 → 段错误（Segmentation Fault）</li>
+<li>写入合法但不属于你的内存 → 数据被悄悄破坏（更难调试！）</li>
+</ul>
+<h4 id="防范："><a href="#防范：" class="headerlink" title="防范："></a>防范：</h4><p>✅ <strong>始终初始化指针</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = <span class="literal">NULL</span>;  <span class="comment">// 安全</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="▶-类型-2：悬空指针（Dangling-Pointer）"><a href="#▶-类型-2：悬空指针（Dangling-Pointer）" class="headerlink" title="▶ 类型 2：悬空指针（Dangling Pointer）"></a>▶ 类型 2：悬空指针（Dangling Pointer）</h3><h4 id="成因：-1"><a href="#成因：-1" class="headerlink" title="成因："></a>成因：</h4><p>指针曾指向一块有效内存（如堆内存），但该内存<strong>已被释放（free&#x2F;delete）</strong>，而指针<strong>未置空</strong>，仍保留旧地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = (<span class="type">int</span>*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">*p = <span class="number">42</span>;</span><br><span class="line"><span class="built_in">free</span>(p);        <span class="comment">// 内存已释放</span></span><br><span class="line"><span class="comment">// p 仍然指向原来的地址（但现在是无效的！）</span></span><br><span class="line">*p = <span class="number">100</span>;       <span class="comment">// ❌ 危险！写入已释放的内存 → 未定义行为</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="典型场景："><a href="#典型场景：" class="headerlink" title="典型场景："></a>典型场景：</h4><ol>
+<li><p><code>malloc</code>&#x2F;<code>free</code> 或 <code>new</code>&#x2F;<code>delete</code> 后未置空</p>
+</li>
+<li><p>返回局部变量的地址（函数返回后栈帧销毁）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* <span class="title function_">getPtr</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> &amp;x;  <span class="comment">// ❌ 返回局部变量地址 → 悬空指针！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="危害：-1"><a href="#危害：-1" class="headerlink" title="危害："></a>危害：</h4><ul>
+<li>表面可能“正常运行”（因为内存尚未被覆盖），但结果不可靠。</li>
+<li>后续该内存被分配给其他对象，导致<strong>数据被意外修改</strong>。</li>
+<li>多线程环境下极易引发难以复现的 bug。</li>
+</ul>
+<h4 id="防范：-1"><a href="#防范：-1" class="headerlink" title="防范："></a>防范：</h4><p>✅ <strong>释放内存后立即将指针置为 <code>NULL</code></strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">free</span>(p);</span><br><span class="line">p = <span class="literal">NULL</span>;  <span class="comment">// 关键一步！</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 后续即使误用，也能通过 if (p) 检查</span></span><br></pre></td></tr></table></figure>
+
+<p>✅ <strong>不要返回局部变量的地址</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正确做法：返回值 or 动态分配</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getValue</span><span class="params">()</span> &#123; <span class="keyword">return</span> <span class="number">10</span>; &#125;          <span class="comment">// 返回值</span></span><br><span class="line"><span class="type">int</span>* <span class="title function_">getPtr</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> *p = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    *p = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> p;  <span class="comment">// 调用者负责 free</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、空指针-vs-野指针-对比表"><a href="#三、空指针-vs-野指针-对比表" class="headerlink" title="三、空指针 vs 野指针 对比表"></a>三、空指针 vs 野指针 对比表</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>空指针（Null Pointer）</th>
+<th>野指针（Wild&#x2F;Dangling Pointer）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否有明确值</td>
+<td>✅ 有（<code>NULL</code>&#x2F;<code>nullptr</code>）</td>
+<td>❌ 无（随机值 或 已失效地址）</td>
+</tr>
+<tr>
+<td>是否合法</td>
+<td>✅ 合法（可比较、可判断）</td>
+<td>❌ 非法（使用即危险）</td>
+</tr>
+<tr>
+<td>解引用后果</td>
+<td>通常立即崩溃（易发现）</td>
+<td>可能延迟崩溃或静默破坏（难调试）</td>
+</tr>
+<tr>
+<td>初始化建议</td>
+<td>声明时赋 <code>NULL</code></td>
+<td>声明时赋 <code>NULL</code>；释放后置 <code>NULL</code></td>
+</tr>
+<tr>
+<td>检测难度</td>
+<td>容易（加 if 判断即可）</td>
+<td>困难（需工具辅助）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、如何检测和调试？"><a href="#四、如何检测和调试？" class="headerlink" title="四、如何检测和调试？"></a>四、如何检测和调试？</h2><h3 id="1-静态分析工具"><a href="#1-静态分析工具" class="headerlink" title="1. 静态分析工具"></a>1. 静态分析工具</h3><ul>
+<li><code>clang-static-analyzer</code></li>
+<li><code>PC-lint</code>, <code>Coverity</code></li>
+</ul>
+<h3 id="2-动态检测工具"><a href="#2-动态检测工具" class="headerlink" title="2. 动态检测工具"></a>2. 动态检测工具</h3><ul>
+<li><p><strong>Valgrind</strong>（Linux&#x2F;macOS）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valgrind --tool=memcheck ./your_program</span><br></pre></td></tr></table></figure>
+
+<p>能检测：使用未初始化内存、访问已释放内存、内存泄漏等。</p>
+</li>
+<li><p><strong>AddressSanitizer (ASan)</strong>（GCC&#x2F;Clang）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -fsanitize=address -g program.c -o program</span><br><span class="line">./program</span><br></pre></td></tr></table></figure>
+
+<p>能实时捕获野指针访问、缓冲区溢出等。</p>
+</li>
+</ul>
+<h3 id="3-编码习惯"><a href="#3-编码习惯" class="headerlink" title="3. 编码习惯"></a>3. 编码习惯</h3><ul>
+<li>所有指针初始化为 <code>NULL</code></li>
+<li><code>free</code>&#x2F;<code>delete</code> 后立即置 <code>NULL</code></li>
+<li>使用前检查是否为 <code>NULL</code></li>
+<li>避免返回局部变量地址</li>
+<li>尽量使用智能指针（C++）：<code>std::unique_ptr</code>, <code>std::shared_ptr</code></li>
+</ul>
+<hr>
+<h2 id="五、C-中的现代解决方案（推荐）"><a href="#五、C-中的现代解决方案（推荐）" class="headerlink" title="五、C++ 中的现代解决方案（推荐）"></a>五、C++ 中的现代解决方案（推荐）</h2><p>在 C++ 中，应尽量避免裸指针，改用<strong>RAII</strong> 和 <strong>智能指针</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line">std::unique_ptr&lt;<span class="type">int</span>&gt; p = std::<span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">42</span>);</span><br><span class="line"><span class="comment">// 自动管理内存，无需手动 delete</span></span><br><span class="line"><span class="comment">// 作用域结束自动释放，不会产生悬空指针</span></span><br></pre></td></tr></table></figure>
+
+<p>智能指针从根本上减少了野指针和内存泄漏的风险。</p>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>根本原因</th>
+<th>防范措施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>空指针</strong></td>
+<td>未检查就解引用</td>
+<td>使用前 <code>if (ptr != nullptr)</code></td>
+</tr>
+<tr>
+<td><strong>未初始化野指针</strong></td>
+<td>声明后未赋值</td>
+<td>声明时初始化为 <code>nullptr</code></td>
+</tr>
+<tr>
+<td><strong>悬空指针</strong></td>
+<td>释放后未置空 &#x2F; 返回局部地址</td>
+<td><code>free/delete</code> 后置 <code>nullptr</code>；不返回栈变量地址</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>🛑 <strong>黄金法则</strong>：<br><strong>“指针要么指向有效对象，要么是空（null）。”</strong><br>除此之外的状态都是危险的！</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8C%87%E9%92%88/" rel="tag"># 指针</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/C_C++/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E5%A4%B4%E6%96%87%E4%BB%B6%E9%87%8D%E5%A4%8D%E5%8C%85%E5%90%AB/" rel="prev" title="如何防止头文件被重复引用">
+      <i class="fa fa-chevron-left"></i> 如何防止头文件被重复引用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%A9%BA%E6%8C%87%E9%92%88%EF%BC%88Null-Pointer%EF%BC%89"><span class="nav-text">一、空指针（Null Pointer）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="nav-text">1. 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%89%B9%E7%82%B9"><span class="nav-text">2. 特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%AE%89%E5%85%A8%E4%BD%BF%E7%94%A8%E7%A9%BA%E6%8C%87%E9%92%88"><span class="nav-text">3. 示例：安全使用空指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94"><span class="nav-text">4. 常见用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E6%AD%A3%E7%A1%AE%E5%81%9A%E6%B3%95%EF%BC%9A"><span class="nav-text">✅ 正确做法：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%87%8E%E6%8C%87%E9%92%88%EF%BC%88Wild-Pointer-Dangling-Pointer%EF%BC%89"><span class="nav-text">二、野指针（Wild Pointer &#x2F; Dangling Pointer）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%96%B6-%E7%B1%BB%E5%9E%8B-1%EF%BC%9A%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E9%87%8E%E6%8C%87%E9%92%88%EF%BC%88Wild-Pointer%EF%BC%89"><span class="nav-text">▶ 类型 1：未初始化的野指针（Wild Pointer）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%90%E5%9B%A0%EF%BC%9A"><span class="nav-text">成因：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3%EF%BC%9A"><span class="nav-text">危害：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B2%E8%8C%83%EF%BC%9A"><span class="nav-text">防范：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%96%B6-%E7%B1%BB%E5%9E%8B-2%EF%BC%9A%E6%82%AC%E7%A9%BA%E6%8C%87%E9%92%88%EF%BC%88Dangling-Pointer%EF%BC%89"><span class="nav-text">▶ 类型 2：悬空指针（Dangling Pointer）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%90%E5%9B%A0%EF%BC%9A-1"><span class="nav-text">成因：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF%EF%BC%9A"><span class="nav-text">典型场景：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3%EF%BC%9A-1"><span class="nav-text">危害：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B2%E8%8C%83%EF%BC%9A-1"><span class="nav-text">防范：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%A9%BA%E6%8C%87%E9%92%88-vs-%E9%87%8E%E6%8C%87%E9%92%88-%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="nav-text">三、空指针 vs 野指针 对比表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%92%8C%E8%B0%83%E8%AF%95%EF%BC%9F"><span class="nav-text">四、如何检测和调试？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="nav-text">1. 静态分析工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8A%A8%E6%80%81%E6%A3%80%E6%B5%8B%E5%B7%A5%E5%85%B7"><span class="nav-text">2. 动态检测工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%BC%96%E7%A0%81%E4%B9%A0%E6%83%AF"><span class="nav-text">3. 编码习惯</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81C-%E4%B8%AD%E7%9A%84%E7%8E%B0%E4%BB%A3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-text">五、C++ 中的现代解决方案（推荐）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">122</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

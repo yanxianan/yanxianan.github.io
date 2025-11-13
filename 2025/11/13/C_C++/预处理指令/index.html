@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍预处理器与预处理指令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="预处理器与预处理指令">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍预处理器与预处理指令。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T12:30:00.000Z">
+<meta property="article:modified_time" content="2025-11-13T12:11:01.624Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="预处理指令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>预处理器与预处理指令 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          预处理器与预处理指令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-13 20:30:00 / 修改时间：20:11:01" itemprop="dateCreated datePublished" datetime="2025-11-13T20:30:00+08:00">2025-11-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍预处理器与预处理指令。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>结合例子（<code>#define a 1 + 5</code>）来<strong>详细讲解 C&#x2F;C++ 中的预处理指令（preprocessor directives）</strong>，尤其是 <code>#define</code> 的工作原理、常见用法和陷阱。</p>
+<hr>
+<h2 id="一、什么是预处理器？"><a href="#一、什么是预处理器？" class="headerlink" title="一、什么是预处理器？"></a>一、什么是预处理器？</h2><p>在 C&#x2F;C++ 编译过程中，<strong>预处理器（Preprocessor）</strong> 是编译的第一步。它在真正的编译开始前对源代码进行文本级别的处理。所有以 <code>#</code> 开头的行都是预处理指令，例如：</p>
+<ul>
+<li><code>#define</code></li>
+<li><code>#include</code></li>
+<li><code>#ifdef</code> &#x2F; <code>#ifndef</code> &#x2F; <code>#endif</code></li>
+<li><code>#pragma</code></li>
+<li><code>#error</code></li>
+</ul>
+<p>这些指令<strong>不会被编译器直接执行</strong>，而是在编译前由预处理器处理。</p>
+<hr>
+<h2 id="二、-define-宏定义详解"><a href="#二、-define-宏定义详解" class="headerlink" title="二、#define 宏定义详解"></a>二、<code>#define</code> 宏定义详解</h2><h3 id="1-基本语法"><a href="#1-基本语法" class="headerlink" title="1. 基本语法"></a>1. 基本语法</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> 标识符 替换文本</span></span><br></pre></td></tr></table></figure>
+
+<p>作用：在预处理阶段，将代码中所有出现的 <strong>标识符</strong> 替换成 <strong>替换文本</strong>（纯文本替换，不计算、不检查类型）。</p>
+<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PI 3.14159</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX(a, b) ((a) &gt; (b) ? (a) : (b))</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：宏不是变量，也不是函数！它只是“复制粘贴”式的文本替换。</p>
+</blockquote>
+<hr>
+<h3 id="2-回到你的例子：-define-a-1-5"><a href="#2-回到你的例子：-define-a-1-5" class="headerlink" title="2. 回到你的例子：#define a 1 + 5"></a>2. 回到你的例子：<code>#define a 1 + 5</code></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> a 1 + 5</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> x = a * <span class="number">2</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, x); <span class="comment">// 输出什么？</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="预处理后的代码："><a href="#预处理后的代码：" class="headerlink" title="预处理后的代码："></a>预处理后的代码：</h4><p>预处理器会把 <code>a</code> 替换为 <code>1 + 5</code>，所以：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">1</span> + <span class="number">5</span> * <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>由于运算符优先级：<code>*</code> 高于 <code>+</code>，等价于：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">1</span> + (<span class="number">5</span> * <span class="number">2</span>); <span class="comment">// = 1 + 10 = 11</span></span><br></pre></td></tr></table></figure>
+
+<p>✅ 所以输出是 <strong>11</strong>，而不是很多人直觉认为的 <code>(1+5)*2 = 12</code>。</p>
+<hr>
+<h3 id="3-为什么这是个陷阱？如何避免？"><a href="#3-为什么这是个陷阱？如何避免？" class="headerlink" title="3. 为什么这是个陷阱？如何避免？"></a>3. 为什么这是个陷阱？如何避免？</h3><p>问题根源：<strong>宏替换是纯文本，不考虑数学逻辑或优先级</strong>。</p>
+<h4 id="正确写法：加括号！"><a href="#正确写法：加括号！" class="headerlink" title="正确写法：加括号！"></a>正确写法：加括号！</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> a (1 + 5)</span></span><br></pre></td></tr></table></figure>
+
+<p>这样 <code>a * 2</code> 就变成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span> + <span class="number">5</span>) * <span class="number">2</span>  <span class="comment">// = 6 * 2 = 12</span></span><br></pre></td></tr></table></figure>
+
+<p>更进一步，如果宏中有参数，每个参数和整个表达式都要加括号：</p>
+<p>❌ 危险写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SQUARE(x) x * x</span></span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SQUARE(<span class="number">2</span> + <span class="number">3</span>) → <span class="number">2</span> + <span class="number">3</span> * <span class="number">2</span> + <span class="number">3</span> = <span class="number">2</span> + <span class="number">6</span> + <span class="number">3</span> = <span class="number">11</span> ❌（期望是 <span class="number">25</span>）</span><br></pre></td></tr></table></figure>
+
+<p>✅ 安全写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SQUARE(x) ((x) * (x))</span></span><br></pre></td></tr></table></figure>
+
+<p>这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SQUARE(<span class="number">2</span> + <span class="number">3</span>) → ((<span class="number">2</span> + <span class="number">3</span>) * (<span class="number">2</span> + <span class="number">3</span>)) = (<span class="number">5</span> * <span class="number">5</span>) = <span class="number">25</span> ✅</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、-define-的其他常见用途"><a href="#三、-define-的其他常见用途" class="headerlink" title="三、#define 的其他常见用途"></a>三、<code>#define</code> 的其他常见用途</h2><h3 id="1-定义常量（现代-C-更推荐-const-或-constexpr）"><a href="#1-定义常量（现代-C-更推荐-const-或-constexpr）" class="headerlink" title="1. 定义常量（现代 C++ 更推荐 const 或 constexpr）"></a>1. 定义常量（现代 C++ 更推荐 <code>const</code> 或 <code>constexpr</code>）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BUFFER_SIZE 1024</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-条件编译开关"><a href="#2-条件编译开关" class="headerlink" title="2. 条件编译开关"></a>2. 条件编译开关</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> DEBUG</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Debug mode enabled\n&quot;</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-多行宏（用反斜杠-连接）"><a href="#3-多行宏（用反斜杠-连接）" class="headerlink" title="3. 多行宏（用反斜杠 \ 连接）"></a>3. 多行宏（用反斜杠 <code>\</code> 连接）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PRINT_SUM(a, b) \</span></span><br><span class="line"><span class="meta">    do &#123; \</span></span><br><span class="line"><span class="meta">        int sum = (a) + (b); \</span></span><br><span class="line"><span class="meta">        printf(<span class="string">&quot;Sum = %d\n&quot;</span>, sum); \</span></span><br><span class="line"><span class="meta">    &#125; while(0)</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用 <code>do...while(0)</code> 是为了在任何上下文中都能安全使用分号。</p>
+</blockquote>
+<hr>
+<h2 id="四、预处理的几个关键特点"><a href="#四、预处理的几个关键特点" class="headerlink" title="四、预处理的几个关键特点"></a>四、预处理的几个关键特点</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>文本替换</strong></td>
+<td>不进行语法或类型检查，只是字符串替换</td>
+</tr>
+<tr>
+<td><strong>无作用域</strong></td>
+<td>宏从定义处到文件结束（或 <code>#undef</code>）都有效</td>
+</tr>
+<tr>
+<td><strong>可取消定义</strong></td>
+<td>用 <code>#undef a</code> 可取消宏定义</td>
+</tr>
+<tr>
+<td><strong>不能调试</strong></td>
+<td>宏在编译前就被替换了，调试器看不到原始宏名</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="五、现代替代方案（C-推荐）"><a href="#五、现代替代方案（C-推荐）" class="headerlink" title="五、现代替代方案（C++ 推荐）"></a>五、现代替代方案（C++ 推荐）</h2><p>虽然 <code>#define</code> 仍有用武之地（如条件编译），但在定义常量或简单函数时，<strong>更推荐使用语言特性</strong>：</p>
+<ul>
+<li>常量：<code>const int a = 6;</code> 或 <code>constexpr int a = 6;</code></li>
+<li>函数：用内联函数 <code>inline int square(int x) &#123; return x * x; &#125;</code></li>
+</ul>
+<p>这些方式有类型安全、作用域控制、可调试等优势。</p>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><ul>
+<li><code>#define a 1 + 5</code> 是<strong>文本替换</strong>，不是赋值。</li>
+<li><code>a * 2</code> 被替换为 <code>1 + 5 * 2</code>，结果是 <strong>11</strong>（因优先级）。</li>
+<li><strong>务必给宏加括号</strong>：<code>#define a (1 + 5)</code></li>
+<li>宏强大但危险，使用时要格外小心优先级和副作用。</li>
+<li>在现代 C&#x2F;C++ 中，尽量用 <code>const</code>、<code>constexpr</code>、<code>inline</code> 替代简单宏。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/" rel="tag"># 预处理指令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/1%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84/" rel="prev" title="1合并两个有序数组">
+      <i class="fa fa-chevron-left"></i> 1合并两个有序数组
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/C_C++/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E5%A4%B4%E6%96%87%E4%BB%B6%E9%87%8D%E5%A4%8D%E5%8C%85%E5%90%AB/" rel="next" title="如何防止头文件被重复引用">
+      如何防止头文件被重复引用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E9%A2%84%E5%A4%84%E7%90%86%E5%99%A8%EF%BC%9F"><span class="nav-text">一、什么是预处理器？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-define-%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%AF%A6%E8%A7%A3"><span class="nav-text">二、#define 宏定义详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-text">1. 基本语法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-text">示例：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9B%9E%E5%88%B0%E4%BD%A0%E7%9A%84%E4%BE%8B%E5%AD%90%EF%BC%9A-define-a-1-5"><span class="nav-text">2. 回到你的例子：#define a 1 + 5</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86%E5%90%8E%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-text">预处理后的代码：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E6%98%AF%E4%B8%AA%E9%99%B7%E9%98%B1%EF%BC%9F%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%EF%BC%9F"><span class="nav-text">3. 为什么这是个陷阱？如何避免？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E5%86%99%E6%B3%95%EF%BC%9A%E5%8A%A0%E6%8B%AC%E5%8F%B7%EF%BC%81"><span class="nav-text">正确写法：加括号！</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-define-%E7%9A%84%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94"><span class="nav-text">三、#define 的其他常见用途</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9A%E4%B9%89%E5%B8%B8%E9%87%8F%EF%BC%88%E7%8E%B0%E4%BB%A3-C-%E6%9B%B4%E6%8E%A8%E8%8D%90-const-%E6%88%96-constexpr%EF%BC%89"><span class="nav-text">1. 定义常量（现代 C++ 更推荐 const 或 constexpr）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91%E5%BC%80%E5%85%B3"><span class="nav-text">2. 条件编译开关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A4%9A%E8%A1%8C%E5%AE%8F%EF%BC%88%E7%94%A8%E5%8F%8D%E6%96%9C%E6%9D%A0-%E8%BF%9E%E6%8E%A5%EF%BC%89"><span class="nav-text">3. 多行宏（用反斜杠 \ 连接）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%A2%84%E5%A4%84%E7%90%86%E7%9A%84%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E7%89%B9%E7%82%B9"><span class="nav-text">四、预处理的几个关键特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%8E%B0%E4%BB%A3%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88%EF%BC%88C-%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-text">五、现代替代方案（C++ 推荐）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">122</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
