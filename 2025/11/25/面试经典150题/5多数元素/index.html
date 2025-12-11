@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文为面试经典150题中的第5题：多数元素。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="5多数元素">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/25/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为面试经典150题中的第5题：多数元素。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-25T01:30:00.000Z">
+<meta property="article:modified_time" content="2025-11-25T03:25:35.270Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="数组">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/25/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>5多数元素 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/25/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          5多数元素
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-25 09:30:00 / 修改时间：11:25:35" itemprop="dateCreated datePublished" datetime="2025-11-25T09:30:00+08:00">2025-11-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">面试经典150题</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文为面试经典150题中的第5题：多数元素。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/majority-element/">169. 多数元素</a></p>
+<p>给定一个大小为 <code>n</code> 的数组 <code>nums</code> ，返回其中的多数元素。多数元素是指在数组中出现次数 <strong>大于</strong> <code>⌊ n/2 ⌋</code> 的元素。</p>
+<p>你可以假设数组是非空的，并且给定的数组总是存在多数元素。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,2,3]</span><br><span class="line">输出：3</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [2,2,1,1,1,2,2]</span><br><span class="line">输出：2</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>n == nums.length</code></li>
+<li><code>1 &lt;= n &lt;= 5 * 104</code></li>
+<li><code>-109 &lt;= nums[i] &lt;= 109</code></li>
+<li>输入保证数组中一定有一个多数元素。</li>
+</ul>
+<p>**进阶：**尝试设计时间复杂度为 O(n)、空间复杂度为 O(1) 的算法解决此问题。</p>
+<p>方法一：哈希表</p>
+<p>我们知道出现次数最多的元素大于n&#x2F;2次，所以可以用哈希表来快速统计每个元素出现的次数。</p>
+<p>算法：</p>
+<p>我们使用哈希映射（HashMap）来存储每个元素以及出现的次数。对于哈希映射中的每个键值对，键表示一个元素，值表示该元素出现的次数。</p>
+<p>我们用一个循环遍历数组 nums 并将数组中的每个元素加入哈希映射中。在这之后，我们遍历哈希映射中的所有键值对，返回值最大的键。我们同样也可以在遍历数组 nums 时候使用打擂台的方法，维护最大的值，这样省去了最后对哈希映射的遍历。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int majorityElement(vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        unordered_map&lt;int, int&gt; counts;</span><br><span class="line">        int majority = 0, cnt = 0;</span><br><span class="line">        for (int num: nums) &#123;</span><br><span class="line">            ++counts[num];</span><br><span class="line">            if (counts[num] &gt; cnt) &#123;</span><br><span class="line">                majority = num;</span><br><span class="line">                cnt = counts[num];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return majority;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>方法二：排序<br>思路：</p>
+<p>如果将数组 nums 中的所有元素按照单调递增或单调递减的顺序排序，那么下标为n&#x2F;2的元素（下标从 0 开始）一定是众数。</p>
+<p>算法：</p>
+<p>对于这种算法，我们先将 nums 数组排序，然后返回上文所说的下标对应的元素。下面的图中解释了为什么这种策略是有效的。在下图中，第一个例子是 n 为奇数的情况，第二个例子是 n 为偶数的情况。</p>
+<p>对于每种情况，数组上面的线表示如果众数是数组中的最小值时覆盖的下标，数组下面的线表示如果众数是数组中的最大值时覆盖的下标。对于其他的情况，这条线会在这两种极端情况的中间。对于这两种极端情况，它们会在下标为 n&#x2F;2的地方有重叠。因此，无论众数是多少，返回 n&#x2F;2下标对应的值都是正确的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int majorityElement(vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">        return nums[nums.size() / 2];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>方法三：随机化<br>思路</p>
+<p>因为超过n&#x2F;2 的数组下标被众数占据了，这样我们随机挑选一个下标对应的元素并验证，有很大的概率能找到众数。</p>
+<p>算法</p>
+<p>由于一个给定的下标对应的数字很有可能是众数，我们随机挑选一个下标，检查它是否是众数，如果是就返回，否则继续随机挑选。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int majorityElement(vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            int candidate = nums[rand() % nums.size()];</span><br><span class="line">            int count = 0;</span><br><span class="line">            for (int num : nums)</span><br><span class="line">                if (num == candidate)</span><br><span class="line">                    ++count;</span><br><span class="line">            if (count &gt; nums.size() / 2)</span><br><span class="line">                return candidate;</span><br><span class="line">        &#125;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="摩尔投票法"><a href="#摩尔投票法" class="headerlink" title="摩尔投票法"></a>摩尔投票法</h2><p>摩尔投票法的核心思想是利用多数元素的特性：<strong>多数元素出现的次数大于其他所有元素出现次数的总和</strong>。</p>
+<p>我们可以把多数元素看作是“支持者”，把其他元素看作是“反对者”。由于支持者的数量超过总数的一半，他们的力量足以抵消所有反对者的力量，最终依然能够留下。</p>
+<h3 id="核心步骤和逻辑："><a href="#核心步骤和逻辑：" class="headerlink" title="核心步骤和逻辑："></a>核心步骤和逻辑：</h3><ol>
+<li><strong>设置候选人 (<code>candidate</code>) 和计数器 (<code>count</code>)。</strong></li>
+<li><strong>遍历数组：</strong><ul>
+<li><strong>如果 <code>count</code> 为 0：</strong> 说明当前的候选人已经被之前的“反对者”完全抵消了，我们需要选择当前遍历到的元素作为新的候选人。</li>
+<li><strong>如果当前元素等于 <code>candidate</code>：</strong> 说明找到了一个“支持者”，<code>count</code> 加 1。</li>
+<li><strong>如果当前元素不等于 <code>candidate</code>：</strong> 说明找到了一个“反对者”，<code>count</code> 减 1。</li>
+</ul>
+</li>
+</ol>
+<h3 id="为什么它有效？"><a href="#为什么它有效？" class="headerlink" title="为什么它有效？"></a>为什么它有效？</h3><p>假设多数元素是 M，且它出现的次数 C_M &gt; n&#x2F;2。</p>
+<ul>
+<li>当 M 作为 <code>candidate</code> 时，它的每次出现都会使 <code>count</code> 增加。</li>
+<li>当非 M 元素出现时，<code>count</code> 会减少。</li>
+<li>由于 C_M 严格大于非 M 元素出现的总次数 $n - C_M$，因此，即使非 M 元素把 <code>count</code> 减到了 0，新的 <code>candidate</code> 最终还是会被 M 或其他非 M 元素取代，但无论如何，最终剩下的 <code>candidate</code> <strong>必然是</strong> M。</li>
+</ul>
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;vector&gt;</span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    /**</span><br><span class="line">     * @brief 多数元素 - 摩尔投票法</span><br><span class="line">     * * @param nums 输入数组</span><br><span class="line">     * @return int 多数元素</span><br><span class="line">     */</span><br><span class="line">    int majorityElement(const std::vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        // 1. 初始化</span><br><span class="line">        // candidate: 多数元素的候选人</span><br><span class="line">        // count: 当前候选人的“票数”</span><br><span class="line">        int candidate = 0; </span><br><span class="line">        int count = 0;</span><br><span class="line">        </span><br><span class="line">        // 2. 遍历数组进行投票</span><br><span class="line">        for (int num : nums) &#123;</span><br><span class="line">            // **情况一：如果 count 为 0**</span><br><span class="line">            // 说明当前的 candidate 已经被完全抵消了，需要重新选择一个新的候选人。</span><br><span class="line">            if (count == 0) &#123;</span><br><span class="line">                candidate = num;</span><br><span class="line">                count = 1;</span><br><span class="line">                // 注意：这里也可以写成 count = 1，因为一旦更换候选人，</span><br><span class="line">                // 此时 num 就是 candidate，所以票数至少为 1</span><br><span class="line">            &#125; </span><br><span class="line">            // **情况二：当前元素是支持者**</span><br><span class="line">            // 当前元素与候选人相同，票数加 1</span><br><span class="line">            else if (num == candidate) &#123;</span><br><span class="line">                count++;</span><br><span class="line">            &#125; </span><br><span class="line">            // **情况三：当前元素是反对者**</span><br><span class="line">            // 当前元素与候选人不同，票数减 1</span><br><span class="line">            else &#123;</span><br><span class="line">                count--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        // 3. 返回结果</span><br><span class="line">        // 根据题目假设（多数元素一定存在），最终剩下的 candidate 就是多数元素。</span><br><span class="line">        return candidate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 示例测试</span><br><span class="line">int main() &#123;</span><br><span class="line">    Solution solver;</span><br><span class="line">    </span><br><span class="line">    std::vector&lt;int&gt; nums1 = &#123;2, 2, 1, 1, 1, 2, 2&#125;;</span><br><span class="line">    int result1 = solver.majorityElement(nums1);</span><br><span class="line">    std::cout &lt;&lt; &quot;输入: &#123;2, 2, 1, 1, 1, 2, 2&#125;，多数元素: &quot; &lt;&lt; result1 &lt;&lt; std::endl; // 输出 2</span><br><span class="line">    </span><br><span class="line">    std::vector&lt;int&gt; nums2 = &#123;3, 3, 1, 1, 3&#125;;</span><br><span class="line">    int result2 = solver.majorityElement(nums2);</span><br><span class="line">    std::cout &lt;&lt; &quot;输入: &#123;3, 3, 1, 1, 3&#125;，多数元素: &quot; &lt;&lt; result2 &lt;&lt; std::endl; // 输出 3</span><br><span class="line"></span><br><span class="line">    std::vector&lt;int&gt; nums3 = &#123;6, 5, 5&#125;;</span><br><span class="line">    int result3 = solver.majorityElement(nums3);</span><br><span class="line">    std::cout &lt;&lt; &quot;输入: &#123;6, 5, 5&#125;，多数元素: &quot; &lt;&lt; result3 &lt;&lt; std::endl; // 输出 5</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="1-时间复杂度"><a href="#1-时间复杂度" class="headerlink" title="1. 时间复杂度"></a>1. 时间复杂度</h3><ul>
+<li><strong>O(n)</strong>：我们只进行了一次数组的线性遍历，每个元素只访问一次。这是解决此问题的最快时间复杂度。</li>
+</ul>
+<h3 id="2-空间复杂度"><a href="#2-空间复杂度" class="headerlink" title="2. 空间复杂度"></a>2. 空间复杂度</h3><ul>
+<li><strong>O(1)</strong>：我们只使用了两个额外的变量 (<code>candidate</code> 和 <code>count</code>) 来存储状态，所需的空间与输入数组的大小 $n$ 无关。</li>
+</ul>
+<p>摩尔投票法是一种非常优雅且高效的算法，体现了在常数空间内解决线性时间问题的强大能力。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E6%95%B0%E7%BB%84/" rel="tag"># 数组</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/14/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/3%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/" rel="prev" title="3删除有序数组中的重复项">
+      <i class="fa fa-chevron-left"></i> 3删除有序数组中的重复项
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/25/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/6%E8%BD%AE%E8%BD%AC%E6%95%B0%E7%BB%84/" rel="next" title="6轮转数组">
+      6轮转数组 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%A9%E5%B0%94%E6%8A%95%E7%A5%A8%E6%B3%95"><span class="nav-text">摩尔投票法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4%E5%92%8C%E9%80%BB%E8%BE%91%EF%BC%9A"><span class="nav-text">核心步骤和逻辑：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AE%83%E6%9C%89%E6%95%88%EF%BC%9F"><span class="nav-text">为什么它有效？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-text">1. 时间复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-text">2. 空间复杂度</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">120</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
