@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文介绍CPSR、SPSR。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPSR和SPSR">
+<meta property="og:url" content="https://yanxianan.github.io/2025/12/12/%E6%B1%87%E7%BC%96/CPSR%E3%80%81SPSR%E3%80%81MSR%E5%92%8CMRS/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍CPSR、SPSR。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-12T09:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-12T08:22:42.695Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="汇编">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="寄存器">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/12/12/%E6%B1%87%E7%BC%96/CPSR%E3%80%81SPSR%E3%80%81MSR%E5%92%8CMRS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CPSR和SPSR | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/12/12/%E6%B1%87%E7%BC%96/CPSR%E3%80%81SPSR%E3%80%81MSR%E5%92%8CMRS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CPSR和SPSR
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-12-12 17:00:00 / 修改时间：16:22:42" itemprop="dateCreated datePublished" datetime="2025-12-12T17:00:00+08:00">2025-12-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B1%87%E7%BC%96/" itemprop="url" rel="index"><span itemprop="name">汇编</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文介绍CPSR、SPSR。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 ARM 架构的汇编语言中，<strong>MSR</strong>、<strong>MRS</strong>、<strong>CPSR</strong> 和 <strong>SPSR</strong> 是与处理器状态寄存器密切相关的指令和寄存器。它们主要用于控制和读取处理器的工作模式、中断使能状态、条件标志等关键信息。</p>
+<p>下面分别详细讲解：</p>
+<hr>
+<h2 id="1-CPSR（Current-Program-Status-Register）"><a href="#1-CPSR（Current-Program-Status-Register）" class="headerlink" title="1. CPSR（Current Program Status Register）"></a>1. CPSR（Current Program Status Register）</h2><p><strong>当前程序状态寄存器（CPSR）</strong> 是 ARM 处理器中的一个 32 位寄存器，它保存了当前处理器的状态信息，包括：</p>
+<ul>
+<li><strong>条件标志位（N, Z, C, V）</strong>：<ul>
+<li>N（Negative）：结果为负</li>
+<li>Z（Zero）：结果为零</li>
+<li>C（Carry）：进位&#x2F;借位</li>
+<li>V（Overflow）：溢出</li>
+</ul>
+</li>
+<li><strong>中断禁止位</strong>：<ul>
+<li>I：禁止 IRQ 中断（1 &#x3D; 禁止）</li>
+<li>F：禁止 FIQ 中断（1 &#x3D; 禁止）</li>
+</ul>
+</li>
+<li><strong>处理器工作模式（Mode bits [4:0]）</strong>：<ul>
+<li>如用户模式（User）、系统模式（System）、IRQ 模式、FIQ 模式、管理模式（Supervisor）等</li>
+</ul>
+</li>
+<li><strong>其他控制位</strong>：如 Thumb 状态位（T）、Jazelle 位（J）等（视具体架构而定）</li>
+</ul>
+<blockquote>
+<p>注意：并非所有模式下都可以修改 CPSR 的全部字段。例如，在用户模式下不能修改模式位或中断禁止位。</p>
+</blockquote>
+<hr>
+<h2 id="2-SPSR（Saved-Program-Status-Register）"><a href="#2-SPSR（Saved-Program-Status-Register）" class="headerlink" title="2. SPSR（Saved Program Status Register）"></a>2. SPSR（Saved Program Status Register）</h2><p><strong>保存的程序状态寄存器（SPSR）</strong> 存在于除用户模式和系统模式之外的所有特权模式中（如 IRQ、FIQ、Supervisor、Abort、Undefined）。</p>
+<ul>
+<li>当处理器从一个模式切换到另一个异常模式时（如发生中断），<strong>当前的 CPSR 会被自动保存到新进入模式的 SPSR 中</strong>。</li>
+<li>异常处理完成后，可以通过将 SPSR 恢复到 CPSR 来返回原来的执行状态。</li>
+</ul>
+<blockquote>
+<p>举例：当发生 IRQ 中断时，处理器进入 IRQ 模式，并将原来的 CPSR 值保存到 SPSR_irq 中。</p>
+</blockquote>
+<hr>
+<h2 id="3-MRS（Move-to-Register-from-Status-register）"><a href="#3-MRS（Move-to-Register-from-Status-register）" class="headerlink" title="3. MRS（Move to Register from Status register）"></a>3. MRS（Move to Register from Status register）</h2><p><strong>MRS 指令用于将状态寄存器（CPSR 或 SPSR）的内容读取到通用寄存器中</strong>。</p>
+<p>语法：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MRS</span> &lt;Rd&gt;, <span class="keyword">CPSR</span>   <span class="comment">; 将 CPSR 的值读入 Rd</span></span><br><span class="line"><span class="keyword">MRS</span> &lt;Rd&gt;, SPSR   <span class="comment">; 将当前模式的 SPSR 的值读入 Rd</span></span><br></pre></td></tr></table></figure>
+
+<p>用途：</p>
+<ul>
+<li>读取当前状态（如判断是否处于某种模式）</li>
+<li>保存当前状态以便后续恢复（常用于异常处理前）</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MRS</span> <span class="built_in">R0</span>, <span class="keyword">CPSR</span>     <span class="comment">; 读取 CPSR 到 R0</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-MSR（Move-to-Status-register-from-Register）"><a href="#4-MSR（Move-to-Status-register-from-Register）" class="headerlink" title="4. MSR（Move to Status register from Register）"></a>4. MSR（Move to Status register from Register）</h2><p><strong>MSR 指令用于将通用寄存器或立即数的值写入状态寄存器（CPSR 或 SPSR）</strong>。</p>
+<p>语法（两种形式）：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MSR</span> CPSR_flg, &lt;Rm<span class="title">|#imm&gt;   ; 只更新标志位（N, Z, C, V）和控制位（I, F, T）</span></span><br><span class="line"><span class="title">MSR CPSR_cxsf, &lt;Rm|</span><span class="symbol">#imm</span>&gt;  <span class="comment">; 更新控制位（c）、扩展位（x）、状态位（s）、标志位（f）</span></span><br><span class="line"><span class="keyword">MSR</span> CPSR, &lt;Rm<span class="title">|#imm&gt;       ; 更新整个 CPSR（需特权模式）</span></span><br><span class="line"><span class="title">MSR SPSR, &lt;Rm|</span><span class="symbol">#imm</span>&gt;       <span class="comment">; 写入当前模式的 SPSR</span></span><br></pre></td></tr></table></figure>
+
+<p>其中后缀含义（ARM 架构）：</p>
+<ul>
+<li><strong>_c</strong>：控制字段（[7:0]，包括 I&#x2F;F&#x2F;T&#x2F;M[4:0]）</li>
+<li><strong>_x</strong>：扩展字段（某些架构保留）</li>
+<li><strong>_s</strong>：状态字段（[19:16]，如 J,T 等）</li>
+<li><strong>_f</strong>：标志字段（[31:28]，即 NZCV）</li>
+</ul>
+<p>常见用法：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MSR</span> <span class="built_in">CPSR_c</span>, <span class="built_in">R0</span>    <span class="comment">; 仅更新控制位（如切换模式、开关中断）</span></span><br><span class="line"><span class="keyword">MSR</span> <span class="built_in">CPSR_f</span>, <span class="number">#0x20000000</span>  <span class="comment">; 设置 Z 标志位（假设该值对应 Z=1）</span></span><br></pre></td></tr></table></figure>
+
+<p>⚠️ 注意：在用户模式下，只能通过 MSR 修改标志位（_f），不能修改控制位（如中断禁止位或模式位）。</p>
+<hr>
+<h2 id="典型应用场景"><a href="#典型应用场景" class="headerlink" title="典型应用场景"></a>典型应用场景</h2><h3 id="1-关闭-开启中断"><a href="#1-关闭-开启中断" class="headerlink" title="1. 关闭&#x2F;开启中断"></a>1. 关闭&#x2F;开启中断</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MRS</span> <span class="built_in">R0</span>, <span class="keyword">CPSR</span></span><br><span class="line"><span class="keyword">ORR</span> <span class="built_in">R0</span>, <span class="built_in">R0</span>, <span class="number">#0x80</span>      <span class="comment">; 设置 I 位（禁止 IRQ）</span></span><br><span class="line"><span class="keyword">MSR</span> <span class="built_in">CPSR_c</span>, <span class="built_in">R0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-切换处理器模式（需在特权模式下）"><a href="#2-切换处理器模式（需在特权模式下）" class="headerlink" title="2. 切换处理器模式（需在特权模式下）"></a>2. 切换处理器模式（需在特权模式下）</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MRS</span> <span class="built_in">R0</span>, <span class="keyword">CPSR</span></span><br><span class="line"><span class="keyword">BIC</span> <span class="built_in">R0</span>, <span class="built_in">R0</span>, <span class="number">#0x1F</span>      <span class="comment">; 清除模式位</span></span><br><span class="line"><span class="keyword">ORR</span> <span class="built_in">R0</span>, <span class="built_in">R0</span>, <span class="number">#0x12</span>      <span class="comment">; 设置为 IRQ 模式 (0b10010)</span></span><br><span class="line"><span class="keyword">MSR</span> <span class="built_in">CPSR_c</span>, <span class="built_in">R0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-异常返回（恢复-CPSR）"><a href="#3-异常返回（恢复-CPSR）" class="headerlink" title="3. 异常返回（恢复 CPSR）"></a>3. 异常返回（恢复 CPSR）</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MOVS</span> <span class="built_in">PC</span>, <span class="built_in">LR</span>            <span class="comment">; 同时将 SPSR 恢复到 CPSR（仅在异常返回时有效）</span></span><br><span class="line"><span class="comment">; 或者显式：</span></span><br><span class="line"><span class="keyword">MRS</span> <span class="built_in">R0</span>, SPSR</span><br><span class="line"><span class="keyword">MSR</span> CPSR, <span class="built_in">R0</span></span><br><span class="line"><span class="keyword">MOV</span> <span class="built_in">PC</span>, <span class="built_in">LR</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a>总结对比</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CPSR</strong></td>
+<td>寄存器</td>
+<td>当前程序状态寄存器，反映处理器当前状态</td>
+</tr>
+<tr>
+<td><strong>SPSR</strong></td>
+<td>寄存器</td>
+<td>异常发生时保存 CPSR 的副本，每个异常模式有自己的 SPSR</td>
+</tr>
+<tr>
+<td><strong>MRS</strong></td>
+<td>指令</td>
+<td>从 CPSR&#x2F;SPSR 读取到通用寄存器</td>
+</tr>
+<tr>
+<td><strong>MSR</strong></td>
+<td>指令</td>
+<td>从通用寄存器&#x2F;立即数写入 CPSR&#x2F;SPSR</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>⚠️ 注意：在 ARMv8（AArch64）架构中，CPSR 被拆分为多个系统寄存器（如 PSTATE、DAIF、NZCV 等），MRS&#x2F;MSR 仍然存在但语义不同。上述内容主要适用于 <strong>ARMv7 及更早的 AArch32 模式</strong>。</p>
+</blockquote>
+<p>如果你使用的是 Cortex-M 系列（如 Cortex-M3&#x2F;M4），则没有 CPSR&#x2F;SPSR 的完整概念，而是使用 <strong>xPSR</strong>（Program Status Register）并通过类似方式访问。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B1%87%E7%BC%96/" rel="tag"># 汇编</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+              <a href="/tags/%E5%AF%84%E5%AD%98%E5%99%A8/" rel="tag"># 寄存器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/25/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/6%E8%BD%AE%E8%BD%AC%E6%95%B0%E7%BB%84/" rel="prev" title="6轮转数组">
+      <i class="fa fa-chevron-left"></i> 6轮转数组
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-CPSR%EF%BC%88Current-Program-Status-Register%EF%BC%89"><span class="nav-text">1. CPSR（Current Program Status Register）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-SPSR%EF%BC%88Saved-Program-Status-Register%EF%BC%89"><span class="nav-text">2. SPSR（Saved Program Status Register）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-MRS%EF%BC%88Move-to-Register-from-Status-register%EF%BC%89"><span class="nav-text">3. MRS（Move to Register from Status register）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-MSR%EF%BC%88Move-to-Status-register-from-Register%EF%BC%89"><span class="nav-text">4. MSR（Move to Status register from Register）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">典型应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%85%B3%E9%97%AD-%E5%BC%80%E5%90%AF%E4%B8%AD%E6%96%AD"><span class="nav-text">1. 关闭&#x2F;开启中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%87%E6%8D%A2%E5%A4%84%E7%90%86%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88%E9%9C%80%E5%9C%A8%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F%E4%B8%8B%EF%BC%89"><span class="nav-text">2. 切换处理器模式（需在特权模式下）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%BC%82%E5%B8%B8%E8%BF%94%E5%9B%9E%EF%BC%88%E6%81%A2%E5%A4%8D-CPSR%EF%BC%89"><span class="nav-text">3. 异常返回（恢复 CPSR）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E5%AF%B9%E6%AF%94"><span class="nav-text">总结对比</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">123</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
