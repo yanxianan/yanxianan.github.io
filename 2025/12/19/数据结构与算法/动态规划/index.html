@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文详细介绍动态规划算法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态规划（DP）">
+<meta property="og:url" content="https://yanxianan.github.io/2025/12/19/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍动态规划算法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-19T08:30:00.000Z">
+<meta property="article:modified_time" content="2025-12-19T07:54:40.772Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="搜索">
+<meta property="article:tag" content="动态规划">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/12/19/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>动态规划（DP） | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/12/19/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动态规划（DP）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-12-19 16:30:00 / 修改时间：15:54:40" itemprop="dateCreated datePublished" datetime="2025-12-19T16:30:00+08:00">2025-12-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">本文详细介绍动态规划算法。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>动态规划（Dynamic Programming, 简称 DP）</strong> </p>
+<hr>
+<h2 id="🧠-一、什么是动态规划？"><a href="#🧠-一、什么是动态规划？" class="headerlink" title="🧠 一、什么是动态规划？"></a>🧠 一、什么是动态规划？</h2><p><strong>动态规划</strong> 是一种用于求解<strong>具有重叠子问题</strong>和<strong>最优子结构</strong>性质的问题的算法设计方法。它通过将原问题分解为若干子问题，<strong>先求解子问题，再利用子问题的解构造原问题的解</strong>，从而避免重复计算，提高效率。</p>
+<blockquote>
+<p>💡 动态规划 ≠ 递归，但常借助递归（带记忆化）或迭代实现。<br>它的本质是 <strong>“用空间换时间”</strong> —— 存储中间结果，避免重复计算。</p>
+</blockquote>
+<hr>
+<h2 id="🔑-二、动态规划的两个核心性质"><a href="#🔑-二、动态规划的两个核心性质" class="headerlink" title="🔑 二、动态规划的两个核心性质"></a>🔑 二、动态规划的两个核心性质</h2><h3 id="1-最优子结构（Optimal-Substructure）"><a href="#1-最优子结构（Optimal-Substructure）" class="headerlink" title="1. 最优子结构（Optimal Substructure）"></a>1. <strong>最优子结构（Optimal Substructure）</strong></h3><blockquote>
+<p>原问题的最优解包含子问题的最优解。</p>
+</blockquote>
+<p>例如：  </p>
+<ul>
+<li>最短路径问题中，A 到 C 的最短路径如果经过 B，那么 A→B 和 B→C 也一定是最短的。</li>
+<li>股票买卖最大利润：第 i 天的最大利润依赖于前 i-1 天的状态。</li>
+</ul>
+<h3 id="2-重叠子问题（Overlapping-Subproblems）"><a href="#2-重叠子问题（Overlapping-Subproblems）" class="headerlink" title="2. 重叠子问题（Overlapping Subproblems）"></a>2. <strong>重叠子问题（Overlapping Subproblems）</strong></h3><blockquote>
+<p>在递归求解过程中，某些子问题会被反复计算多次。</p>
+</blockquote>
+<p>例如：<br>斐波那契数列 <code>f(n) = f(n-1) + f(n-2)</code> 中，<code>f(3)</code> 会被 <code>f(5)</code>、<code>f(4)</code> 等多次调用。</p>
+<p>✅ 动态规划通过<strong>记忆化</strong>（缓存子问题结果）来消除重复计算。</p>
+<hr>
+<h2 id="🛠️-三、动态规划的解题步骤（四步法）"><a href="#🛠️-三、动态规划的解题步骤（四步法）" class="headerlink" title="🛠️ 三、动态规划的解题步骤（四步法）"></a>🛠️ 三、动态规划的解题步骤（四步法）</h2><ol>
+<li><strong>定义状态（State）</strong><br>明确 <code>dp[i]</code> 或 <code>dp[i][j]</code> 表示什么含义（这是最关键的一步！）。</li>
+<li><strong>写出状态转移方程（Recurrence Relation）</strong><br>找出当前状态如何由之前的状态推导而来。</li>
+<li><strong>确定初始条件（Base Case）</strong><br>设置边界值，如 <code>dp[0] = 0</code>、<code>dp[1] = 1</code> 等。</li>
+<li><strong>确定遍历顺序 &amp; 返回结果</strong><br>是从前往后？还是从后往前？最终答案是 <code>dp[n]</code> 还是 <code>max(dp)</code>？</li>
+</ol>
+<hr>
+<h2 id="📚-四、常见-DP-类型与经典例题"><a href="#📚-四、常见-DP-类型与经典例题" class="headerlink" title="📚 四、常见 DP 类型与经典例题"></a>📚 四、常见 DP 类型与经典例题</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>特点</th>
+<th>经典题目</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>线性 DP</strong></td>
+<td>状态只与前几个状态有关</td>
+<td>斐波那契、爬楼梯、打家劫舍、股票买卖</td>
+</tr>
+<tr>
+<td><strong>区间 DP</strong></td>
+<td>状态由区间 <code>[i, j]</code> 定义</td>
+<td>最长回文子串、石子合并</td>
+</tr>
+<tr>
+<td><strong>背包 DP</strong></td>
+<td>有限资源下的最优选择</td>
+<td>0-1 背包、完全背包、分割等和子集</td>
+</tr>
+<tr>
+<td><strong>树形 DP</strong></td>
+<td>在树结构上进行状态转移</td>
+<td>树的最大独立集、二叉树打家劫舍</td>
+</tr>
+<tr>
+<td><strong>状态机 DP</strong></td>
+<td>用多个状态表示不同行为</td>
+<td>股票买卖（含冷冻期、手续费）</td>
+</tr>
+<tr>
+<td><strong>数位 DP</strong></td>
+<td>按数字位进行状态设计</td>
+<td>不含连续 1 的数字个数</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🎯-五、经典例子详解"><a href="#🎯-五、经典例子详解" class="headerlink" title="🎯 五、经典例子详解"></a>🎯 五、经典例子详解</h2><h3 id="✅-例1：斐波那契数列（入门）"><a href="#✅-例1：斐波那契数列（入门）" class="headerlink" title="✅ 例1：斐波那契数列（入门）"></a>✅ 例1：斐波那契数列（入门）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 递归（指数时间，大量重复）</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">fib</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> n;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">fib</span>(n<span class="number">-1</span>) + <span class="built_in">fib</span>(n<span class="number">-2</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DP（O(n) 时间，O(1) 空间）</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">fib</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> n;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">0</span>, b = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">2</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="type">int</span> c = a + b;</span><br><span class="line">        a = b;</span><br><span class="line">        b = c;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="✅-例2：爬楼梯（LeetCode-70）"><a href="#✅-例2：爬楼梯（LeetCode-70）" class="headerlink" title="✅ 例2：爬楼梯（LeetCode 70）"></a>✅ 例2：爬楼梯（LeetCode 70）</h3><blockquote>
+<p>每次可走 1 或 2 步，问到第 n 阶有多少种方法？</p>
+</blockquote>
+<ul>
+<li>状态：<code>dp[i]</code> &#x3D; 到第 i 阶的方法数</li>
+<li>转移：<code>dp[i] = dp[i-1] + dp[i-2]</code></li>
+<li>初始：<code>dp[0]=1, dp[1]=1</code></li>
+</ul>
+<h3 id="✅-例3：0-1-背包问题"><a href="#✅-例3：0-1-背包问题" class="headerlink" title="✅ 例3：0-1 背包问题"></a>✅ 例3：0-1 背包问题</h3><blockquote>
+<p>有 n 件物品，重量 <code>w[i]</code>，价值 <code>v[i]</code>，背包容量 W，求最大价值。</p>
+</blockquote>
+<ul>
+<li><p>状态：<code>dp[i][j]</code> &#x3D; 前 i 件物品在容量 j 下的最大价值</p>
+</li>
+<li><p>转移：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = <span class="built_in">max</span>(</span><br><span class="line">    dp[i<span class="number">-1</span>][j],               <span class="comment">// 不选第 i 件</span></span><br><span class="line">    dp[i<span class="number">-1</span>][j - w[i]] + v[i]  <span class="comment">// 选第 i 件（需 j &gt;= w[i]）</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="✅-例4：最长公共子序列（LCS）"><a href="#✅-例4：最长公共子序列（LCS）" class="headerlink" title="✅ 例4：最长公共子序列（LCS）"></a>✅ 例4：最长公共子序列（LCS）</h3><blockquote>
+<p>字符串 “abcde” 和 “ace” 的 LCS 是 “ace”，长度 3。</p>
+</blockquote>
+<ul>
+<li><p>状态：<code>dp[i][j]</code> &#x3D; s1 前 i 个字符 与 s2 前 j 个字符的 LCS 长度</p>
+</li>
+<li><p>转移：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (s1[i<span class="number">-1</span>] == s2[j<span class="number">-1</span>])</span><br><span class="line">    dp[i][j] = dp[i<span class="number">-1</span>][j<span class="number">-1</span>] + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    dp[i][j] = <span class="built_in">max</span>(dp[i<span class="number">-1</span>][j], dp[i][j<span class="number">-1</span>]);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="⚠️-六、DP-vs-贪心-vs-分治"><a href="#⚠️-六、DP-vs-贪心-vs-分治" class="headerlink" title="⚠️ 六、DP vs 贪心 vs 分治"></a>⚠️ 六、DP vs 贪心 vs 分治</h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>是否保证最优</th>
+<th>是否有重叠子问题</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分治</strong></td>
+<td>是（如果子问题独立）</td>
+<td>❌ 无重叠</td>
+<td>归并排序、快速排序</td>
+</tr>
+<tr>
+<td><strong>贪心</strong></td>
+<td>❌ 仅局部最优</td>
+<td>❌</td>
+<td>活动选择、霍夫曼编码</td>
+</tr>
+<tr>
+<td><strong>动态规划</strong></td>
+<td>✅ 全局最优</td>
+<td>✅ 有重叠</td>
+<td>背包、LCS、最短路径</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>贪心是 DP 的特例——当局部最优能推出全局最优时，可用贪心（如股票 I）。</p>
+</blockquote>
+<hr>
+<h2 id="💡-七、如何判断一道题是否用-DP？"><a href="#💡-七、如何判断一道题是否用-DP？" class="headerlink" title="💡 七、如何判断一道题是否用 DP？"></a>💡 七、如何判断一道题是否用 DP？</h2><p>问自己三个问题：</p>
+<ol>
+<li><strong>问题是否可以分解为子问题？</strong></li>
+<li><strong>子问题的最优解是否能组合成原问题的最优解？</strong>（最优子结构）</li>
+<li><strong>子问题是否被重复计算？</strong>（重叠子问题）</li>
+</ol>
+<p>如果都回答“是”，那就考虑 DP！</p>
+<hr>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li><strong>动态规划 &#x3D; 状态定义 + 状态转移 + 初始条件 + 遍历顺序</strong></li>
+<li>核心思想：<strong>记住已经算过的，避免重复劳动</strong></li>
+<li>常见场景：最优化问题（最大&#x2F;最小&#x2F;最多&#x2F;最少）、计数问题、存在性问题</li>
+<li>刷题建议：从简单线性 DP 开始（如爬楼梯、打家劫舍），再进阶到背包、区间、状态机等</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E6%90%9C%E7%B4%A2/" rel="tag"># 搜索</a>
+              <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag"># 动态规划</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/12/19/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/8%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E5%A5%BD%E6%97%B6%E6%9C%BA2/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%9F"><span class="nav-text">🧠 一、什么是动态规划？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%91-%E4%BA%8C%E3%80%81%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%80%A7%E8%B4%A8"><span class="nav-text">🔑 二、动态规划的两个核心性质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9C%80%E4%BC%98%E5%AD%90%E7%BB%93%E6%9E%84%EF%BC%88Optimal-Substructure%EF%BC%89"><span class="nav-text">1. 最优子结构（Optimal Substructure）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%87%8D%E5%8F%A0%E5%AD%90%E9%97%AE%E9%A2%98%EF%BC%88Overlapping-Subproblems%EF%BC%89"><span class="nav-text">2. 重叠子问题（Overlapping Subproblems）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E4%B8%89%E3%80%81%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%9A%84%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4%EF%BC%88%E5%9B%9B%E6%AD%A5%E6%B3%95%EF%BC%89"><span class="nav-text">🛠️ 三、动态规划的解题步骤（四步法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%9A-%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81-DP-%E7%B1%BB%E5%9E%8B%E4%B8%8E%E7%BB%8F%E5%85%B8%E4%BE%8B%E9%A2%98"><span class="nav-text">📚 四、常见 DP 类型与经典例题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%AF-%E4%BA%94%E3%80%81%E7%BB%8F%E5%85%B8%E4%BE%8B%E5%AD%90%E8%AF%A6%E8%A7%A3"><span class="nav-text">🎯 五、经典例子详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E4%BE%8B1%EF%BC%9A%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%EF%BC%88%E5%85%A5%E9%97%A8%EF%BC%89"><span class="nav-text">✅ 例1：斐波那契数列（入门）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E4%BE%8B2%EF%BC%9A%E7%88%AC%E6%A5%BC%E6%A2%AF%EF%BC%88LeetCode-70%EF%BC%89"><span class="nav-text">✅ 例2：爬楼梯（LeetCode 70）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E4%BE%8B3%EF%BC%9A0-1-%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98"><span class="nav-text">✅ 例3：0-1 背包问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E4%BE%8B4%EF%BC%9A%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97%EF%BC%88LCS%EF%BC%89"><span class="nav-text">✅ 例4：最长公共子序列（LCS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9A%A0%EF%B8%8F-%E5%85%AD%E3%80%81DP-vs-%E8%B4%AA%E5%BF%83-vs-%E5%88%86%E6%B2%BB"><span class="nav-text">⚠️ 六、DP vs 贪心 vs 分治</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%92%A1-%E4%B8%83%E3%80%81%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E4%B8%80%E9%81%93%E9%A2%98%E6%98%AF%E5%90%A6%E7%94%A8-DP%EF%BC%9F"><span class="nav-text">💡 七、如何判断一道题是否用 DP？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E6%80%BB%E7%BB%93"><span class="nav-text">✅ 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">91</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">124</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
