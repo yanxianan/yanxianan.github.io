@@ -394,14 +394,16 @@
   </span>
   <span class="author" itemprop="copyrightHolder">Yxa</span>
 
-  <!-- 运行时间显示 - 添加的代码 -->
+  <!-- 运行时间显示 - 带内联样式的代码 -->
   <span class="post-meta-divider">|</span>
-  <span id="sitetime">本站已运行：<span id="timeDisplay">0 天 0 小时 0 分钟 0 秒</span></span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
-<!-- 运行时间计算脚本 - 添加的代码 -->
+<!-- 运行时间计算脚本 -->
 <script>
   function showRunTime() {
     // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
@@ -427,6 +429,18 @@
     showRunTime();
   });
 </script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+</style>
         
 
 
