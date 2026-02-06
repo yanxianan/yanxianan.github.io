@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第十二题：最小覆盖子串。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="76最小覆盖子串">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E6%9C%80%E5%B0%8F%E8%A6%86%E7%9B%96%E5%AD%90%E4%B8%B2/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第十二题：最小覆盖子串。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:21:09.661Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="滑动窗口">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%9C%80%E5%B0%8F%E8%A6%86%E7%9B%96%E5%AD%90%E4%B8%B2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>76最小覆盖子串 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%9C%80%E5%B0%8F%E8%A6%86%E7%9B%96%E5%AD%90%E4%B8%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          76最小覆盖子串
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:21:09" itemprop="dateModified" datetime="2026-02-06T11:21:09+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第十二题：最小覆盖子串。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-window-substring/">76. 最小覆盖子串</a></p>
+<p>题目：<br>给你一个字符串 <code>s</code>、一个字符串 <code>t</code>。返回 <code>s</code> 中涵盖 <code>t</code> 所有字符的最小子串。如果 <code>s</code> 中不存在涵盖 <code>t</code> 所有字符的子串，则返回空字符串 <code>&quot;&quot;</code>。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>对于 <code>t</code> 中重复字符，我们寻找的子字符串中该字符数量必须不少于 <code>t</code> 中该字符数量。</li>
+<li>如果 <code>s</code> 中存在这样的子串，我们保证它是唯一的答案。</li>
+</ul>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;ADOBECODEBANC&quot;, t = &quot;ABC&quot;</span><br><span class="line">输出：&quot;BANC&quot;</span><br><span class="line">解释：最小覆盖子串 &quot;BANC&quot; 包含来自字符串 t 的 &#x27;A&#x27;、&#x27;B&#x27; 和 &#x27;C&#x27;。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;a&quot;, t = &quot;a&quot;</span><br><span class="line">输出：&quot;a&quot;</span><br><span class="line">解释：整个字符串 s 是最小覆盖子串。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;a&quot;, t = &quot;aa&quot;</span><br><span class="line">输出: &quot;&quot;</span><br><span class="line">解释: t 中两个 &#x27;a&#x27; 均应包含在 s 的子串中，</span><br><span class="line">因此没有符合条件的子字符串，返回空字符串。</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>m == s.length</code></li>
+<li><code>n == t.length</code></li>
+<li><code>1 &lt;= m, n &lt;= 10⁵</code></li>
+<li><code>s</code> 和 <code>t</code> 由英文字母组成</li>
+</ul>
+<p>这是力扣（LeetCode）第 76 题，也是 <strong>滑动窗口（Sliding Window）</strong> 系列中公认的 <strong>BOSS 级</strong> 题目。</p>
+<p>之所以称它为困难（Hard），是因为它结合了 <strong>“不定长窗口”</strong> 的伸缩策略和 <strong>“哈希表计数”</strong> 的匹配逻辑，不仅要求你找出来，还要求找 <strong>“最小”</strong> 的，这对逻辑严密性要求极高。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：最小覆盖子串 (Minimum Window Substring)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给你两个字符串 <code>s</code>（源字符串）和 <code>t</code>（目标字符串）。请你在 <code>s</code> 中找出包含 <code>t</code> 中所有字符的 <strong>最短子串</strong>。</p>
+<p><strong>关键约束</strong>：</p>
+<ol>
+<li><strong>包含所有</strong>：如果 <code>t</code> 中包含重复字符（如 “AA”），那么结果子串中也必须至少包含两个 ‘A’。</li>
+<li><strong>最短</strong>：在所有满足条件的子串中，返回长度最小的那个。</li>
+<li><strong>不存在</strong>：如果找不到，返回空字符串 <code>&quot;&quot;</code>。</li>
+<li><strong>复杂度</strong>：要求 $O(n)$ 时间复杂度。</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>s = &quot;ADOBECODEBANC&quot;</code>, <code>t = &quot;ABC&quot;</code></p>
+<p>输出：<code>&quot;BANC&quot;</code></p>
+<p>解释：</p>
+<ul>
+<li>“ADOBEC” 包含 “ABC”，长度 6。</li>
+<li>“BECODEBA” 包含 “ABC”，长度 8。</li>
+<li>“BANC” 包含 “ABC”，长度 4。</li>
+<li>最短的是 “BANC”。</li>
+</ul>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-为什么暴力法不可行？"><a href="#2-1-为什么暴力法不可行？" class="headerlink" title="2.1 为什么暴力法不可行？"></a>2.1 为什么暴力法不可行？</h4><p>暴力法是枚举 <code>s</code> 的所有子串，然后检查每个子串是否包含 <code>t</code>。</p>
+<ul>
+<li>子串数量级是 $O(n^2)$。</li>
+<li>检查一次需要 $O(m)$。</li>
+<li>总复杂度 $O(n^3)$ 或 $O(n^2)$。对于 $10^5$ 长度的字符串，绝对超时。</li>
+</ul>
+<h4 id="2-2-核心策略：滑动窗口-“欠债还钱”模型"><a href="#2-2-核心策略：滑动窗口-“欠债还钱”模型" class="headerlink" title="2.2 核心策略：滑动窗口 + “欠债还钱”模型"></a>2.2 核心策略：滑动窗口 + “欠债还钱”模型</h4><p>我们可以把 <code>t</code> 中的字符看作我们的 <strong>“债务”</strong>（Need）。</p>
+<p>我们要控制一个窗口 <code>[left, right]</code> 在 <code>s</code> 上滑动：</p>
+<ol>
+<li><strong>进货（Expand）</strong>：<code>right</code> 向右扩张，遇到的字符加入窗口。如果是我们要找的字符，就说明还了一笔“债”。</li>
+<li><strong>收缩（Shrink）</strong>：当<strong>所有债务都还清</strong>（窗口内包含了 <code>t</code> 所有字符）时，说明当前窗口是一个<strong>可行解</strong>。<ul>
+<li>这时候我们要尝试<strong>优化</strong>：<code>left</code> 指针向右移，尝试扔掉左边的字符。</li>
+<li><strong>为什么要扔？</strong> 因为我们要找<strong>最小</strong>的窗口。如果扔掉左边的字符后，窗口依然满足条件（比如扔掉了一个无关紧要的 ‘X’，或者多余的 ‘A’），那我们就得到了一个更短的答案。</li>
+<li><strong>何时停止收缩？</strong> 直到扔掉某个关键字符，导致窗口不再满足条件（“债”又没还清了），这时候停止收缩，继续让 <code>right</code> 向右找货。</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-3-如何判断“债务还清”？"><a href="#2-3-如何判断“债务还清”？" class="headerlink" title="2.3 如何判断“债务还清”？"></a>2.3 如何判断“债务还清”？</h4><p>我们需要两个哈希表（或数组）：</p>
+<ul>
+<li><code>need</code>：记录 <code>t</code> 中每个字符需要多少个。</li>
+<li><code>window</code>：记录当前窗口中，每个字符已经收集了多少个。</li>
+</ul>
+<p><strong>关键变量 <code>valid</code></strong>：</p>
+<p>为了避免每次都遍历哈希表去检查是否满足条件（那样检查一次是 $O(52)$ 或 $O(128)$），我们维护一个变量 <code>valid</code>。</p>
+<ul>
+<li>表示 <strong>“已经有多少种字符的数量达标了”</strong>。</li>
+<li>比如 <code>t = &quot;AAB&quot;</code>, <code>need = &#123;&#39;A&#39;:2, &#39;B&#39;:1&#125;</code>。<ul>
+<li>当窗口里有两个 ‘A’ 时，<code>valid</code> 加 1（说明 A 这一类达标了）。</li>
+<li>当窗口里有一个 ‘B’ 时，<code>valid</code> 再加 1。</li>
+<li>当 <code>valid == need.size()</code> 时，说明所有种类的字符都齐了。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    string minWindow(string s, string t) &#123;</span><br><span class="line">        // need: 记录 t 中每个字符需要的数量</span><br><span class="line">        // window: 记录当前窗口中包含的字符数量</span><br><span class="line">        unordered_map&lt;char, int&gt; need, window;</span><br><span class="line">        </span><br><span class="line">        // 1. 初始化 need 哈希表</span><br><span class="line">        for (char c : t) need[c]++;</span><br><span class="line"></span><br><span class="line">        int left = 0, right = 0;</span><br><span class="line">        int valid = 0; // 记录有多少个字符种类已经满足要求</span><br><span class="line"></span><br><span class="line">        // 记录最小覆盖子串的起始位置和长度</span><br><span class="line">        // len 初始化为最大值，方便后续更新</span><br><span class="line">        int start = 0, len = INT_MAX;</span><br><span class="line"></span><br><span class="line">        // 2. 开始滑动窗口</span><br><span class="line">        while (right &lt; s.size()) &#123;</span><br><span class="line">            // c 是即将移入窗口的字符</span><br><span class="line">            char c = s[right];</span><br><span class="line">            // 右移窗口</span><br><span class="line">            right++;</span><br><span class="line"></span><br><span class="line">            // === 进行窗口内数据的一系列更新 ===</span><br><span class="line">            if (need.count(c)) &#123;</span><br><span class="line">                window[c]++;</span><br><span class="line">                // 只有当 window[c] 的数量刚好达到 need[c] 时，valid 才加 1</span><br><span class="line">                // 比如 need[&#x27;A&#x27;]=2，window 从 1 变 2 时，valid++</span><br><span class="line">                // window 从 2 变 3 时，valid 不变（因为已经达标了）</span><br><span class="line">                if (window[c] == need[c]) &#123;</span><br><span class="line">                    valid++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // === 判断左侧窗口是否要收缩 ===</span><br><span class="line">            // 当 valid 等于 need 的大小时，说明当前窗口已满足条件</span><br><span class="line">            while (valid == need.size()) &#123;</span><br><span class="line">                // 更新最小覆盖子串</span><br><span class="line">                if (right - left &lt; len) &#123;</span><br><span class="line">                    start = left;</span><br><span class="line">                    len = right - left;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                // d 是即将移出窗口的字符</span><br><span class="line">                char d = s[left];</span><br><span class="line">                // 左移窗口</span><br><span class="line">                left++;</span><br><span class="line"></span><br><span class="line">                // === 进行窗口内数据的一系列更新 ===</span><br><span class="line">                if (need.count(d)) &#123;</span><br><span class="line">                    // 如果移除这个字符会导致数量不达标，valid 减 1</span><br><span class="line">                    if (window[d] == need[d]) &#123;</span><br><span class="line">                        valid--;</span><br><span class="line">                    &#125;</span><br><span class="line">                    window[d]--;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 如果 len 没变过，说明没找到，返回空串；否则返回截取的子串</span><br><span class="line">        return len == INT_MAX ? &quot;&quot; : s.substr(start, len);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-N-M"><a href="#时间复杂度：-O-N-M" class="headerlink" title="时间复杂度：$O(N + M)$"></a><strong>时间复杂度：$O(N + M)$</strong></h4><ul>
+<li>$N$ 是 <code>s</code> 的长度，$M$ 是 <code>t</code> 的长度。</li>
+<li>我们先遍历 <code>t</code> 初始化哈希表：$O(M)$。</li>
+<li><strong>双指针核心</strong>：<code>right</code> 指针从 0 走到 $N$，<code>left</code> 指针也最多从 0 走到 $N$。每个字符最多“进窗”一次，“出窗”一次。</li>
+<li>哈希表操作是 $O(1)$。</li>
+<li>总复杂度是线性的。</li>
+</ul>
+<h4 id="空间复杂度：-O-Sigma"><a href="#空间复杂度：-O-Sigma" class="headerlink" title="空间复杂度：$O(|\Sigma|)$"></a><strong>空间复杂度：$O(|\Sigma|)$</strong></h4><ul>
+<li>我们需要存储字符集大小的哈希表。对于 ASCII 字符，大小最多 128。</li>
+<li>可以认为空间复杂度是 $O(1)$（常数级）。</li>
+</ul>
+<hr>
+<h3 id="5-深度解惑：最容易写错的细节"><a href="#5-深度解惑：最容易写错的细节" class="headerlink" title="5. 深度解惑：最容易写错的细节"></a>5. 深度解惑：最容易写错的细节</h3><p><strong>Q1: 为什么 <code>if (window[c] == need[c])</code> 这里用 <code>==</code> 而不是 <code>&gt;=</code>？</strong></p>
+<ul>
+<li><strong>A:</strong> 这是一个精妙的去重逻辑。</li>
+<li>假设 <code>need[&#39;A&#39;] = 2</code>。</li>
+<li>当窗口有 1 个 ‘A’，<code>window[&#39;A&#39;]</code> 变 2：满足条件了，<code>valid++</code>。</li>
+<li>当窗口有 2 个 ‘A’，又来 1 个 ‘A’，<code>window[&#39;A&#39;]</code> 变 3：虽然数量更多了，但“达标”这个状态没有变，所以不需要再次 <code>valid++</code>。<strong>我们只在“刚刚好满足”的那一瞬间记录。</strong></li>
+</ul>
+<p><strong>Q2: 为什么 <code>window[d] == need[d]</code> 时要 <code>valid--</code>？</strong></p>
+<ul>
+<li><strong>A:</strong> 对称逻辑。</li>
+<li>假设 <code>need[&#39;A&#39;] = 2</code>，当前 <code>window[&#39;A&#39;] = 3</code>。</li>
+<li>移出一个 ‘A’，剩 2 个：依然满足 <code>&gt;=2</code>，<code>valid</code> 不用变。</li>
+<li>再移出一个 ‘A’，剩 1 个：<strong>坏了，不够了！</strong> 此时状态从“达标”变成了“不达标”，所以 <code>valid--</code>。</li>
+</ul>
+<p><strong>Q3: 为什么结果要存 <code>start</code> 和 <code>len</code>，而不是直接存字符串？</strong></p>
+<ul>
+<li><strong>A:</strong> 性能优化。</li>
+<li>如果在循环里写 <code>res = s.substr(left, right - left)</code>，每次更新结果都会进行字符串拷贝，这会把时间复杂度退化成 $O(N^2)$。</li>
+<li>只存下标，最后截取一次，保证 $O(N)$。</li>
+</ul>
+<hr>
+<h3 id="6-通用模板总结"><a href="#6-通用模板总结" class="headerlink" title="6. 通用模板总结"></a>6. 通用模板总结</h3><p>至此，你已经学完了 Hot 100 中所有的滑动窗口题目。</p>
+<p>你会发现它们都有一个<strong>通用骨架</strong>：</p>
+<p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">/* 滑动窗口通用模板 */</span><br><span class="line">void slidingWindow(string s, string t) &#123;</span><br><span class="line">    unordered_map&lt;char, int&gt; need, window;</span><br><span class="line">    for (char c : t) need[c]++;</span><br><span class="line">    </span><br><span class="line">    int left = 0, right = 0;</span><br><span class="line">    int valid = 0; </span><br><span class="line">    </span><br><span class="line">    while (right &lt; s.size()) &#123;</span><br><span class="line">        // 1. c 是将移入窗口的字符</span><br><span class="line">        char c = s[right];</span><br><span class="line">        right++;</span><br><span class="line">        // 2. 执行右移后的数据更新 ...</span><br><span class="line">        </span><br><span class="line">        // 3. 判断窗口是否要收缩 (debug output...)</span><br><span class="line">        while (window needs shrink) &#123;</span><br><span class="line">            // 4. d 是将移出窗口的字符</span><br><span class="line">            char d = s[left];</span><br><span class="line">            left++;</span><br><span class="line">            // 5. 执行左移后的数据更新 ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/" rel="tag"># 滑动窗口</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84/" rel="prev" title="49字母异位词分组">
+      <i class="fa fa-chevron-left"></i> 49字母异位词分组
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/" rel="next" title="128最长连续序列">
+      128最长连续序列 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9A%B4%E5%8A%9B%E6%B3%95%E4%B8%8D%E5%8F%AF%E8%A1%8C%EF%BC%9F"><span class="nav-text">2.1 为什么暴力法不可行？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E7%AD%96%E7%95%A5%EF%BC%9A%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3-%E2%80%9C%E6%AC%A0%E5%80%BA%E8%BF%98%E9%92%B1%E2%80%9D%E6%A8%A1%E5%9E%8B"><span class="nav-text">2.2 核心策略：滑动窗口 + “欠债还钱”模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E2%80%9C%E5%80%BA%E5%8A%A1%E8%BF%98%E6%B8%85%E2%80%9D%EF%BC%9F"><span class="nav-text">2.3 如何判断“债务还清”？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-N-M"><span class="nav-text">时间复杂度：$O(N + M)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-Sigma"><span class="nav-text">空间复杂度：$O(|\Sigma|)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%83%91%EF%BC%9A%E6%9C%80%E5%AE%B9%E6%98%93%E5%86%99%E9%94%99%E7%9A%84%E7%BB%86%E8%8A%82"><span class="nav-text">5. 深度解惑：最容易写错的细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E9%80%9A%E7%94%A8%E6%A8%A1%E6%9D%BF%E6%80%BB%E7%BB%93"><span class="nav-text">6. 通用模板总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">106</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">575k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">13:42</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

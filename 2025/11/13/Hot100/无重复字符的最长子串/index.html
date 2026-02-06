@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第八题：无重复字符的最长子串。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3无重复字符的最长子串">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第八题：无重复字符的最长子串。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:05:08.919Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="滑动窗口">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>3无重复字符的最长子串 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          3无重复字符的最长子串
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:05:08" itemprop="dateModified" datetime="2026-02-06T11:05:08+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第八题：无重复字符的最长子串。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-substring-without-repeating-characters/">3. 无重复字符的最长子串</a></p>
+<p>题目：<br>给定一个字符串 <code>s</code>，请你找出其中不含有重复字符的 <strong>最长子串</strong> 的长度。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;abcabcbb&quot;</span><br><span class="line">输出: 3 </span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;abc&quot;，所以其长度为 3。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;bbbbb&quot;</span><br><span class="line">输出: 1</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;b&quot;，所以其长度为 1。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;pwwkew&quot;</span><br><span class="line">输出: 3</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;wke&quot;，所以其长度为 3。</span><br><span class="line">     请注意，你的答案必须是 子串 的长度，&quot;pwke&quot; 是一个子序列，不是子串。</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>0 &lt;= s.length &lt;= 5 * 10⁴</code></li>
+<li><code>s</code> 由英文字母、数字、符号和空格组成</li>
+</ul>
+<p>这道题是 <strong>滑动窗口 (Sliding Window)</strong> 算法的开山之作。</p>
+<p>如果说“双指针”通常用于解决“成对匹配”的问题（如两数之和、盛水容器），那么“滑动窗口”则是专门用来解决 <strong>“连续子数组&#x2F;子串”</strong> 问题的利器。</p>
+<p>这道题在 LeetCode Hot 100 中名列前茅，掌握它，你就掌握了处理连续区间问题的通用模板。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：无重复字符的最长子串 (Longest Substring Without Repeating Characters)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给定一个字符串 <code>s</code> ，请你找出其中不含有重复字符的 <strong>最长子串</strong> 的长度。</p>
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><strong>子串 (Substring)</strong>：必须是字符串中<strong>连续</strong>的一部分（比如 “abc” 是 “abcde” 的子串，但 “ace” 不是）。</li>
+<li><strong>无重复</strong>：子串里不能有相同的字符。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>s = &quot;abcabcbb&quot;</code></p>
+<p>输出：<code>3</code></p>
+<p>解释：因为无重复字符的最长子串是 “abc”，所以其长度为 3。</p>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-为什么暴力法不可行？"><a href="#2-1-为什么暴力法不可行？" class="headerlink" title="2.1 为什么暴力法不可行？"></a>2.1 为什么暴力法不可行？</h4><p>暴力法是列出所有的子串，然后一个个检查是否有重复字符。</p>
+<ul>
+<li>子串总数是 $O(n^2)$。</li>
+<li>检查一个子串是否有重复字符需要 $O(n)$。</li>
+<li>总复杂度 $O(n^3)$。如果字符串长一点，电脑就跑不动了。</li>
+</ul>
+<h4 id="2-2-核心策略：伸缩的窗口-Sliding-Window"><a href="#2-2-核心策略：伸缩的窗口-Sliding-Window" class="headerlink" title="2.2 核心策略：伸缩的窗口 (Sliding Window)"></a>2.2 核心策略：伸缩的窗口 (Sliding Window)</h4><p>想象一下，我们在字符串上有一个“窗口”：</p>
+<ul>
+<li>窗口的左边界是 <code>left</code>，右边界是 <code>right</code>。</li>
+<li>窗口里的字符就是我们当前正在考察的子串。</li>
+</ul>
+<p><strong>我们的目标</strong>：让这个窗口尽可能地<strong>变大</strong>，同时保证窗口里<strong>没有重复的字符</strong>。</p>
+<p><strong>操作流程 (The “How”)</strong>：</p>
+<ol>
+<li><strong>扩张 (Expand)</strong>：<code>right</code> 指针主动向右走，把新字符加入窗口。</li>
+<li><strong>检查 (Check)</strong>：每次加入新字符 <code>s[right]</code> 前，问问窗口里：“你们中间有没有人跟 <code>s[right]</code> 一样？”<ul>
+<li><strong>没有冲突</strong>：太棒了！安全加入，计算一下当前窗口长度，更新最大值。</li>
+<li><strong>有冲突</strong>：麻烦了。<code>s[right]</code> 已经在窗口里出现过了（假设出现在位置 X）。</li>
+</ul>
+</li>
+<li><strong>收缩 (Shrink)</strong>：既然有冲突，我们就必须移动 <code>left</code> 指针，把窗口左边的字符一个个扔出去，<strong>直到</strong>把那个导致冲突的老字符扔掉为止。</li>
+</ol>
+<p><strong>数据结构选择</strong>：</p>
+<p>我们需要快速判断“窗口里有没有这个字符”。</p>
+<p>显然，<strong>哈希集合 (<code>unordered_set</code>)</strong> 是最佳选择，查找和删除都是 $O(1)$。</p>
+<p><strong>举例演示</strong>：<code>s = &quot;pwwkew&quot;</code></p>
+<ol>
+<li><code>[p]</code>: 无重复，max&#x3D;1。</li>
+<li><code>[pw]</code>: 无重复，max&#x3D;2。</li>
+<li><code>[pww]</code>: <code>right</code> 指向第二个 <code>w</code>。冲突！<ul>
+<li><code>left</code> 开始动：扔掉 <code>p</code>。窗口变成 <code>ww</code>。还有冲突！</li>
+<li><code>left</code> 继续动：扔掉第一个 <code>w</code>。窗口变成 <code>w</code>。冲突解决！</li>
+<li>加入新 <code>w</code>，窗口现在是 <code>[w]</code>。</li>
+</ul>
+</li>
+<li><code>[wk]</code>: 无重复…</li>
+</ol>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int lengthOfLongestSubstring(string s) &#123;</span><br><span class="line">        // 哈希集合：记录当前窗口内存在的字符</span><br><span class="line">        unordered_set&lt;char&gt; window;</span><br><span class="line">        </span><br><span class="line">        int n = s.size();</span><br><span class="line">        int left = 0;   // 窗口左边界</span><br><span class="line">        int max_len = 0; // 记录历史最大长度</span><br><span class="line"></span><br><span class="line">        // right 是窗口右边界，主动向右滑动</span><br><span class="line">        for (int right = 0; right &lt; n; ++right) &#123;</span><br><span class="line">            char current_char = s[right];</span><br><span class="line"></span><br><span class="line">            // 【核心逻辑：收缩窗口】</span><br><span class="line">            // 如果 current_char 已经在窗口里了（冲突），</span><br><span class="line">            // 我们就需要移动 left，不断从集合中删除左边的字符，</span><br><span class="line">            // 直到冲突消失（也就是把窗口里那个重复的字符删掉为止）。</span><br><span class="line">            while (window.count(current_char)) &#123;</span><br><span class="line">                window.erase(s[left]);</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // 现在窗口是安全的了，把新字符加进去</span><br><span class="line">            window.insert(current_char);</span><br><span class="line"></span><br><span class="line">            // 更新最大长度</span><br><span class="line">            // 当前窗口长度 = right - left + 1</span><br><span class="line">            max_len = max(max_len, right - left + 1);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return max_len;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-n"><a href="#时间复杂度：-O-n" class="headerlink" title="时间复杂度：$O(n)$"></a><strong>时间复杂度：$O(n)$</strong></h4><p>很多初学者看到 <code>for</code> 循环里套了个 <code>while</code> 循环，会担心是 $O(n^2)$。</p>
+<p><strong>其实是 $O(n)$，原因如下：</strong></p>
+<ul>
+<li><code>right</code> 指针从 0 走到 $n-1$，走了 $n$ 步。</li>
+<li><code>left</code> 指针也只能从 0 走到 $n-1$，最多走 $n$ 步（它不回退）。</li>
+<li>每个字符最多被 <code>insert</code> 一次，被 <code>erase</code> 一次。</li>
+<li>总操作次数是 $2n$，所以是线性的。</li>
+</ul>
+<h4 id="空间复杂度：-O-Sigma"><a href="#空间复杂度：-O-Sigma" class="headerlink" title="空间复杂度：$O(|\Sigma|)$"></a><strong>空间复杂度：$O(|\Sigma|)$</strong></h4><ul>
+<li>我们需要一个 <code>unordered_set</code> 存储窗口内的字符。</li>
+<li>$|\Sigma|$ 代表字符集的大小。如果全是 ASCII 码，set 最多存 128 个字符；如果是全是小写字母，最多 26 个。</li>
+<li>所以空间复杂度是常数级的 $O(1)$ （或者说 $O(128)$）。</li>
+</ul>
+<hr>
+<h3 id="5-进阶优化-面试加分项"><a href="#5-进阶优化-面试加分项" class="headerlink" title="5. 进阶优化 (面试加分项)"></a>5. 进阶优化 (面试加分项)</h3><p>虽然上面的代码已经是 $O(n)$，但在 C++ 中，<code>unordered_set</code> 还是有一定的开销。</p>
+<p><strong>数组模拟哈希表</strong>：</p>
+<p>由于字符（char）本质上就是整数（ASCII 码 0-127）。</p>
+<p>我们可以用一个固定大小的数组 <code>int dict[128]</code> 来代替 <code>unordered_set</code>。</p>
+<ul>
+<li><code>dict[c] = true/false</code> (或者记录下标)。</li>
+<li>数组访问比哈希表快得多，这在 ACM 竞赛中是标准写法。</li>
+</ul>
+<p><strong>跳跃优化</strong>：</p>
+<p>上面的 <code>while</code> 循环是一步步移动 <code>left</code>。其实如果我们可以记录字符的<strong>下标</strong>（使用 <code>map</code> 或数组记录 <code>last_index</code>），我们可以直接让 <code>left</code> 跳到重复字符的下一位。</p>
+<p><em>但这不会改变最坏时间复杂度（依然是 $O(n)$），只是减少了操作次数。对于初学者，掌握“一步步收缩”的模板更通用，因为很多题目（如“和大于K的最短子数组”）只能一步步缩。</em></p>
+<hr>
+<h3 id="6-初学者常见疑问-Q-A"><a href="#6-初学者常见疑问-Q-A" class="headerlink" title="6. 初学者常见疑问 (Q&amp;A)"></a>6. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><p><strong>Q: 为什么计算长度是 <code>right - left + 1</code>？</strong></p>
+<ul>
+<li><strong>A:</strong> 这是一个经典的“植树问题”。比如下标 2 到 下标 4，包含 2, 3, 4 三个数。长度 &#x3D; $4 - 2 + 1 &#x3D; 3$。</li>
+</ul>
+</li>
+<li><p><strong>Q: 如果字符串为空 <code>&quot;&quot;</code> 怎么办？</strong></p>
+<ul>
+<li><strong>A:</strong> 循环不执行，直接返回 <code>max_len</code> (初始化为0)，逻辑正确。</li>
+</ul>
+</li>
+<li><p><strong>Q: 这和“最大连续 1 的个数”那类题一样吗？</strong></p>
+<ul>
+<li><p><strong>A:</strong> 非常像！它们都属于 <strong>不定长滑动窗口</strong>。核心逻辑都是：</p>
+<ol>
+<li><p><code>right</code> 进场。</p>
+</li>
+<li><p><code>while</code> (条件不满足) <code>left</code> 出场。</p>
+</li>
+<li><p>更新结果。</p>
+<p>记住这个模板，能秒杀 80% 的滑动窗口题。</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/" rel="tag"># 滑动窗口</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/" rel="prev" title="128最长连续序列">
+      <i class="fa fa-chevron-left"></i> 128最长连续序列
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E6%8E%A5%E9%9B%A8%E6%B0%B4/" rel="next" title="42接雨水">
+      42接雨水 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9A%B4%E5%8A%9B%E6%B3%95%E4%B8%8D%E5%8F%AF%E8%A1%8C%EF%BC%9F"><span class="nav-text">2.1 为什么暴力法不可行？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E7%AD%96%E7%95%A5%EF%BC%9A%E4%BC%B8%E7%BC%A9%E7%9A%84%E7%AA%97%E5%8F%A3-Sliding-Window"><span class="nav-text">2.2 核心策略：伸缩的窗口 (Sliding Window)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-n"><span class="nav-text">时间复杂度：$O(n)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-Sigma"><span class="nav-text">空间复杂度：$O(|\Sigma|)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%BF%9B%E9%98%B6%E4%BC%98%E5%8C%96-%E9%9D%A2%E8%AF%95%E5%8A%A0%E5%88%86%E9%A1%B9"><span class="nav-text">5. 进阶优化 (面试加分项)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">6. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">106</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">575k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">13:42</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

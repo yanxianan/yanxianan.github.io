@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第七题：接雨水。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="42接雨水">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E6%8E%A5%E9%9B%A8%E6%B0%B4/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第七题：接雨水。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:00:18.521Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="双指针">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%8E%A5%E9%9B%A8%E6%B0%B4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>42接雨水 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E6%8E%A5%E9%9B%A8%E6%B0%B4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          42接雨水
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:00:18" itemprop="dateModified" datetime="2026-02-06T11:00:18+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第七题：接雨水。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/">42. 接雨水</a></p>
+<p>题目：<br>给定 <code>n</code> 个非负整数表示每个宽度为 <code>1</code> 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：height = [0,1,0,2,1,0,1,3,2,1,2,1]</span><br><span class="line">输出：6</span><br><span class="line">解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：height = [4,2,0,3,2,5]</span><br><span class="line">输出：9</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>n == height.length</code></li>
+<li><code>1 &lt;= n &lt;= 2 * 10⁴</code></li>
+<li><code>0 &lt;= height[i] &lt;= 10⁵</code></li>
+</ul>
+<p>这道题是力扣（LeetCode）上的 <strong>Hard</strong> 级别题目，编号 42。它是面试中出现的“终极 Boss”之一，也是各大厂面试官特别喜欢用来考察思维深度的题目。</p>
+<p>不要被“Hard”标签吓倒。只要我们拆解了物理原理，你会发现它其实是 <strong>双指针</strong> 思想的巅峰运用。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：接雨水 (Trapping Rain Water)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给定一个数组 <code>height</code>，每个元素代表一个宽度为 1 的柱子的高度。计算当天下雨时，这些柱子围成的凹槽能接多少雨水。</p>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>height = [0,1,0,2,1,0,1,3,2,1,2,1]</code></p>
+<p>输出：<code>6</code></p>
+<p><strong>直观理解</strong>：</p>
+<p>想象这是一个高低不平的地面。下雨后，低洼的地方会积水，直到满溢出去。我们要算所有低洼处积水的总量。</p>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-物理原理：按列求水-The-“Column”-Approach"><a href="#2-1-物理原理：按列求水-The-“Column”-Approach" class="headerlink" title="2.1 物理原理：按列求水 (The “Column” Approach)"></a>2.1 物理原理：按列求水 (The “Column” Approach)</h4><p>我们要算总水量，其实可以拆解成：<strong>每一根柱子的头顶上能存多少水？</strong></p>
+<p>对于下标为 <code>i</code> 的柱子，它头顶的水量取决于什么？</p>
+<p>取决于它 <strong>左边最高的柱子</strong> (<code>max_left</code>) 和 <strong>右边最高的柱子</strong> (<code>max_right</code>)。</p>
+<p>这就好比“木桶效应”：水位的高度由两边较短的那块板决定。</p>
+<p><strong>公式</strong>：</p>
+<p>$$\text{柱子} i \text{ 的水量} &#x3D; \max(0, \min(\text{max_left}, \text{max_right}) - \text{height}[i])$$</p>
+<h4 id="2-2-算法演进"><a href="#2-2-算法演进" class="headerlink" title="2.2 算法演进"></a>2.2 算法演进</h4><ol>
+<li><strong>暴力法</strong>：对于每个柱子 <code>i</code>，都向左向右扫描找最高。$O(n^2)$。$\rightarrow$ <strong>太慢，会超时</strong>。</li>
+<li><strong>动态规划</strong>：提前把每个位置的“左边最高”和“右边最高”算出来存数组里。$O(n)$ 时间，但需要 $O(n)$ 空间。$\rightarrow$ <strong>不够极致</strong>。</li>
+<li><strong>双指针 (最优解)</strong>：能不能一边遍历一边确定最高？而且不需要额外的数组空间？</li>
+</ol>
+<h4 id="2-3-双指针解法详解-The-“Aha-”-Moment"><a href="#2-3-双指针解法详解-The-“Aha-”-Moment" class="headerlink" title="2.3 双指针解法详解 (The “Aha!” Moment)"></a>2.3 双指针解法详解 (The “Aha!” Moment)</h4><p>这是一个非常巧妙的思维转换。</p>
+<p><strong>关键观察</strong>：</p>
+<p>对于位置 <code>left</code>，如果 <code>max_left &lt; max_right</code>（注意：这里的 <code>max_right</code> 甚至不需要是 <code>left</code> 紧邻的右边最高，只要右边<strong>某处</strong>有一个比 <code>max_left</code> 高的墙即可），那么位置 <code>left</code> 的水位高度 <strong>一定</strong> 由 <code>max_left</code> 决定。</p>
+<p><strong>为什么？</strong></p>
+<p>因为短板在左边！不管右边那个高墙后面是不是还有更高的墙，水在 <code>left</code> 这个位置，最高只能蓄到 <code>max_left</code> 这么高，再高就从左边流出去了。</p>
+<p><strong>算法流程</strong>：</p>
+<ol>
+<li>定义双指针 <code>left</code>（头）和 <code>right</code>（尾）。</li>
+<li>维护两个变量：<code>left_max</code>（左边已探索区域的最高值）和 <code>right_max</code>（右边已探索区域的最高值）。</li>
+<li><strong>核心循环</strong>：<ul>
+<li>如果 <code>height[left] &lt; height[right]</code>：说明左边是短板（或者瓶颈在左边）。<ul>
+<li>如果 <code>height[left] &gt;= left_max</code>：更新 <code>left_max</code>（这个位置存不住水，它是新的墙）。</li>
+<li>否则：<code>ans += left_max - height[left]</code>（因为右边一定有比 <code>left_max</code> 更高的挡着，所以可以安全地按 <code>left_max</code> 算水）。</li>
+<li><code>left</code> 右移。</li>
+</ul>
+</li>
+<li>如果 <code>height[left] &gt;= height[right]</code>：说明右边是短板。<ul>
+<li>逻辑同上，处理右边。</li>
+<li><code>right</code> 左移。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int trap(vector&lt;int&gt;&amp; height) &#123;</span><br><span class="line">        int n = height.size();</span><br><span class="line">        // 边界条件：如果柱子少于 3 根，根本围不成坑，无法接水</span><br><span class="line">        if (n &lt; 3) return 0;</span><br><span class="line"></span><br><span class="line">        // 定义双指针</span><br><span class="line">        int left = 0;</span><br><span class="line">        int right = n - 1;</span><br><span class="line"></span><br><span class="line">        // 定义左右两侧目前为止遇到的最大高度</span><br><span class="line">        int left_max = 0;</span><br><span class="line">        int right_max = 0;</span><br><span class="line"></span><br><span class="line">        int ans = 0;</span><br><span class="line"></span><br><span class="line">        // 两个指针向中间逼近</span><br><span class="line">        while (left &lt; right) &#123;</span><br><span class="line">            // 贪心策略：谁低，就算谁。</span><br><span class="line">            // 为什么？因为水桶的短板效应。</span><br><span class="line">            // 如果 height[left] &lt; height[right]，说明“左边比较低”。</span><br><span class="line">            // 虽然我们不知道 left 和 right 中间的情况，</span><br><span class="line">            // 但我们知道右边至少有一个 height[right] 挡着。</span><br><span class="line">            // 所以，只要 left 这边有一个 limit (left_max)，水肯定能存到 left_max 那么多</span><br><span class="line">            // （除非 height[left] 本身比 left_max 还高）。</span><br><span class="line">            </span><br><span class="line">            if (height[left] &lt; height[right]) &#123;</span><br><span class="line">                // 处理左指针</span><br><span class="line">                if (height[left] &gt;= left_max) &#123;</span><br><span class="line">                    // 当前柱子比左边最高的还高，那它自己就是新的墙，存不住水</span><br><span class="line">                    left_max = height[left];</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // 当前柱子比左边最高的矮，形成凹槽，可以接水</span><br><span class="line">                    // 水量 = 左边最高墙 - 当前高度</span><br><span class="line">                    ans += (left_max - height[left]);</span><br><span class="line">                &#125;</span><br><span class="line">                left++; // 移动左指针</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // 处理右指针 (逻辑是对称的)</span><br><span class="line">                if (height[right] &gt;= right_max) &#123;</span><br><span class="line">                    right_max = height[right];</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    ans += (right_max - height[right]);</span><br><span class="line">                &#125;</span><br><span class="line">                right--; // 移动右指针</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><p>这是面试官最想听到的分析，因为它达到了时空的极限优化。</p>
+<h4 id="时间复杂度：-O-n"><a href="#时间复杂度：-O-n" class="headerlink" title="时间复杂度：$O(n)$"></a><strong>时间复杂度：$O(n)$</strong></h4><ul>
+<li><code>left</code> 和 <code>right</code> 指针分别从两头走到中间，每个元素只会被访问一次。</li>
+<li>操作都是常数时间的比较和加减。</li>
+</ul>
+<h4 id="空间复杂度：-O-1"><a href="#空间复杂度：-O-1" class="headerlink" title="空间复杂度：$O(1)$"></a><strong>空间复杂度：$O(1)$</strong></h4><ul>
+<li>我们只用了 <code>left</code>, <code>right</code>, <code>left_max</code>, <code>right_max</code>, <code>ans</code> 这几个变量。</li>
+<li>相比于动态规划解法（需要 <code>vector</code> 存储前后缀最大值，空间 $O(n)$），双指针法节省了大量内存，是真正的原地算法。</li>
+</ul>
+<hr>
+<h3 id="5-初学者常见疑问-Q-A"><a href="#5-初学者常见疑问-Q-A" class="headerlink" title="5. 初学者常见疑问 (Q&amp;A)"></a>5. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么 <code>if (height[left] &lt; height[right])</code> 就能确定只看 <code>left_max</code> 就可以？右边中间万一有个更矮的坑怎么办？</strong><ul>
+<li><strong>A:</strong> 这是一个非常好的直觉问题。</li>
+<li>请注意，代码的逻辑是：如果 <code>height[left] &lt; height[right]</code>，我们处理的是 <strong><code>left</code></strong> 这个位置。</li>
+<li>此时我们确定的信息是：左边有个 <code>left_max</code>，右边有个 <code>height[right]</code>，而且 <code>height[right]</code> 肯定比当前这一侧的某个值要大（或者是相等的短板）。</li>
+<li>实际上，更准确的理解是：<strong>我们在找短板</strong>。<code>left</code> 和 <code>right</code> 哪个小，哪边就是短板。水的高度是由短板决定的。只要右边有个比 <code>left</code> 高的墙（哪怕隔得很远），<code>left</code> 位置的水位上限就被锁死在 <code>left_max</code> 上了。</li>
+</ul>
+</li>
+<li><strong>Q: 为什么不需要单独处理 <code>left == right</code> 的情况？</strong><ul>
+<li><strong>A:</strong> 循环条件是 <code>while (left &lt; right)</code>。当 <code>left == right</code> 时，两者重合在最高的那个柱子上（或者某个峰值上）。这根柱子顶上是存不住水的（因为它要么是最高的，要么两边都比它低但循环已经处理过了）。所以重合点不需要计算。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag"># 双指针</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" rel="prev" title="3无重复字符的最长子串">
+      <i class="fa fa-chevron-left"></i> 3无重复字符的最长子串
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C/" rel="next" title="53最大子数组和">
+      53最大子数组和 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E7%89%A9%E7%90%86%E5%8E%9F%E7%90%86%EF%BC%9A%E6%8C%89%E5%88%97%E6%B1%82%E6%B0%B4-The-%E2%80%9CColumn%E2%80%9D-Approach"><span class="nav-text">2.1 物理原理：按列求水 (The “Column” Approach)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E7%AE%97%E6%B3%95%E6%BC%94%E8%BF%9B"><span class="nav-text">2.2 算法演进</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E5%8F%8C%E6%8C%87%E9%92%88%E8%A7%A3%E6%B3%95%E8%AF%A6%E8%A7%A3-The-%E2%80%9CAha-%E2%80%9D-Moment"><span class="nav-text">2.3 双指针解法详解 (The “Aha!” Moment)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-n"><span class="nav-text">时间复杂度：$O(n)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-1"><span class="nav-text">空间复杂度：$O(1)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">5. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">106</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">575k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">13:42</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
