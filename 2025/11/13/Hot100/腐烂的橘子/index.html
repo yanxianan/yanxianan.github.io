@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第39题：腐烂的橘子。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="994. 腐烂的橘子">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E8%85%90%E7%83%82%E7%9A%84%E6%A9%98%E5%AD%90/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第39题：腐烂的橘子。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-08T02:30:12.956Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="BFS">
+<meta property="article:tag" content="图论">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%85%90%E7%83%82%E7%9A%84%E6%A9%98%E5%AD%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>994. 腐烂的橘子 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%85%90%E7%83%82%E7%9A%84%E6%A9%98%E5%AD%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          994. 腐烂的橘子
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-08 10:30:12" itemprop="dateModified" datetime="2026-02-08T10:30:12+08:00">2026-02-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第39题：腐烂的橘子。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/rotting-oranges/">994. 腐烂的橘子</a></p>
+<p>题目：<br>你在一个 <code>m x n</code> 的网格中，每个格子代表一个橘子，状态可以是：</p>
+<ul>
+<li><code>0</code> 表示空</li>
+<li><code>1</code> 表示新鲜橘子</li>
+<li><code>2</code> 表示腐烂橘子</li>
+</ul>
+<p>每分钟，任何与腐烂橘子相邻（上下左右）的新鲜橘子都会被感染并变腐烂。</p>
+<p>返回直到所有橘子都腐烂所需的最小分钟数。如果不可能让所有橘子都腐烂，则返回 <code>-1</code>。</p>
+<p><strong>示例 1：</strong><br>输入：grid &#x3D; [[2,1,1],[1,1,0],[0,1,1]]<br>输出：4</p>
+<p><strong>示例 2：</strong><br>输入：grid &#x3D; [[2,1,1],[0,1,1],[1,0,1]]<br>输出：-1<br>解释：左下角的橘子无法被感染。</p>
+<p><strong>示例 3：</strong><br>输入：grid &#x3D; [[0,2]]<br>输出：0<br>解释：没有新鲜橘子。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= grid.length &lt;= 10</code></li>
+<li><code>1 &lt;= grid[i].length &lt;= 10</code></li>
+<li><code>grid[i][j]</code> 为 <code>0</code>, <code>1</code>, 或 <code>2</code></li>
+</ul>
+<p>这道题是 <strong>广度优先搜索 (BFS)</strong> 在网格图（Grid Graph）中的 <strong>教科书级应用</strong>。</p>
+<p>它是力扣（LeetCode）第 994 题。</p>
+<p>如果说“岛屿数量”教你如何遍历（DFS&#x2F;BFS皆可），那么“腐烂的橘子”则强制要求你使用 <strong>BFS</strong>，并且是 <strong>“多源 BFS” (Multi-source BFS)</strong>。</p>
+<p>为什么？因为腐烂的过程是 <strong>“传染”</strong>。</p>
+<p>所有烂橘子是 <strong>同时</strong> 向四周扩散的，而不是一个传完再传下一个。这就像病毒爆发，我们要算的是“第几分钟”全军覆没，这本质上是在求 <strong>最短路径&#x2F;最小层数</strong>。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：腐烂的橘子 (Rotting Oranges)</p>
+<p><strong>题目大意</strong>：</p>
+<p>在给定的 <code>m x n</code> 网格中，每个单元格有三种状态：</p>
+<ul>
+<li><code>0</code>：空单元格。</li>
+<li><code>1</code>：新鲜橘子。</li>
+<li><code>2</code>：腐烂的橘子。</li>
+</ul>
+<p><strong>规则</strong>：</p>
+<p>每一分钟，腐烂的橘子会使其 <strong>上下左右</strong> 4 个方向上相邻的新鲜橘子变成腐烂的。</p>
+<p>请你计算直到单元格中 <strong>没有新鲜橘子</strong> 为止所必须经过的最小分钟数。</p>
+<p>如果不可能让所有新鲜橘子都腐烂，请返回 <code>-1</code>。</p>
+<p><strong>示例</strong>：</p>
+<ul>
+<li>第 0 分钟：左上角有一个烂橘子。</li>
+<li>第 1 分钟：烂橘子的邻居（右边和下边）烂了。</li>
+<li>第 2 分钟：新烂的橘子的邻居烂了。</li>
+<li>…</li>
+<li>第 4 分钟：全部烂完。返回 <code>4</code>。</li>
+</ul>
+<hr>
+<h3 id="2-核心思路：为什么必须是-BFS？"><a href="#2-核心思路：为什么必须是-BFS？" class="headerlink" title="2. 核心思路：为什么必须是 BFS？"></a>2. 核心思路：为什么必须是 BFS？</h3><h4 id="2-1-为什么-DFS-不行？"><a href="#2-1-为什么-DFS-不行？" class="headerlink" title="2.1 为什么 DFS 不行？"></a>2.1 为什么 DFS 不行？</h4><p><strong>DFS (深度优先)</strong> 是“一条道走到黑”。</p>
+<p>假设左上角有一个烂橘子，DFS 会先把一条路上的橘子全部烂完，算出比如需要 10 分钟。</p>
+<p>但实际上，可能右下角也有一个烂橘子，它烂到中间只需要 2 分钟。</p>
+<p>DFS 无法模拟 <strong>“齐头并进”</strong> 的物理过程。</p>
+<h4 id="2-2-多源-BFS-Multi-source-BFS"><a href="#2-2-多源-BFS-Multi-source-BFS" class="headerlink" title="2.2 多源 BFS (Multi-source BFS)"></a>2.2 多源 BFS (Multi-source BFS)</h4><p>通常的 BFS 是从一个起点开始扩散。</p>
+<p>这道题可能有 <strong>多个</strong> 烂橘子（多个起点）。</p>
+<p>做法很简单：</p>
+<ol>
+<li><strong>初始化</strong>：把 <strong>所有</strong> 初始状态为 <code>2</code> 的烂橘子，全部加入队列。</li>
+<li><strong>开始扩散</strong>：它们在队列里就像在同一个起跑线上，第一轮循环会处理所有这些起点的邻居。</li>
+</ol>
+<hr>
+<h3 id="3-算法流程-层序遍历"><a href="#3-算法流程-层序遍历" class="headerlink" title="3. 算法流程 (层序遍历)"></a>3. 算法流程 (层序遍历)</h3><p>我们需要两个关键变量：</p>
+<ol>
+<li><strong><code>queue</code></strong>：存放当前这一轮所有烂橘子的坐标。</li>
+<li><strong><code>freshCount</code></strong>：记录还剩多少新鲜橘子。<ul>
+<li><em>作用：用来判断最后是否成功烂完，以及控制循环（如果没有新鲜橘子了，就没必要继续扩散了）。</em></li>
+</ul>
+</li>
+</ol>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li><strong>扫描全图</strong>：<ul>
+<li>遇到 <code>2</code>：入队。</li>
+<li>遇到 <code>1</code>：<code>freshCount++</code>。</li>
+</ul>
+</li>
+<li><strong>BFS 循环</strong>：<ul>
+<li>只要 <code>queue</code> 不空 <strong>且 <code>freshCount &gt; 0</code></strong>：</li>
+<li><code>time++</code>（时间过了一分钟）。</li>
+<li><strong>批处理</strong>：记录当前队列大小 <code>size</code>（这一分钟内有多少个传染源）。</li>
+<li>取出这 <code>size</code> 个烂橘子，分别去感染上下左右：<ul>
+<li>如果是 <code>1</code>：把它变成 <code>2</code>，<code>freshCount--</code>，<strong>入队</strong>（成为下一分钟的传染源）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>结果判定</strong>：<ul>
+<li>如果 <code>freshCount == 0</code>：返回 <code>time</code>。</li>
+<li>如果 <code>freshCount &gt; 0</code>：说明有些橘子被墙隔开了，永远烂不到，返回 <code>-1</code>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="4-C-代码实现"><a href="#4-C-代码实现" class="headerlink" title="4. C++ 代码实现"></a>4. C++ 代码实现</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int orangesRotting(vector&lt;vector&lt;int&gt;&gt;&amp; grid) &#123;</span><br><span class="line">        int m = grid.size();</span><br><span class="line">        int n = grid[0].size();</span><br><span class="line">        </span><br><span class="line">        queue&lt;pair&lt;int, int&gt;&gt; q;</span><br><span class="line">        int freshCount = 0;</span><br><span class="line"></span><br><span class="line">        // 1. 初始化：找出所有烂橘子进队，统计新鲜橘子数量</span><br><span class="line">        for (int i = 0; i &lt; m; ++i) &#123;</span><br><span class="line">            for (int j = 0; j &lt; n; ++j) &#123;</span><br><span class="line">                if (grid[i][j] == 2) &#123;</span><br><span class="line">                    q.push(&#123;i, j&#125;);</span><br><span class="line">                &#125; else if (grid[i][j] == 1) &#123;</span><br><span class="line">                    freshCount++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 如果一开始就没有新鲜橘子，直接返回 0</span><br><span class="line">        if (freshCount == 0) return 0;</span><br><span class="line"></span><br><span class="line">        int minutes = 0;</span><br><span class="line">        int dirs[4][2] = &#123;&#123;-1, 0&#125;, &#123;1, 0&#125;, &#123;0, -1&#125;, &#123;0, 1&#125;&#125;; // 上下左右</span><br><span class="line"></span><br><span class="line">        // 2. BFS 开始传染</span><br><span class="line">        // 只有当还有新鲜橘子时，我们才继续循环</span><br><span class="line">        while (!q.empty() &amp;&amp; freshCount &gt; 0) &#123;</span><br><span class="line">            minutes++; // 每一层循环代表一分钟</span><br><span class="line">            int size = q.size(); // 当前层的烂橘子数量</span><br><span class="line"></span><br><span class="line">            // 处理这一层的每一个烂橘子</span><br><span class="line">            for (int k = 0; k &lt; size; ++k) &#123;</span><br><span class="line">                auto [r, c] = q.front();</span><br><span class="line">                q.pop();</span><br><span class="line"></span><br><span class="line">                // 检查四周</span><br><span class="line">                for (auto d : dirs) &#123;</span><br><span class="line">                    int nr = r + d[0];</span><br><span class="line">                    int nc = c + d[1];</span><br><span class="line"></span><br><span class="line">                    // 越界或者不是新鲜橘子，跳过</span><br><span class="line">                    if (nr &lt; 0 || nc &lt; 0 || nr &gt;= m || nc &gt;= n || grid[nr][nc] != 1) &#123;</span><br><span class="line">                        continue;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    // 传染：</span><br><span class="line">                    grid[nr][nc] = 2; // 标记为烂，避免重复访问</span><br><span class="line">                    q.push(&#123;nr, nc&#125;); // 加入下一轮传染源</span><br><span class="line">                    freshCount--;     // 新鲜橘子少了一个</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 3. 检查是否还有幸存者</span><br><span class="line">        return freshCount == 0 ? minutes : -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-复杂度分析"><a href="#5-复杂度分析" class="headerlink" title="5. 复杂度分析"></a>5. 复杂度分析</h3><h4 id="时间复杂度：-O-M-times-N"><a href="#时间复杂度：-O-M-times-N" class="headerlink" title="时间复杂度：$O(M \times N)$"></a><strong>时间复杂度：$O(M \times N)$</strong></h4><ul>
+<li>网格中的每个格子最多被访问一次（入队一次，出队一次）。</li>
+<li>即使我们有两层循环（初始化 + BFS），总体操作次数是线性的。</li>
+</ul>
+<h4 id="空间复杂度：-O-M-times-N"><a href="#空间复杂度：-O-M-times-N" class="headerlink" title="空间复杂度：$O(M \times N)$"></a><strong>空间复杂度：$O(M \times N)$</strong></h4><ul>
+<li>队列的大小。在最坏情况下（比如整个网格全是烂橘子），队列需要存储所有格子的坐标。</li>
+</ul>
+<hr>
+<h3 id="6-初学者常见疑问-Q-A"><a href="#6-初学者常见疑问-Q-A" class="headerlink" title="6. 初学者常见疑问 (Q&amp;A)"></a>6. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么循环条件里要加 <code>freshCount &gt; 0</code>？</strong><ul>
+<li><strong>A:</strong> 这是一个防止“多算一分钟”的技巧。</li>
+<li>假设最后一轮，烂橘子把所有剩下的新鲜橘子都感染了。此时 <code>freshCount</code> 变为 0。</li>
+<li>如果不加这个判断，新感染的橘子已经进队了，循环会再跑一轮（队列不空）。虽然这新一轮不会感染任何东西，但 <code>minutes</code> 会再加 1，导致结果偏大。</li>
+<li>加上 <code>freshCount &gt; 0</code>，一旦全感染完，立刻停止计时。</li>
+</ul>
+</li>
+<li><strong>Q: 需要用 <code>visited</code> 数组吗？</strong><ul>
+<li><strong>A:</strong> <strong>不需要。</strong></li>
+<li>我们可以直接修改原数组 <code>grid</code>。</li>
+<li>把 <code>1</code> 改成 <code>2</code>，就天然起到了“标记已访问”的作用。再遇到 <code>2</code> 或者 <code>0</code> 我们都跳过，只找 <code>1</code>。</li>
+</ul>
+</li>
+<li><strong>Q: 只有 <code>0</code> 和 <code>2</code>，没有 <code>1</code> 的情况会怎样？</strong><ul>
+<li><strong>A:</strong><ul>
+<li>初始化时 <code>freshCount</code> 为 0。</li>
+<li>代码一开始的 <code>if (freshCount == 0) return 0;</code> 会直接拦截，返回正确答案 <code>0</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BFS/" rel="tag"># BFS</a>
+              <a href="/tags/%E5%9B%BE%E8%AE%BA/" rel="tag"># 图论</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" rel="prev" title="54. 螺旋矩阵">
+      <i class="fa fa-chevron-left"></i> 54. 螺旋矩阵
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E7%BF%BB%E8%BD%AC%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="next" title="226. 翻转二叉树">
+      226. 翻转二叉树 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E6%98%AF-BFS%EF%BC%9F"><span class="nav-text">2. 核心思路：为什么必须是 BFS？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88-DFS-%E4%B8%8D%E8%A1%8C%EF%BC%9F"><span class="nav-text">2.1 为什么 DFS 不行？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%A4%9A%E6%BA%90-BFS-Multi-source-BFS"><span class="nav-text">2.2 多源 BFS (Multi-source BFS)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B-%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-text">3. 算法流程 (层序遍历)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">4. C++ 代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">5. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-M-times-N"><span class="nav-text">时间复杂度：$O(M \times N)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-M-times-N"><span class="nav-text">空间复杂度：$O(M \times N)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">6. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

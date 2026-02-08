@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第4题：缺失的第一个正数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="41. 缺失的第一个正数">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B0/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第4题：缺失的第一个正数。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:43:28.573Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="数组">
+<meta property="article:tag" content="原地哈希">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>41. 缺失的第一个正数 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          41. 缺失的第一个正数
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:43:28" itemprop="dateModified" datetime="2026-02-06T11:43:28+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第4题：缺失的第一个正数。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/first-missing-positive/">41. 缺失的第一个正数</a></p>
+<p>题目：<br>给你一个未排序的整数数组 <code>nums</code>，请你找出其中最小的缺失正整数。</p>
+<p><strong>示例 1：</strong><br>输入：nums &#x3D; [1,2,0]<br>输出：3<br>解释：正整数 1 和 2 存在，但 3 缺失。</p>
+<p><strong>示例 2：</strong><br>输入：nums &#x3D; [3,4,-1,1]<br>输出：2<br>解释：正整数 1 存在，2 缺失。</p>
+<p><strong>示例 3：</strong><br>输入：nums &#x3D; [7,8,9,11,12]<br>输出：1<br>解释：没有出现 1，因此最小缺失正整数是 1。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= nums.length &lt;= 5 * 10⁵</code></li>
+<li><code>-5 * 10⁵ &lt;= nums[i] &lt;= 5 * 10⁵</code></li>
+</ul>
+<p>这道题是力扣（LeetCode）第 41 题，标记为 <strong>Hard</strong>。</p>
+<p>很多同学一看到 “Hard” 就想退缩，但实际上这道题的难点不在于算法逻辑有多复杂，而在于它对<strong>空间复杂度</strong>的苛刻要求。</p>
+<p>它要求我们在 $O(n)$ 时间内解决问题，同时<strong>只能使用 $O(1)$ 的额外空间</strong>。这意味着我们不能创建新的哈希表，也不能使用递归（栈空间），只能在<strong>原数组</strong>上动脑筋。</p>
+<p>这道题是学习 <strong>“原地哈希 (In-place Hashing)”</strong> 技巧的最佳教具。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：缺失的第一个正数 (First Missing Positive)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给你一个未排序的整数数组 <code>nums</code>。请你找出其中没有出现的<strong>最小的正整数</strong>。</p>
+<p><strong>关键约束</strong>：</p>
+<ul>
+<li><strong>时间复杂度</strong>：$O(n)$。</li>
+<li><strong>空间复杂度</strong>：$O(1)$。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<ol>
+<li>输入：<code>[1, 2, 0]</code> $\rightarrow$ 输出：<code>3</code> (1和2有了，下一个是3)</li>
+<li>输入：<code>[3, 4, -1, 1]</code> $\rightarrow$ 输出：<code>2</code> (有1，缺2)</li>
+<li>输入：<code>[7, 8, 9, 11, 12]</code> $\rightarrow$ 输出：<code>1</code> (最小的正整数1就不在)</li>
+</ol>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-缩小搜索范围-关键洞察"><a href="#2-1-缩小搜索范围-关键洞察" class="headerlink" title="2.1 缩小搜索范围 (关键洞察)"></a>2.1 缩小搜索范围 (关键洞察)</h4><p>假设数组长度为 $N$。</p>
+<p>我们需要找的“缺失的第一个正数”，它的值会在什么范围内？</p>
+<ul>
+<li><strong>最好的情况</strong>：数组里刚好是 <code>[1, 2, 3, ..., N]</code>。此时缺失的是 <strong>$N+1$</strong>。</li>
+<li><strong>其他情况</strong>：数组里有一些负数、或者很大的数（比如 100）、或者重复的数。这些都会占据位置，导致 <code>[1, N]</code> 之间的某个整数无法出现。</li>
+<li><strong>结论</strong>：答案一定在 <strong>$[1, N+1]$</strong> 之间！</li>
+</ul>
+<p>这意味着，我们只需要关注 <strong>$1$ 到 $N$</strong> 这几个数字是否存在。对于负数、0、或者大于 $N$ 的数，我们根本不用管，它们是“干扰项”。</p>
+<h4 id="2-2-核心策略：萝卜坑原理-原地哈希"><a href="#2-2-核心策略：萝卜坑原理-原地哈希" class="headerlink" title="2.2 核心策略：萝卜坑原理 (原地哈希)"></a>2.2 核心策略：萝卜坑原理 (原地哈希)</h4><p>既然我们只关心 $1$ 到 $N$，我们可以把原数组当成一个<strong>哈希表</strong>来用。</p>
+<p><strong>规则设计</strong>：</p>
+<p>我们希望把数字 <code>x</code> 放到它应该出现的位置上。</p>
+<ul>
+<li>数字 <strong>1</strong> 应该放在下标 <strong>0</strong> 的位置。</li>
+<li>数字 <strong>2</strong> 应该放在下标 <strong>1</strong> 的位置。</li>
+<li>…</li>
+<li>数字 <strong>k</strong> 应该放在下标 <strong>k-1</strong> 的位置。</li>
+</ul>
+<p><strong>算法流程</strong>：</p>
+<ol>
+<li><p><strong>归位 (Swapping)</strong>：</p>
+<p>遍历数组，当我们遇到一个数字 <code>x</code> (即 <code>nums[i]</code>) 时，如果它满足以下三个条件，我们就把它<strong>交换</strong>到它正确的位置 (<code>nums[x-1]</code>) 去：</p>
+<ul>
+<li>它是正数 (<code>x &gt; 0</code>)。</li>
+<li>它在有效范围内 (<code>x &lt;= N</code>)。</li>
+<li>它当前不在正确的位置上，且目标位置上没有放正确的数 (避免死循环，比如 <code>[1, 1]</code>)。</li>
+</ul>
+</li>
+<li><p><strong>查岗 (Scanning)</strong>：</p>
+<p>归位操作完成后，我们再遍历一遍数组。</p>
+<ul>
+<li>检查下标 <code>0</code>，是不是 <code>1</code>？是则通过。</li>
+<li>检查下标 <code>1</code>，是不是 <code>2</code>？是则通过。</li>
+<li>…</li>
+<li>如果在下标 <code>i</code> 处发现 <code>nums[i] != i + 1</code>，说明 <strong>$i+1$</strong> 就是我们要找的那个缺失的数！</li>
+</ul>
+</li>
+<li><p><strong>兜底</strong>：</p>
+<p>如果所有位置都对上了（说明数组是 <code>[1, 2, ..., N]</code>），那么缺失的就是 <strong>$N+1$</strong>。</p>
+</li>
+</ol>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int firstMissingPositive(vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        int n = nums.size();</span><br><span class="line"></span><br><span class="line">        // 1. 核心步骤：原地交换，让每个数字回到它应该在的位置</span><br><span class="line">        // 目标：nums[i] 应该存放数字 i + 1</span><br><span class="line">        // 也就是说：数字 x 应该放在下标 x - 1 处</span><br><span class="line">        for (int i = 0; i &lt; n; ++i) &#123;</span><br><span class="line">            </span><br><span class="line">            // 使用 while 是为了确保交换过来的新数字也能继续被处理</span><br><span class="line">            // 比如 [3, 4, -1, 1]，当 i=0 时，把 3 换走了，换来了 -1，</span><br><span class="line">            // 或者换来了 1，我们需要继续检查这个换来的 1。</span><br><span class="line">            while (nums[i] &gt; 0 &amp;&amp; nums[i] &lt;= n &amp;&amp; nums[nums[i] - 1] != nums[i]) &#123;</span><br><span class="line">                // nums[i] 是当前数字 x</span><br><span class="line">                // nums[i] - 1 是它应该去的下标</span><br><span class="line">                // nums[nums[i] - 1] 是目标下标位置上现在的数字</span><br><span class="line">                </span><br><span class="line">                // 只有当目标位置上的数字 不等于 当前数字时，才交换</span><br><span class="line">                // (这是为了防止 nums[i] 是 1，目标位置 nums[0] 也是 1 导致的死循环)</span><br><span class="line">                swap(nums[i], nums[nums[i] - 1]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 2. 再次遍历：检查哪个位置的数字不对劲</span><br><span class="line">        for (int i = 0; i &lt; n; ++i) &#123;</span><br><span class="line">            // 如果下标 i 的位置不是 i + 1，说明 i + 1 缺失</span><br><span class="line">            if (nums[i] != i + 1) &#123;</span><br><span class="line">                return i + 1;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 3. 兜底情况</span><br><span class="line">        // 如果数组是 [1, 2, 3]，前面的循环都没返回</span><br><span class="line">        // 说明缺失的是下一个数 n + 1</span><br><span class="line">        return n + 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-n"><a href="#时间复杂度：-O-n" class="headerlink" title="时间复杂度：$O(n)$"></a><strong>时间复杂度：$O(n)$</strong></h4><p>很多同学看到 <code>for</code> 循环里套了个 <code>while</code>，第一反应是 $O(n^2)$。</p>
+<p><strong>这是错误的。实际上是 $O(n)$。</strong></p>
+<ul>
+<li><strong>分析</strong>：每次 <code>swap</code> 操作，都会把一个数字放到它<strong>最终正确</strong>的位置上。</li>
+<li>一旦一个数字归位了（比如 <code>3</code> 到了下标 <code>2</code>），它以后就不会再被移动了。</li>
+<li>对于长度为 $n$ 的数组，最多只有 $n$ 个位置，所以最多只能发生 $n$ 次有效的交换。</li>
+<li>均摊下来，时间复杂度是线性的。</li>
+</ul>
+<h4 id="空间复杂度：-O-1"><a href="#空间复杂度：-O-1" class="headerlink" title="空间复杂度：$O(1)$"></a><strong>空间复杂度：$O(1)$</strong></h4><ul>
+<li>我们直接在输入数组 <code>nums</code> 上进行交换修改，只使用了常数个额外变量。</li>
+<li>这也就是所谓的“原地算法”。</li>
+</ul>
+<hr>
+<h3 id="5-初学者常见疑问-Q-A"><a href="#5-初学者常见疑问-Q-A" class="headerlink" title="5. 初学者常见疑问 (Q&amp;A)"></a>5. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么要用 <code>while</code> 而不是 <code>if</code>？</strong><ul>
+<li><strong>A:</strong> 这是一个极好的细节。</li>
+<li>举例：<code>nums = [3, 1, ...]</code>，<code>i=0</code>。</li>
+<li>如果是 <code>if</code>：遇到 <code>3</code>，把它换到下标 2。此时下标 0 换回来了一个 <code>1</code>。如果不继续处理，指针 <code>i</code> 就往后走了，这个 <code>1</code> 就被留在了下标 0（虽然它恰好在正确位置，但如果是其他数就会错）。</li>
+<li>如果是 <code>while</code>：遇到 <code>3</code>，换走。换回来 <code>1</code>。<code>while</code> 继续检查这个 <code>1</code>，发现它应该去下标 0，正好在，循环结束。或者换回来一个 <code>5</code>，继续把 <code>5</code> 换到下标 4… 直到换回来一个没法处理的数（负数或已归位的数）。</li>
+</ul>
+</li>
+<li><strong>Q: <code>nums[nums[i] - 1] != nums[i]</code> 这个条件是干嘛的？</strong><ul>
+<li><strong>A:</strong> 防止<strong>死循环</strong>和处理<strong>重复元素</strong>。</li>
+<li>假设数组是 <code>[1, 1]</code>。</li>
+<li>当处理第二个 <code>1</code> 时，它想去下标 0。但下标 0 已经有个 <code>1</code> 了。</li>
+<li>如果没有这个判断，程序会无限交换这两个 <code>1</code>，导致超时 (TLE)。这个条件保证了“如果目标位置已经是正确的数了，我就不折腾了”。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E7%BB%84/" rel="tag"># 数组</a>
+              <a href="/tags/%E5%8E%9F%E5%9C%B0%E5%93%88%E5%B8%8C/" rel="tag"># 原地哈希</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E7%BF%BB%E8%BD%AC%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="prev" title="226. 翻转二叉树">
+      <i class="fa fa-chevron-left"></i> 226. 翻转二叉树
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E7%A7%BB%E5%8A%A8%E9%9B%B6/" rel="next" title="283移动零">
+      283移动零 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E7%BC%A9%E5%B0%8F%E6%90%9C%E7%B4%A2%E8%8C%83%E5%9B%B4-%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F"><span class="nav-text">2.1 缩小搜索范围 (关键洞察)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E7%AD%96%E7%95%A5%EF%BC%9A%E8%90%9D%E5%8D%9C%E5%9D%91%E5%8E%9F%E7%90%86-%E5%8E%9F%E5%9C%B0%E5%93%88%E5%B8%8C"><span class="nav-text">2.2 核心策略：萝卜坑原理 (原地哈希)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-n"><span class="nav-text">时间复杂度：$O(n)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-1"><span class="nav-text">空间复杂度：$O(1)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">5. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

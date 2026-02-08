@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第40题：课程表。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="207. 课程表">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E8%AF%BE%E7%A8%8B%E8%A1%A8/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第40题：课程表。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-08T02:33:18.103Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="图论">
+<meta property="article:tag" content="拓扑排序">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%AF%BE%E7%A8%8B%E8%A1%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>207. 课程表 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%AF%BE%E7%A8%8B%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          207. 课程表
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-08 10:33:18" itemprop="dateModified" datetime="2026-02-08T10:33:18+08:00">2026-02-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第40题：课程表。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/course-schedule/">207. 课程表</a></p>
+<p>题目：<br>你总共需要修 <code>numCourses</code> 门课，课程编号从 <code>0</code> 到 <code>numCourses - 1</code>。</p>
+<p>给你一个数组 <code>prerequisites</code>，其中 <code>prerequisites[i] = [ai, bi]</code> 表示你要学习课程 <code>ai</code>，必须先完成课程 <code>bi</code>。</p>
+<p>判断是否可能完成所有课程的学习。</p>
+<p><strong>示例 1：</strong><br>输入：numCourses &#x3D; 2, prerequisites &#x3D; [[1,0]]<br>输出：true<br>解释：总共有 2 门课程，学习课程 1 之前必须完成课程 0。所以可以完成所有课程。</p>
+<p><strong>示例 2：</strong><br>输入：numCourses &#x3D; 2, prerequisites &#x3D; [[1,0],[0,1]]<br>输出：false<br>解释：总共有 2 门课程，学习课程 1 之前必须完成课程 0，而学习课程 0 之前又必须完成课程 1。因此无法完成所有课程。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= numCourses &lt;= 2000</code></li>
+<li><code>0 &lt;= prerequisites.length &lt;= 5000</code></li>
+<li><code>prerequisites[i].length == 2</code></li>
+<li><code>0 &lt;= ai, bi &lt; numCourses</code></li>
+<li><code>ai != bi</code></li>
+</ul>
+<p>这道题是 <strong>图论 (Graph Theory)</strong> 中 <strong>“拓扑排序 (Topological Sort)”</strong> 的入门必修课。</p>
+<p>它是力扣（LeetCode）第 207 题。</p>
+<p>这道题不再是像“岛屿数量”那样在网格里乱跑，而是解决现实生活中最常见的 <strong>“依赖关系” (Dependency)</strong> 问题。</p>
+<p>比如：修高数 II 之前必须修高数 I；安装 React 之前必须安装 Node.js。</p>
+<p>如果你能解决这道题，你就掌握了 <strong>“有向无环图 (DAG)”</strong> 和 <strong>“环检测 (Cycle Detection)”</strong> 的核心。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：课程表 (Course Schedule)</p>
+<p><strong>题目大意</strong>：</p>
+<p>你必须选修 <code>numCourses</code> 门课程，记为 <code>0</code> 到 <code>numCourses - 1</code>。</p>
+<p>在选修某些课程之前需要一些先修课程。</p>
+<p>给你一个数组 <code>prerequisites</code>，其中 <code>prerequisites[i] = [ai, bi]</code> ，表示想要学习课程 <code>ai</code> ，你需要先完成课程 <code>bi</code>。</p>
+<ul>
+<li>也就是存在一条有向边：<strong>$b_i \rightarrow a_i$</strong>。</li>
+</ul>
+<p>请你判断是否可能完成所有课程的学习？</p>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>numCourses = 2</code>, <code>prerequisites = [[1,0]]</code></p>
+<p>输出：<code>true</code></p>
+<p>解释：想修课程 1，必须先修 0。完全没问题，先 0 后 1。</p>
+<p>输入：<code>numCourses = 2</code>, <code>prerequisites = [[1,0], [0,1]]</code></p>
+<p>输出：<code>false</code></p>
+<p>解释：想修 1 得先修 0，想修 0 得先修 1。</p>
+<p><strong>死锁了（形成了环）</strong>，谁都修不了。</p>
+<hr>
+<h3 id="2-核心思路：有向图找环"><a href="#2-核心思路：有向图找环" class="headerlink" title="2. 核心思路：有向图找环"></a>2. 核心思路：有向图找环</h3><p>这个问题本质上就是：<strong>判断这个有向图中是否存在“环” (Cycle)？</strong></p>
+<ul>
+<li>如果有环 $\rightarrow$ 没法修完（False）。</li>
+<li>如果没环 $\rightarrow$ 这就是一个 DAG (Directed Acyclic Graph)，可以修完（True）。</li>
+</ul>
+<p>我们有两种经典的解法：<strong>BFS (Kahn 算法)</strong> 和 <strong>DFS (三色标记法)</strong>。</p>
+<p>面试中 <strong>BFS (入度表法)</strong> 最容易理解，也是首选。</p>
+<h4 id="解法一：BFS-入度表法-Kahn-算法"><a href="#解法一：BFS-入度表法-Kahn-算法" class="headerlink" title="解法一：BFS (入度表法 &#x2F; Kahn 算法)"></a>解法一：BFS (入度表法 &#x2F; Kahn 算法)</h4><p><strong>生活常识</strong>：</p>
+<p>如果你想修一门课，前提是什么？</p>
+<p><strong>前提是它的“前置课程”都已经修完了。</strong></p>
+<p>换句话说，如果一门课 <strong>没有任何前置课程</strong>（或者前置都搞定了），那这门课就是 <strong>“入度为 0”</strong> 的，你可以直接去上。</p>
+<p><strong>算法流程</strong>：</p>
+<ol>
+<li><strong>建图</strong>：用邻接表 (<code>adj</code>) 存储图结构，同时维护一个 <strong>入度数组 (<code>indegree</code>)</strong>。<ul>
+<li><code>indegree[i]</code> 表示课程 <code>i</code> 还有几门课没修。</li>
+</ul>
+</li>
+<li><strong>找起点</strong>：把所有 <strong>入度为 0</strong> 的课程（不需要先修的课）扔进 <strong>队列</strong>。</li>
+<li><strong>BFS 拆课</strong>：<ul>
+<li>从队列里拿出一门课 <code>u</code>（这门课我修了！）。</li>
+<li>计数器 <code>count++</code>。</li>
+<li>找到 <code>u</code> 的所有后修课程 <code>v</code>（也就是 <code>u -&gt; v</code>）。</li>
+<li>告诉 <code>v</code>：“你的前置 <code>u</code> 我搞定了，你的入度减 1”。</li>
+<li><strong>关键</strong>：如果 <code>v</code> 的入度减到了 <strong>0</strong>，说明 <code>v</code> 的所有前置都修完了，把 <code>v</code> 也扔进队列。</li>
+</ul>
+</li>
+<li><strong>判断</strong>：如果最后修完的课程数 <code>count</code> 等于总课程数 <code>numCourses</code>，说明没环，成功！</li>
+</ol>
+<hr>
+<h3 id="3-C-代码实现-BFS-推荐"><a href="#3-C-代码实现-BFS-推荐" class="headerlink" title="3. C++ 代码实现 (BFS - 推荐)"></a>3. C++ 代码实现 (BFS - 推荐)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    bool canFinish(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) &#123;</span><br><span class="line">        // 1. 建图 + 统计入度</span><br><span class="line">        // 邻接表：adj[u] 存储依赖 u 的后续课程列表</span><br><span class="line">        vector&lt;vector&lt;int&gt;&gt; adj(numCourses);</span><br><span class="line">        // 入度数组：indegree[i] 存储课程 i 需要先修几门课</span><br><span class="line">        vector&lt;int&gt; indegree(numCourses, 0);</span><br><span class="line"></span><br><span class="line">        for (auto&amp; p : prerequisites) &#123;</span><br><span class="line">            int cur = p[0];   // 要修的课</span><br><span class="line">            int pre = p[1];   // 先修课</span><br><span class="line">            adj[pre].push_back(cur); // pre -&gt; cur</span><br><span class="line">            indegree[cur]++;         // cur 的入度 +1</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 2. 将所有入度为 0 的节点入队 (作为 BFS 的起点)</span><br><span class="line">        queue&lt;int&gt; q;</span><br><span class="line">        for (int i = 0; i &lt; numCourses; ++i) &#123;</span><br><span class="line">            if (indegree[i] == 0) &#123;</span><br><span class="line">                q.push(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 3. BFS 拓扑排序</span><br><span class="line">        int count = 0; // 记录能修完的课程数</span><br><span class="line">        while (!q.empty()) &#123;</span><br><span class="line">            int u = q.front();</span><br><span class="line">            q.pop();</span><br><span class="line">            count++;</span><br><span class="line"></span><br><span class="line">            // 遍历 u 的所有后续课程 v</span><br><span class="line">            for (int v : adj[u]) &#123;</span><br><span class="line">                indegree[v]--; // 既然 u 修完了，v 的依赖就少了一个</span><br><span class="line">                // 如果 v 的依赖全搞定了，v 也可以修了</span><br><span class="line">                if (indegree[v] == 0) &#123;</span><br><span class="line">                    q.push(v);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 4. 如果修完的数量 == 总数，说明没环</span><br><span class="line">        return count == numCourses;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-解法二：DFS-三色标记法"><a href="#4-解法二：DFS-三色标记法" class="headerlink" title="4. 解法二：DFS (三色标记法)"></a>4. 解法二：DFS (三色标记法)</h3><p>DFS 找环的逻辑稍微绕一点。我们需要给每个节点打标记，防止死循环。</p>
+<p>我们定义三种状态：</p>
+<ol>
+<li><strong>0 (未访问)</strong>：这门课还没检查过。</li>
+<li><strong>1 (正在访问)</strong>：正在检查这门课的后续依赖链。<strong>如果在 DFS 过程中又遇到了状态 1 的节点，说明遇到了自己（形成环了）！</strong></li>
+<li><strong>2 (已完成)</strong>：这门课及其所有后续都检查过了，没问题，是安全的。</li>
+</ol>
+<p><strong>算法流程</strong>：</p>
+<p>对每门课发起 DFS。</p>
+<ul>
+<li>如果遇到 1 $\rightarrow$ <strong>有环，返回 False</strong>。</li>
+<li>如果遇到 2 $\rightarrow$ 安全，直接返回 True。</li>
+<li>标记为 1，继续 DFS 后续。</li>
+<li>DFS 结束，标记为 2。</li>
+</ul>
+<p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    bool canFinish(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) &#123;</span><br><span class="line">        vector&lt;vector&lt;int&gt;&gt; adj(numCourses);</span><br><span class="line">        for (auto&amp; p : prerequisites) &#123;</span><br><span class="line">            adj[p[1]].push_back(p[0]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // visited 数组：0=未访问, 1=正在访问, 2=已完成</span><br><span class="line">        vector&lt;int&gt; visited(numCourses, 0);</span><br><span class="line"></span><br><span class="line">        for (int i = 0; i &lt; numCourses; ++i) &#123;</span><br><span class="line">            // 如果这门课还没查过，且查出有环，直接返回 false</span><br><span class="line">            if (visited[i] == 0 &amp;&amp; !dfs(adj, visited, i)) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 返回 true 表示没环（安全），返回 false 表示有环</span><br><span class="line">    bool dfs(vector&lt;vector&lt;int&gt;&gt;&amp; adj, vector&lt;int&gt;&amp; visited, int u) &#123;</span><br><span class="line">        // 1. 正在访问中又遇到了 u -&gt; 说明转了一圈回来了 -&gt; 有环</span><br><span class="line">        if (visited[u] == 1) return false;</span><br><span class="line">        // 2. 已经验证过没问题的 -&gt; 直接返回 true</span><br><span class="line">        if (visited[u] == 2) return true;</span><br><span class="line"></span><br><span class="line">        // 3. 标记为“正在访问”</span><br><span class="line">        visited[u] = 1;</span><br><span class="line"></span><br><span class="line">        // 4. 递归检查后续课程</span><br><span class="line">        for (int v : adj[u]) &#123;</span><br><span class="line">            if (!dfs(adj, visited, v)) &#123;</span><br><span class="line">                return false; // 只要后面有环，我也算有环</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 5. 检查完毕，标记为“已完成”</span><br><span class="line">        visited[u] = 2;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-复杂度分析"><a href="#5-复杂度分析" class="headerlink" title="5. 复杂度分析"></a>5. 复杂度分析</h3><h4 id="时间复杂度：-O-V-E"><a href="#时间复杂度：-O-V-E" class="headerlink" title="时间复杂度：$O(V + E)$"></a><strong>时间复杂度：$O(V + E)$</strong></h4><ul>
+<li>$V$ 是课程数，$E$ 是先修关系数。</li>
+<li><strong>BFS</strong>: 我们初始化图遍历了所有的边 ($E$)，然后每个节点入队出队一次 ($V$)。</li>
+<li><strong>DFS</strong>: 每个节点最多被访问一次（状态变了就不进去了）。</li>
+</ul>
+<h4 id="空间复杂度：-O-V-E"><a href="#空间复杂度：-O-V-E" class="headerlink" title="空间复杂度：$O(V + E)$"></a><strong>空间复杂度：$O(V + E)$</strong></h4><ul>
+<li>邻接表需要存储所有的点和边。</li>
+</ul>
+<hr>
+<h3 id="6-初学者常见疑问-Q-A"><a href="#6-初学者常见疑问-Q-A" class="headerlink" title="6. 初学者常见疑问 (Q&amp;A)"></a>6. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么 BFS 这种方法叫“拓扑排序”？</strong><ul>
+<li><strong>A:</strong> 因为它不仅能判断是否有环，还能顺便生成一个 <strong>线性序列</strong>。</li>
+<li>如果你把出队的 <code>u</code> 按顺序存进一个数组，那个数组就是修课的顺序（例如：先修 Math 101，再修 Math 102）。</li>
+<li>这就是力扣 210 题 <strong>“课程表 II”</strong> 的解法（只需改一行代码，把 <code>count++</code> 换成 <code>res.push_back(u)</code>）。</li>
+</ul>
+</li>
+<li><strong>Q: 为什么 DFS 需要 3 种状态？用布尔值 <code>visited</code> 不行吗？</strong><ul>
+<li><strong>A:</strong> 不行。</li>
+<li>普通的 <code>visited</code> 只能表示“去过”。</li>
+<li>但我们需要区分 <strong>“这趟递归还没结束（正在栈里）”</strong> 和 <strong>“以前那趟递归已经查完了”</strong>。</li>
+<li>如果遇到“以前查完了”的节点（状态 2），那是<strong>交叉路径</strong>（菱形结构），是合法的。</li>
+<li>只有遇到“正在栈里”的节点（状态 1），才是<strong>回边</strong>，才意味着有环。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9B%BE%E8%AE%BA/" rel="tag"># 图论</a>
+              <a href="/tags/%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F/" rel="tag"># 拓扑排序</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8CIII/" rel="prev" title="437. 路径总和 III">
+      <i class="fa fa-chevron-left"></i> 437. 路径总和 III
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" rel="next" title="54. 螺旋矩阵">
+      54. 螺旋矩阵 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%EF%BC%9A%E6%9C%89%E5%90%91%E5%9B%BE%E6%89%BE%E7%8E%AF"><span class="nav-text">2. 核心思路：有向图找环</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9ABFS-%E5%85%A5%E5%BA%A6%E8%A1%A8%E6%B3%95-Kahn-%E7%AE%97%E6%B3%95"><span class="nav-text">解法一：BFS (入度表法 &#x2F; Kahn 算法)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-BFS-%E6%8E%A8%E8%8D%90"><span class="nav-text">3. C++ 代码实现 (BFS - 推荐)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9ADFS-%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95"><span class="nav-text">4. 解法二：DFS (三色标记法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">5. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-V-E"><span class="nav-text">时间复杂度：$O(V + E)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-V-E"><span class="nav-text">空间复杂度：$O(V + E)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">6. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第1题：合并区间。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="56. 合并区间">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第1题：合并区间。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:39:36.199Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="数组">
+<meta property="article:tag" content="排序">
+<meta property="article:tag" content="区间">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>56. 合并区间 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          56. 合并区间
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:39:36" itemprop="dateModified" datetime="2026-02-06T11:39:36+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第1题：合并区间。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/merge-intervals/">56. 合并区间</a></p>
+<p>题目：<br>给你一个二维整数数组 <code>intervals</code>，其中 <code>intervals[i] = [start_i, end_i]</code> 表示第 i 个区间的开始和结束。</p>
+<p>请你合并所有重叠的区间，并返回一个不重叠的区间列表，该列表需恰好覆盖所有输入区间。</p>
+<p><strong>示例 1：</strong><br>输入：intervals &#x3D; [[1,3],[2,6],[8,10],[15,18]]<br>输出：[[1,6],[8,10],[15,18]]<br>解释：因为区间 [1,3] 和 [2,6] 重叠，所以它们可以合并成 [1,6]。</p>
+<p><strong>示例 2：</strong><br>输入：intervals &#x3D; [[1,4],[4,5]]<br>输出：[[1,5]]<br>解释：区间 [1,4] 和 [4,5] 在端点处接触，通常视为可合并。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= intervals.length &lt;= 10⁴</code></li>
+<li><code>intervals[i].length == 2</code></li>
+<li><code>0 &lt;= start_i &lt;= end_i &lt;= 10⁴</code></li>
+</ul>
+<p>这道题是 <strong>区间问题 (Intervals)</strong> 的入门必修课。</p>
+<p>在力扣（LeetCode）和其他算法面试中，区间类题目（如合并区间、插入区间、无重叠区间）非常常见。这道题的核心在于：<strong>通过排序将乱序的问题转化为线性扫描的问题</strong>。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：合并区间 (Merge Intervals)</p>
+<p><strong>题目大意</strong>：</p>
+<p>以数组 <code>intervals[i] = [start, end]</code> 的形式返回一组区间。请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。</p>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>intervals = [[1,3],[2,6],[8,10],[15,18]]</code></p>
+<p>输出：<code>[[1,6],[8,10],[15,18]]</code></p>
+<p>解释：</p>
+<ul>
+<li>区间 <code>[1,3]</code> 和 <code>[2,6]</code> 重叠（因为 2 在 1-3 之间），合并后变成 <code>[1,6]</code>。</li>
+<li><code>[8,10]</code> 和 <code>[15,18]</code> 与前面的都不重叠，保持原样。</li>
+</ul>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-为什么暴力比对很困难？"><a href="#2-1-为什么暴力比对很困难？" class="headerlink" title="2.1 为什么暴力比对很困难？"></a>2.1 为什么暴力比对很困难？</h4><p>如果区间是乱序的（例如 <code>[[15,18], [1,3], [2,6]]</code>），我们要判断谁和谁重叠，可能需要拿每一个区间去和剩下的所有区间比较，复杂度会变成 $O(N^2)$。</p>
+<h4 id="2-2-核心策略：排序-Sorting"><a href="#2-2-核心策略：排序-Sorting" class="headerlink" title="2.2 核心策略：排序 (Sorting)"></a>2.2 核心策略：排序 (Sorting)</h4><p><strong>直觉</strong>：如果我们按照区间的 <strong>左端点 (start)</strong> 从小到大排序，那么所有可能重叠的区间，在数组里一定是 <strong>相邻</strong> 的！</p>
+<p><strong>算法流程</strong>：</p>
+<ol>
+<li><strong>排序</strong>：将所有区间按照 <code>start</code> 升序排列。</li>
+<li><strong>初始化</strong>：将第一个区间放入结果数组 <code>result</code> 中作为“当前正在合并的区间”。</li>
+<li><strong>遍历</strong>：从第二个区间开始，逐个考察：<ul>
+<li>设结果数组里最后一个区间为 <code>last</code>（即我们目前合并到的进度）。</li>
+<li>设当前遍历到的区间为 <code>curr</code>。</li>
+<li><strong>判断是否有交集</strong>：<ul>
+<li>如果 <code>curr.start &lt;= last.end</code>：说明这就好比两场会议时间冲突了（或者刚好接上）。<ul>
+<li><strong>合并动作</strong>：我们需要延长 <code>last</code> 的右边界。</li>
+<li>新的右边界是 <code>max(last.end, curr.end)</code>。</li>
+<li><em>注意：为什么要取 max？</em> 因为可能存在 <code>[1, 10]</code> 和 <code>[2, 3]</code> 这种情况，<code>curr</code> 完全被 <code>last</code> 包裹住，此时右边界应该维持 10，而不是变成 3。</li>
+</ul>
+</li>
+<li>如果 <code>curr.start &gt; last.end</code>：说明没有交集（断开了）。<ul>
+<li><strong>推入动作</strong>：<code>last</code> 已经合并完毕，没它事了。直接把 <code>curr</code> 作为一个新的待合并区间放入 <code>result</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) &#123;</span><br><span class="line">        // 0. 特判：如果为空，直接返回</span><br><span class="line">        if (intervals.empty()) return &#123;&#125;;</span><br><span class="line"></span><br><span class="line">        // 1. 核心步骤：排序</span><br><span class="line">        // 按照区间的左端点 (start) 进行升序排序</span><br><span class="line">        // C++ 的 vector 默认比较规则就是先比第一个元素，再比第二个，符合需求</span><br><span class="line">        sort(intervals.begin(), intervals.end());</span><br><span class="line"></span><br><span class="line">        vector&lt;vector&lt;int&gt;&gt; merged;</span><br><span class="line">        </span><br><span class="line">        // 先把第一个区间放进去，作为“基准”</span><br><span class="line">        merged.push_back(intervals[0]);</span><br><span class="line"></span><br><span class="line">        // 2. 遍历后续区间</span><br><span class="line">        for (int i = 1; i &lt; intervals.size(); ++i) &#123;</span><br><span class="line">            // 获取结果集中“当前正在处理”的区间（引用，方便修改）</span><br><span class="line">            // back() 获取 vector 的最后一个元素</span><br><span class="line">            vector&lt;int&gt;&amp; last = merged.back();</span><br><span class="line">            </span><br><span class="line">            // 获取当前遍历到的区间</span><br><span class="line">            vector&lt;int&gt;&amp; curr = intervals[i];</span><br><span class="line"></span><br><span class="line">            // 3. 判断是否重叠</span><br><span class="line">            // last: [1, 3]</span><br><span class="line">            // curr: [2, 6]</span><br><span class="line">            // 因为排序过，curr[0] 一定 &gt;= last[0]。</span><br><span class="line">            // 只要 curr 的左端点 &lt;= last 的右端点，就说明有重叠</span><br><span class="line">            if (curr[0] &lt;= last[1]) &#123;</span><br><span class="line">                // 合并：更新 last 的右端点</span><br><span class="line">                // 取两者右端点的最大值</span><br><span class="line">                last[1] = max(last[1], curr[1]);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // 不重叠，直接将当前区间加入结果集</span><br><span class="line">                merged.push_back(curr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return merged;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-N-log-N"><a href="#时间复杂度：-O-N-log-N" class="headerlink" title="时间复杂度：$O(N \log N)$"></a><strong>时间复杂度：$O(N \log N)$</strong></h4><ul>
+<li>这道题的瓶颈在于 <strong>排序</strong>。</li>
+<li>排序的时间复杂度是 $O(N \log N)$。</li>
+<li>排序后的线性扫描合并只需要 $O(N)$。</li>
+<li>总体复杂度由排序决定，为 $O(N \log N)$。</li>
+</ul>
+<h4 id="空间复杂度：-O-log-N"><a href="#空间复杂度：-O-log-N" class="headerlink" title="空间复杂度：$O(\log N)$"></a><strong>空间复杂度：$O(\log N)$</strong></h4><ul>
+<li>这里指的是排序所需要的栈空间（C++ <code>std::sort</code> 通常是 Introsort，空间复杂度为 $O(\log N)$）。</li>
+<li>如果不算存储输出结果的 <code>merged</code> 数组，这是主要的空间开销。</li>
+</ul>
+<hr>
+<h3 id="5-初学者常见疑问-Q-A"><a href="#5-初学者常见疑问-Q-A" class="headerlink" title="5. 初学者常见疑问 (Q&amp;A)"></a>5. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么排序后只需要比较 <code>result</code> 的最后一个元素？</strong><ul>
+<li><strong>A:</strong> 因为排序保证了区间的开始时间是递增的。如果我们跳过了中间某个区间去和后面的合并，那么中间那个区间一定也被包含在或者重叠在当前的范围内。排序让“重叠”这种关系具有了<strong>传递性</strong>。</li>
+</ul>
+</li>
+<li><strong>Q: 遇到 <code>[1,4]</code> 和 <code>[4,5]</code> 这种算重叠吗？</strong><ul>
+<li><strong>A:</strong> 算。题目要求覆盖所有区间。</li>
+<li>代码中 <code>curr[0] &lt;= last[1]</code> 的 <code>&lt;=</code> 涵盖了这种情况。</li>
+<li><code>last</code> 的右边界是 4，<code>curr</code> 的左边界是 4。满足条件，合并后变成 <code>max(4, 5) = 5</code>，即 <code>[1, 5]</code>。</li>
+</ul>
+</li>
+<li><strong>Q: 为什么要用 <code>max(last[1], curr[1])</code>，直接用 <code>curr[1]</code> 不行吗？</strong><ul>
+<li><strong>A:</strong> 绝对不行。这是最容易犯的错误。</li>
+<li>例子：<code>[1, 10]</code> 和 <code>[2, 3]</code>。</li>
+<li>这是一个“大鱼吃小鱼”的情况。如果你直接用 <code>curr[1]</code>（也就是 3）更新 <code>last[1]</code>，区间就会变成 <code>[1, 3]</code>，原本覆盖到 10 的部分就丢失了。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E7%BB%84/" rel="tag"># 数组</a>
+              <a href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag"># 排序</a>
+              <a href="/tags/%E5%8C%BA%E9%97%B4/" rel="tag"># 区间</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9/" rel="prev" title="19. 删除链表的倒数第 N 个结点">
+      <i class="fa fa-chevron-left"></i> 19. 删除链表的倒数第 N 个结点
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/" rel="next" title="21. 合并两个有序链表">
+      21. 合并两个有序链表 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9A%B4%E5%8A%9B%E6%AF%94%E5%AF%B9%E5%BE%88%E5%9B%B0%E9%9A%BE%EF%BC%9F"><span class="nav-text">2.1 为什么暴力比对很困难？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E7%AD%96%E7%95%A5%EF%BC%9A%E6%8E%92%E5%BA%8F-Sorting"><span class="nav-text">2.2 核心策略：排序 (Sorting)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-N-log-N"><span class="nav-text">时间复杂度：$O(N \log N)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-log-N"><span class="nav-text">空间复杂度：$O(\log N)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">5. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

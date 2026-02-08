@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第17题：两两交换链表中的节点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="24. 两两交换链表中的节点">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E7%BB%93%E7%82%B9/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第17题：两两交换链表中的节点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T07:38:26.801Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="链表">
+<meta property="article:tag" content="双指针">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E7%BB%93%E7%82%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>24. 两两交换链表中的节点 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E7%BB%93%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          24. 两两交换链表中的节点
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 15:38:26" itemprop="dateModified" datetime="2026-02-06T15:38:26+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第17题：两两交换链表中的节点。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/swap-nodes-in-pairs/">24. 两两交换链表中的节点</a></p>
+<p>题目：<br>给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。</p>
+<p>你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。</p>
+<p><strong>示例 1：</strong><br>输入：head &#x3D; [1,2,3,4]<br>输出：[2,1,4,3]</p>
+<p><strong>示例 2：</strong><br>输入：head &#x3D; []<br>输出：[]</p>
+<p><strong>示例 3：</strong><br>输入：head &#x3D; [1]<br>输出：[1]</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li>链表中节点的数目范围是 <code>[0, 100]</code></li>
+<li><code>0 &lt;= Node.val &lt;= 100</code></li>
+</ul>
+<p>这道题是链表操作中的**“微操大师”**训练。</p>
+<p>它不再像“反转链表”那样大刀阔斧地改变整条链的方向，而是要求你精细地、两两一组地进行局部反转。这道题极其考验你对<strong>指针顺序</strong>的把控能力，稍有不慎就会断链（Memory Leak）或成环。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：两两交换链表中的节点 (Swap Nodes in Pairs)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给你一个链表，两两交换其中相邻的节点，并返回交换后链表的头节点。</p>
+<ul>
+<li><strong>要求</strong>：你必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）。</li>
+<li><strong>空间复杂度</strong>：$O(1)$（这意味着尽量不要用递归，而是用迭代）。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>1 -&gt; 2 -&gt; 3 -&gt; 4</code></p>
+<p>输出：<code>2 -&gt; 1 -&gt; 4 -&gt; 3</code></p>
+<p>输入：<code>1 -&gt; 2 -&gt; 3</code></p>
+<p>输出：<code>2 -&gt; 1 -&gt; 3</code> （最后剩一个 3，不用换）</p>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-为什么容易晕？"><a href="#2-1-为什么容易晕？" class="headerlink" title="2.1 为什么容易晕？"></a>2.1 为什么容易晕？</h4><p>假设我们要交换 <code>1</code> 和 <code>2</code>。</p>
+<ul>
+<li>仅仅把 <code>1-&gt;next</code> 改成 <code>3</code>，把 <code>2-&gt;next</code> 改成 <code>1</code> 是不够的。</li>
+<li><strong>关键在于</strong>：谁指向 <code>1</code>？（前面的节点必须指向新的头 <code>2</code>）。</li>
+<li>如果 <code>1</code> 是头节点，头指针要变；如果 <code>1</code> 在中间，前驱节点的 <code>next</code> 要变。</li>
+</ul>
+<h4 id="2-2-核心神器：虚拟头节点-Dummy-Head"><a href="#2-2-核心神器：虚拟头节点-Dummy-Head" class="headerlink" title="2.2 核心神器：虚拟头节点 (Dummy Head)"></a>2.2 核心神器：虚拟头节点 (Dummy Head)</h4><p>为了避免处理“头节点变了”这种特殊情况，我们依然祭出 <strong>Dummy Node</strong>。</p>
+<p>让 <code>dummy</code> 指向 <code>1</code>。这样 <code>1</code> 和 <code>2</code> 就变成了“普通的中间节点”，逻辑完全统一。</p>
+<h4 id="2-3-操作步骤-三步走"><a href="#2-3-操作步骤-三步走" class="headerlink" title="2.3 操作步骤 (三步走)"></a>2.3 操作步骤 (三步走)</h4><p>设我们要交换 <code>node1</code> 和 <code>node2</code>，它们的前驱是 <code>prev</code>。</p>
+<p>初始状态：<code>prev -&gt; node1 -&gt; node2 -&gt; nextNode</code></p>
+<p>我们需要把线重新接成：<code>prev -&gt; node2 -&gt; node1 -&gt; nextNode</code></p>
+<p><strong>步骤详解</strong>：</p>
+<ol>
+<li><strong>控制前驱</strong>：<code>prev-&gt;next = node2</code> （让前驱指向 2）</li>
+<li><strong>回马枪</strong>：<code>node2-&gt;next = node1</code> （让 2 指回 1）</li>
+<li><strong>接续后续</strong>：<code>node1-&gt;next = nextNode</code> （让 1 指向后面的 3）</li>
+</ol>
+<p>做完这三步后，原来的 <code>node1</code> 变成了这组的尾巴。</p>
+<p><strong>下一步准备</strong>：将 <code>prev</code> 指针移动到 <code>node1</code>，准备处理下一组。</p>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>这里提供 <strong>迭代法 (Iterative)</strong> 的实现，因为这才是真正的 $O(1)$ 空间复杂度。</p>
+<p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Definition for singly-linked list.</span><br><span class="line"> * struct ListNode &#123;</span><br><span class="line"> * int val;</span><br><span class="line"> * ListNode *next;</span><br><span class="line"> * ListNode() : val(0), next(nullptr) &#123;&#125;</span><br><span class="line"> * ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span><br><span class="line"> * ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span><br><span class="line"> * &#125;;</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    ListNode* swapPairs(ListNode* head) &#123;</span><br><span class="line">        // 1. 创建虚拟头节点</span><br><span class="line">        // 它的 next 指向 head，这样无论 head 怎么换，result 始终是 dummy-&gt;next</span><br><span class="line">        ListNode* dummy = new ListNode(-1);</span><br><span class="line">        dummy-&gt;next = head;</span><br><span class="line"></span><br><span class="line">        // prev 指针：永远指向【待交换的两个节点】的前一个节点</span><br><span class="line">        ListNode* prev = dummy;</span><br><span class="line"></span><br><span class="line">        // 2. 循环条件：必须后面至少还有两个节点，才能交换</span><br><span class="line">        // prev-&gt;next 是第一个节点 (node1)</span><br><span class="line">        // prev-&gt;next-&gt;next 是第二个节点 (node2)</span><br><span class="line">        while (prev-&gt;next != nullptr &amp;&amp; prev-&gt;next-&gt;next != nullptr) &#123;</span><br><span class="line">            // 定义临时指针，方便操作</span><br><span class="line">            ListNode* node1 = prev-&gt;next;</span><br><span class="line">            ListNode* node2 = prev-&gt;next-&gt;next;</span><br><span class="line">            ListNode* nextNode = node2-&gt;next; // 暂存下一轮的开头 (比如 3)</span><br><span class="line"></span><br><span class="line">            // === 核心交换逻辑 (三步走) ===</span><br><span class="line">            </span><br><span class="line">            // Step 1: 前驱指向第二个节点</span><br><span class="line">            prev-&gt;next = node2;</span><br><span class="line">            </span><br><span class="line">            // Step 2: 第二个节点指向第一个节点</span><br><span class="line">            node2-&gt;next = node1;</span><br><span class="line">            </span><br><span class="line">            // Step 3: 第一个节点指向后续节点</span><br><span class="line">            node1-&gt;next = nextNode;</span><br><span class="line"></span><br><span class="line">            // === 准备下一轮 ===</span><br><span class="line">            // 此时顺序变成了 prev -&gt; 2 -&gt; 1 -&gt; 3</span><br><span class="line">            // 下一轮我们要处理 3 和 4，所以 prev 应该站在 1 的位置</span><br><span class="line">            prev = node1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 获取结果</span><br><span class="line">        ListNode* result = dummy-&gt;next;</span><br><span class="line">        delete dummy; // 释放 dummy 内存</span><br><span class="line">        return result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-N"><a href="#时间复杂度：-O-N" class="headerlink" title="时间复杂度：$O(N)$"></a><strong>时间复杂度：$O(N)$</strong></h4><ul>
+<li>我们遍历了链表一次，每次处理两个节点。</li>
+<li>总操作次数是 $N&#x2F;2$ 次交换，线性复杂度。</li>
+</ul>
+<h4 id="空间复杂度：-O-1"><a href="#空间复杂度：-O-1" class="headerlink" title="空间复杂度：$O(1)$"></a><strong>空间复杂度：$O(1)$</strong></h4><ul>
+<li>我们只用了 <code>dummy</code>, <code>prev</code>, <code>node1</code>, <code>node2</code> 等几个指针变量，没有使用递归栈或额外数组。</li>
+</ul>
+<hr>
+<h3 id="5-进阶对比：递归写法-Recursive"><a href="#5-进阶对比：递归写法-Recursive" class="headerlink" title="5. 进阶对比：递归写法 (Recursive)"></a>5. 进阶对比：递归写法 (Recursive)</h3><p>虽然题目推荐 $O(1)$ 空间，但递归写法非常简洁，逻辑也很优美，适合在面试中展示思维。</p>
+<p><strong>递归逻辑</strong>：</p>
+<blockquote>
+<p>“我只负责交换前两个节点，剩下的链表交给递归函数去处理，处理完把新的头节点还给我，我接在屁股后面。”</p>
+</blockquote>
+<p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// 递归版本（代码极短）</span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    ListNode* swapPairs(ListNode* head) &#123;</span><br><span class="line">        // 终止条件：没有节点或只有一个节点，无法交换，直接返回</span><br><span class="line">        if (head == nullptr || head-&gt;next == nullptr) &#123;</span><br><span class="line">            return head;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 定义 node1 和 node2</span><br><span class="line">        ListNode* node1 = head;</span><br><span class="line">        ListNode* node2 = head-&gt;next;</span><br><span class="line"></span><br><span class="line">        // 递归处理后续部分 (比如 3-&gt;4-&gt;...)</span><br><span class="line">        // 递归函数会返回交换好的后续链表的头 (比如 4)</span><br><span class="line">        ListNode* newHeadOfRest = swapPairs(node2-&gt;next);</span><br><span class="line"></span><br><span class="line">        // 当前层交换</span><br><span class="line">        node2-&gt;next = node1;      // 2 指向 1</span><br><span class="line">        node1-&gt;next = newHeadOfRest; // 1 指向后面换好的部分</span><br><span class="line"></span><br><span class="line">        // 返回当前层的头 (也就是 2)</span><br><span class="line">        return node2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><em>注意：递归版本的空间复杂度是 $O(N)$，因为递归调用栈的深度是 $N&#x2F;2$。</em></p>
+<hr>
+<h3 id="6-初学者常见疑问-Q-A"><a href="#6-初学者常见疑问-Q-A" class="headerlink" title="6. 初学者常见疑问 (Q&amp;A)"></a>6. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 交换顺序有讲究吗？</strong><ul>
+<li><strong>A:</strong> 有！必须先保存 <code>nextNode</code>（或者 <code>node2</code>）。如果你上来就写 <code>node1-&gt;next = node2-&gt;next</code>，那么 <code>node2</code> 本身的地址可能就找不到了（如果没提前存 <code>node2</code>），或者链表断开后无法访问后续节点。<strong>保存现场</strong>是链表操作的第一准则。</li>
+</ul>
+</li>
+<li><strong>Q: 循环条件 <code>prev-&gt;next &amp;&amp; prev-&gt;next-&gt;next</code> 顺序能反吗？</strong><ul>
+<li><strong>A:</strong> 不能。必须先判断 <code>prev-&gt;next</code> (第一个节点) 存在，才能去访问 <code>prev-&gt;next-&gt;next</code> (第二个节点)。如果第一个都不存在，访问第二个会直接报空指针异常 (Segmentation Fault)。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag"># 链表</a>
+              <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag"># 双指针</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" rel="prev" title="1两数之和">
+      <i class="fa fa-chevron-left"></i> 1两数之和
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/" rel="next" title="15三数之和">
+      15三数之和 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AE%B9%E6%98%93%E6%99%95%EF%BC%9F"><span class="nav-text">2.1 为什么容易晕？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E7%A5%9E%E5%99%A8%EF%BC%9A%E8%99%9A%E6%8B%9F%E5%A4%B4%E8%8A%82%E7%82%B9-Dummy-Head"><span class="nav-text">2.2 核心神器：虚拟头节点 (Dummy Head)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4-%E4%B8%89%E6%AD%A5%E8%B5%B0"><span class="nav-text">2.3 操作步骤 (三步走)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-N"><span class="nav-text">时间复杂度：$O(N)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-1"><span class="nav-text">空间复杂度：$O(1)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%BF%9B%E9%98%B6%E5%AF%B9%E6%AF%94%EF%BC%9A%E9%80%92%E5%BD%92%E5%86%99%E6%B3%95-Recursive"><span class="nav-text">5. 进阶对比：递归写法 (Recursive)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">6. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

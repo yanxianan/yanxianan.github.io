@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第19题：随机链表的复制。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="138. 随机链表的复制">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E9%9A%8F%E6%9C%BA%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第19题：随机链表的复制。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T07:42:48.682Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="链表">
+<meta property="article:tag" content="哈希表">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E9%9A%8F%E6%9C%BA%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>138. 随机链表的复制 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E9%9A%8F%E6%9C%BA%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          138. 随机链表的复制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 15:42:48" itemprop="dateModified" datetime="2026-02-06T15:42:48+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第19题：随机链表的复制。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/copy-list-with-random-pointer/">138. 随机链表的复制</a></p>
+<p>题目：<br>给你一个长度为 <code>n</code> 的链表，每个节点除了 <code>next</code> 指针外，还有一个 <code>random</code> 指针指向链表中的任意节点或者 <code>null</code>。</p>
+<p>请你返回这个链表的深拷贝。</p>
+<p><strong>示例 1：</strong><br>输入：head &#x3D; [[7,null],[13,0],[11,4],[10,2],[1,0]]<br>输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]</p>
+<p><strong>示例 2：</strong><br>输入：head &#x3D; [[1,1],[2,1]]<br>输出：[[1,1],[2,1]]</p>
+<p><strong>示例 3：</strong><br>输入：head &#x3D; [[3,null],[3,0],[3,null]]<br>输出：[[3,null],[3,0],[3,null]]</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>0 &lt;= n &lt;= 1000</code></li>
+<li><code>-10⁴ &lt;= Node.val &lt;= 10⁴</code></li>
+<li><code>Node.random</code> 是指向链表中任意节点或者 <code>null</code></li>
+</ul>
+<p>这道题是链表问题中非常独特的一道 <strong>“深拷贝” (Deep Copy)</strong> 题目。</p>
+<p>它考察的不是复杂的算法逻辑，而是你对 <strong>数据结构内存模型</strong> 的理解，以及如何巧妙地利用 <strong>指针映射</strong> 关系。</p>
+<p>面试中，这道题通常有两种解法：</p>
+<ol>
+<li><strong>哈希表法</strong>：易于理解，空间复杂度 $O(N)$。</li>
+<li><strong>拼接（交织）法</strong>：技巧性极强，空间复杂度 <strong>$O(1)$</strong>（最优解）。</li>
+</ol>
+<p>我们将重点讲解 <strong>拼接法</strong>，这是能让面试官眼前一亮的解法。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：随机链表的复制 (Copy List with Random Pointer)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给你一个长度为 <code>n</code> 的链表，每个节点包含一个额外指针 <code>random</code>，该指针可以指向链表中的任何节点或空节点。</p>
+<p>请你 <strong>深拷贝</strong> 这个链表。</p>
+<ul>
+<li><strong>深拷贝</strong> 意味着你需要创建全新的节点，新节点的 <code>next</code> 和 <code>random</code> 指针必须指向<strong>新的</strong>对应节点，而不能指向原链表的节点。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>head = [[7,null],[13,0],[11,4],[10,2],[1,0]]</code></p>
+<p>（<code>[val, random_index]</code>，比如 <code>13</code> 的 <code>random</code> 指向下标 0 的节点 <code>7</code>）</p>
+<p>输出：一个新的链表，结构和值完全一样，但内存地址完全不同。</p>
+<hr>
+<h3 id="2-核心挑战"><a href="#2-核心挑战" class="headerlink" title="2. 核心挑战"></a>2. 核心挑战</h3><p><strong>为什么不能直接遍历复制？</strong></p>
+<p>当我们复制节点 <code>A</code> 时，它的 <code>random</code> 指针可能指向节点 <code>Z</code>。</p>
+<ul>
+<li><p>此时节点 <code>Z</code> 可能还没有被创建出来（在链表后面）。</p>
+</li>
+<li><p>或者 <code>Z</code> 已经被创建了，但我们手里没有新节点 <code>Z&#39;</code> 的地址，只有旧节点 <code>Z</code> 的地址。</p>
+<p><strong>我们需要建立“旧节点”到“新节点”的一一对应关系。</strong></p>
+</li>
+</ul>
+<hr>
+<h3 id="3-解法一：哈希表法-Hash-Map-——-直观思路"><a href="#3-解法一：哈希表法-Hash-Map-——-直观思路" class="headerlink" title="3. 解法一：哈希表法 (Hash Map) —— 直观思路"></a>3. 解法一：哈希表法 (Hash Map) —— 直观思路</h3><p>这是最符合人类直觉的做法。</p>
+<ol>
+<li><strong>第一遍遍历</strong>：<ul>
+<li>只管创建新节点。</li>
+<li>建立一个哈希表 <code>unordered_map&lt;Node*, Node*&gt; map</code>。</li>
+<li>存入映射：<code>map[旧节点 A] = 新节点 A&#39;</code>。</li>
+</ul>
+</li>
+<li><strong>第二遍遍历</strong>：<ul>
+<li>再次遍历链表。</li>
+<li>配置指针：<code>map[curr]-&gt;next = map[curr-&gt;next]</code>。</li>
+<li>配置随机：<code>map[curr]-&gt;random = map[curr-&gt;random]</code>。</li>
+<li>因为所有新节点在第一遍都创建好了，所以这里直接查表就能拿到地址。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>优点</strong>：代码简单，逻辑清晰。</li>
+<li><strong>缺点</strong>：空间复杂度 $O(N)$。</li>
+</ul>
+<hr>
+<h3 id="4-解法二：拼接（交织）法-——-空间优化-O-1"><a href="#4-解法二：拼接（交织）法-——-空间优化-O-1" class="headerlink" title="4. 解法二：拼接（交织）法 —— 空间优化 $O(1)$"></a>4. 解法二：拼接（交织）法 —— 空间优化 $O(1)$</h3><p>如果我们不想用哈希表，怎么找到 <code>旧 A</code> 对应的 <code>新 A&#39;</code> 呢？</p>
+<p>我们可以利用链表本身的结构，把新节点 <strong>“藏”</strong> 在旧节点的旁边！</p>
+<p><strong>核心三步走</strong>：</p>
+<h4 id="Step-1-复制节点并拼接-Clone-Splicing"><a href="#Step-1-复制节点并拼接-Clone-Splicing" class="headerlink" title="Step 1: 复制节点并拼接 (Clone &amp; Splicing)"></a><strong>Step 1: 复制节点并拼接 (Clone &amp; Splicing)</strong></h4><p>遍历链表，为每个节点 <code>A</code> 创建副本 <code>A&#39;</code>，并将 <code>A&#39;</code> 插入到 <code>A</code> 和 <code>B</code> 之间。</p>
+<ul>
+<li>原链表：<code>A -&gt; B -&gt; C</code></li>
+<li>变形后：<code>A -&gt; A&#39; -&gt; B -&gt; B&#39; -&gt; C -&gt; C&#39;</code></li>
+</ul>
+<p>此时，<code>A-&gt;next</code> 就是 <code>A&#39;</code>。我们可以通过 <code>旧节点-&gt;next</code> 直接找到它对应的 <code>新节点</code>，不再需要哈希表。</p>
+<h4 id="Step-2-复制随机指针-Copy-Random"><a href="#Step-2-复制随机指针-Copy-Random" class="headerlink" title="Step 2: 复制随机指针 (Copy Random)"></a><strong>Step 2: 复制随机指针 (Copy Random)</strong></h4><p>遍历链表（注意步长是 2，只看旧节点）。</p>
+<ul>
+<li><p><code>A</code> 的 <code>random</code> 指向 <code>C</code>。</p>
+</li>
+<li><p>那么 <code>A&#39;</code> (<code>A-&gt;next</code>) 的 <code>random</code> 应该指向 <code>C&#39;</code>。</p>
+</li>
+<li><p><code>C&#39;</code> 在哪里？它就在 <code>C</code> 的后面，也就是 <code>C-&gt;next</code>！</p>
+</li>
+<li><p><strong>公式</strong>：<code>curr-&gt;next-&gt;random = curr-&gt;random-&gt;next</code>。</p>
+<p><em>(注意判空：如果 <code>curr-&gt;random</code> 是 NULL，那么 <code>curr-&gt;next-&gt;random</code> 也是 NULL)</em></p>
+</li>
+</ul>
+<h4 id="Step-3-拆分链表-Unweaving"><a href="#Step-3-拆分链表-Unweaving" class="headerlink" title="Step 3: 拆分链表 (Unweaving)"></a><strong>Step 3: 拆分链表 (Unweaving)</strong></h4><p>把交织在一起的长链表拆回两个独立的链表。</p>
+<ul>
+<li>恢复原链表：<code>A -&gt; B -&gt; C</code></li>
+<li>提取新链表：<code>A&#39; -&gt; B&#39; -&gt; C&#39;</code></li>
+</ul>
+<hr>
+<h3 id="5-C-代码实现-拼接法"><a href="#5-C-代码实现-拼接法" class="headerlink" title="5. C++ 代码实现 (拼接法)"></a>5. C++ 代码实现 (拼接法)</h3><p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line">// Definition for a Node.</span><br><span class="line">class Node &#123;</span><br><span class="line">public:</span><br><span class="line">    int val;</span><br><span class="line">    Node* next;</span><br><span class="line">    Node* random;</span><br><span class="line">    </span><br><span class="line">    Node(int _val) &#123;</span><br><span class="line">        val = _val;</span><br><span class="line">        next = NULL;</span><br><span class="line">        random = NULL;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    Node* copyRandomList(Node* head) &#123;</span><br><span class="line">        if (head == nullptr) return nullptr;</span><br><span class="line"></span><br><span class="line">        // Step 1: 复制节点，构建 A -&gt; A&#x27; -&gt; B -&gt; B&#x27;</span><br><span class="line">        Node* curr = head;</span><br><span class="line">        while (curr != nullptr) &#123;</span><br><span class="line">            Node* newNode = new Node(curr-&gt;val);</span><br><span class="line">            newNode-&gt;next = curr-&gt;next;</span><br><span class="line">            curr-&gt;next = newNode;</span><br><span class="line">            </span><br><span class="line">            // 指针移动到下一个【原节点】</span><br><span class="line">            curr = newNode-&gt;next; </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // Step 2: 复制 random 指针</span><br><span class="line">        curr = head;</span><br><span class="line">        while (curr != nullptr) &#123;</span><br><span class="line">            // curr 是旧节点，curr-&gt;next 是新节点</span><br><span class="line">            if (curr-&gt;random != nullptr) &#123;</span><br><span class="line">                // 新节点的 random = 旧节点 random 的 next (也就是旧 random 对应的副本)</span><br><span class="line">                curr-&gt;next-&gt;random = curr-&gt;random-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line">            // 移动到下一个【原节点】(跨过新节点)</span><br><span class="line">            curr = curr-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // Step 3: 拆分链表 (恢复原链表，提取新链表)</span><br><span class="line">        Node* dummy = new Node(0); // 虚拟头节点帮助提取新链表</span><br><span class="line">        Node* copyTail = dummy;</span><br><span class="line">        </span><br><span class="line">        curr = head;</span><br><span class="line">        while (curr != nullptr) &#123;</span><br><span class="line">            // 记录下一次要处理的原节点 (A -&gt; A&#x27; -&gt; B 中的 B)</span><br><span class="line">            Node* nextOriginal = curr-&gt;next-&gt;next;</span><br><span class="line"></span><br><span class="line">            // 提取新节点 (curr-&gt;next 就是 A&#x27;)</span><br><span class="line">            Node* copyNode = curr-&gt;next;</span><br><span class="line">            copyTail-&gt;next = copyNode;</span><br><span class="line">            copyTail = copyNode;</span><br><span class="line"></span><br><span class="line">            // 恢复原链表 (A 指回 B)</span><br><span class="line">            curr-&gt;next = nextOriginal;</span><br><span class="line"></span><br><span class="line">            // 指针后移</span><br><span class="line">            curr = nextOriginal;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return dummy-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-复杂度分析"><a href="#6-复杂度分析" class="headerlink" title="6. 复杂度分析"></a>6. 复杂度分析</h3><h4 id="时间复杂度：-O-N"><a href="#时间复杂度：-O-N" class="headerlink" title="时间复杂度：$O(N)$"></a><strong>时间复杂度：$O(N)$</strong></h4><ul>
+<li>我们遍历了链表三次（拼接、连 Random、拆分）。</li>
+<li>$3N$ 依然是线性时间。</li>
+</ul>
+<h4 id="空间复杂度：-O-1"><a href="#空间复杂度：-O-1" class="headerlink" title="空间复杂度：$O(1)$"></a><strong>空间复杂度：$O(1)$</strong></h4><ul>
+<li>除了用于结果的新节点（这是必须的，不计入额外空间），我们只用了几个指针变量。</li>
+<li>我们没有使用哈希表来存储映射关系，利用了链表自身的结构特性完成了“映射”。</li>
+</ul>
+<hr>
+<h3 id="7-初学者常见疑问-Q-A"><a href="#7-初学者常见疑问-Q-A" class="headerlink" title="7. 初学者常见疑问 (Q&amp;A)"></a>7. 初学者常见疑问 (Q&amp;A)</h3><ul>
+<li><strong>Q: 为什么 Step 3 拆分时 <code>curr-&gt;next = nextOriginal</code> 很重要？</strong><ul>
+<li><strong>A:</strong> 题目通常要求“深拷贝”，不仅要返回新链表，<strong>原链表也不能被破坏</strong>。如果你不把原链表恢复成 <code>A-&gt;B-&gt;C</code> 的样子，虽然答案对了，但在工程上这叫“有副作用 (Side Effect)”，通常是不合格的。</li>
+</ul>
+</li>
+<li><strong>Q: Step 2 为什么要判断 <code>curr-&gt;random != nullptr</code>？</strong><ul>
+<li><strong>A:</strong> 因为题目说 <code>random</code> 可能指向 <code>null</code>。如果 <code>curr-&gt;random</code> 是空，去访问 <code>curr-&gt;random-&gt;next</code> 就会报空指针异常 (Segmentation Fault)。</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag"># 链表</a>
+              <a href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/" rel="tag"># 哈希表</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E9%AA%8C%E8%AF%81%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/" rel="prev" title="98. 验证二叉搜索树">
+      <i class="fa fa-chevron-left"></i> 98. 验证二叉搜索树
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E9%99%A4%E4%BA%86%E8%87%AA%E8%BA%AB%E4%BB%A5%E5%A4%96%E6%95%B0%E7%BB%84%E7%9A%84%E4%B9%98%E7%A7%AF/" rel="next" title="238. 除了自身以外数组的乘积">
+      238. 除了自身以外数组的乘积 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%8C%91%E6%88%98"><span class="nav-text">2. 核心挑战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9A%E5%93%88%E5%B8%8C%E8%A1%A8%E6%B3%95-Hash-Map-%E2%80%94%E2%80%94-%E7%9B%B4%E8%A7%82%E6%80%9D%E8%B7%AF"><span class="nav-text">3. 解法一：哈希表法 (Hash Map) —— 直观思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9A%E6%8B%BC%E6%8E%A5%EF%BC%88%E4%BA%A4%E7%BB%87%EF%BC%89%E6%B3%95-%E2%80%94%E2%80%94-%E7%A9%BA%E9%97%B4%E4%BC%98%E5%8C%96-O-1"><span class="nav-text">4. 解法二：拼接（交织）法 —— 空间优化 $O(1)$</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-1-%E5%A4%8D%E5%88%B6%E8%8A%82%E7%82%B9%E5%B9%B6%E6%8B%BC%E6%8E%A5-Clone-Splicing"><span class="nav-text">Step 1: 复制节点并拼接 (Clone &amp; Splicing)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-2-%E5%A4%8D%E5%88%B6%E9%9A%8F%E6%9C%BA%E6%8C%87%E9%92%88-Copy-Random"><span class="nav-text">Step 2: 复制随机指针 (Copy Random)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-3-%E6%8B%86%E5%88%86%E9%93%BE%E8%A1%A8-Unweaving"><span class="nav-text">Step 3: 拆分链表 (Unweaving)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-%E6%8B%BC%E6%8E%A5%E6%B3%95"><span class="nav-text">5. C++ 代码实现 (拼接法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">6. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-N"><span class="nav-text">时间复杂度：$O(N)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-1"><span class="nav-text">空间复杂度：$O(1)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E5%88%9D%E5%AD%A6%E8%80%85%E5%B8%B8%E8%A7%81%E7%96%91%E9%97%AE-Q-A"><span class="nav-text">7. 初学者常见疑问 (Q&amp;A)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

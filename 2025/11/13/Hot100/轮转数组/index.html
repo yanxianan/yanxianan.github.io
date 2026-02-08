@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文为力扣Hot100题中的第2题：轮转数组。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="189. 轮转数组">
+<meta property="og:url" content="https://yanxianan.github.io/2025/11/13/Hot100/%E8%BD%AE%E8%BD%AC%E6%95%B0%E7%BB%84/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文为力扣Hot100题中的第2题：轮转数组。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-13T03:30:00.000Z">
+<meta property="article:modified_time" content="2026-02-06T03:40:49.769Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="双指针">
+<meta property="article:tag" content="数组">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%BD%AE%E8%BD%AC%E6%95%B0%E7%BB%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>189. 轮转数组 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2025/11/13/Hot100/%E8%BD%AE%E8%BD%AC%E6%95%B0%E7%BB%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          189. 轮转数组
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 11:40:49" itemprop="dateModified" datetime="2026-02-06T11:40:49+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文为力扣Hot100题中的第2题：轮转数组。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/rotate-array/">189. 轮转数组</a></p>
+<p>题目：<br>给定一个数组，将数组中的元素向右轮转 <code>k</code> 个位置，其中 <code>k</code> 是非负数。</p>
+<p><strong>示例 1：</strong><br>输入：nums &#x3D; [1,2,3,4,5,6,7], k &#x3D; 3<br>输出：[5,6,7,1,2,3,4]<br>解释：向右轮转 3 步。[1,2,3,4,5,6,7] -&gt; [7,1,2,3,4,5,6] -&gt; [6,7,1,2,3,4,5] -&gt; [5,6,7,1,2,3,4]</p>
+<p><strong>示例 2：</strong><br>输入：nums &#x3D; [-1,-100,3,99], k &#x3D; 2<br>输出：[3,99,-1,-100]</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= nums.length &lt;= 10⁵</code></li>
+<li><code>-2³¹ &lt;= nums[i] &lt;= 2³¹ - 1</code></li>
+<li><code>0 &lt;= k &lt;= 10⁵</code></li>
+</ul>
+<p>这道题是数组操作中的“魔术题”。</p>
+<p>为什么叫它“魔术题”？因为它有一个经典的解法，初次见到时会觉得“极其反直觉”，但一旦理解了，你会感叹数学的对称美。而且，这道题考察的是<strong>空间复杂度 $O(1)$</strong> 的原地操作能力。</p>
+<hr>
+<h3 id="1-明确问题描述"><a href="#1-明确问题描述" class="headerlink" title="1. 明确问题描述"></a>1. 明确问题描述</h3><p><strong>题目名称</strong>：轮转数组 (Rotate Array)</p>
+<p><strong>题目大意</strong>：</p>
+<p>给定一个整数数组 <code>nums</code>，将数组中的元素向右移动 <code>k</code> 个位置。</p>
+<p><strong>关键约束</strong>：</p>
+<ul>
+<li><strong>原地算法</strong>：尽可能在原始数组上操作，使用 $O(1)$ 的额外空间。</li>
+<li><code>k</code> 是非负数，但 <code>k</code> 可能大于数组长度 <code>n</code>。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p>输入：<code>nums = [1, 2, 3, 4, 5, 6, 7]</code>, <code>k = 3</code></p>
+<p>输出：<code>[5, 6, 7, 1, 2, 3, 4]</code></p>
+<p>解释：</p>
+<ul>
+<li>向右轮转 1 步: <code>[7, 1, 2, 3, 4, 5, 6]</code></li>
+<li>向右轮转 2 步: <code>[6, 7, 1, 2, 3, 4, 5]</code></li>
+<li>向右轮转 3 步: <code>[5, 6, 7, 1, 2, 3, 4]</code></li>
+</ul>
+<hr>
+<h3 id="2-核心思路分析"><a href="#2-核心思路分析" class="headerlink" title="2. 核心思路分析"></a>2. 核心思路分析</h3><h4 id="2-1-坑点预警：k-可能很大"><a href="#2-1-坑点预警：k-可能很大" class="headerlink" title="2.1 坑点预警：k 可能很大"></a>2.1 坑点预警：<code>k</code> 可能很大</h4><p>如果数组长度 <code>n = 5</code>，让你轮转 <code>k = 7</code> 次。</p>
+<p>实际上，轮转 5 次等于没动。轮转 7 次的效果 等于 轮转 2 次。</p>
+<p><strong>第一步预处理</strong>：<code>k = k % n</code>。这是所有解法的前提。</p>
+<h4 id="2-2-为什么暴力法和辅助数组法不够好？"><a href="#2-2-为什么暴力法和辅助数组法不够好？" class="headerlink" title="2.2 为什么暴力法和辅助数组法不够好？"></a>2.2 为什么暴力法和辅助数组法不够好？</h4><ol>
+<li><strong>暴力法</strong>：每次把最后一个数挪到最前面，其余后移。移动一次 $O(n)$，移动 $k$ 次就是 $O(n \times k)$。<strong>超时</strong>。</li>
+<li><strong>辅助数组法</strong>：新建一个数组，直接把算好位置的数放进去。时间 $O(n)$，但空间也是 $O(n)$。<strong>不符合“原地”的高级要求</strong>。</li>
+</ol>
+<h4 id="2-3-核心策略：三次翻转法-The-“Three-Reversals”-Trick"><a href="#2-3-核心策略：三次翻转法-The-“Three-Reversals”-Trick" class="headerlink" title="2.3 核心策略：三次翻转法 (The “Three Reversals” Trick)"></a>2.3 核心策略：三次翻转法 (The “Three Reversals” Trick)</h4><p>我们需要把数组的<strong>后 k 个元素</strong>（尾巴），搬到数组的<strong>最前面</strong>（头部）。</p>
+<p>观察示例：<code>[1, 2, 3, 4, 5, 6, 7]</code>, <code>k = 3</code></p>
+<p>目标是：<code>[5, 6, 7]</code> (原尾部) + <code>[1, 2, 3, 4]</code> (原头部)</p>
+<p><strong>神奇的操作步骤</strong>：</p>
+<ol>
+<li><p><strong>翻转整个数组</strong>：</p>
+<p><code>[7, 6, 5, 4, 3, 2, 1]</code></p>
+<ul>
+<li><em>观察</em>：现在的顺序是反的，但是 <code>5, 6, 7</code> 已经成功跑到了最左边（头部），<code>1, 2, 3, 4</code> 跑到了最右边。只是它们内部的顺序也是反的。</li>
+</ul>
+</li>
+<li><p><strong>翻转前 k 个元素</strong>（也就是前 3 个）：</p>
+<p><code>[5, 6, 7]</code> <code>[4, 3, 2, 1]</code></p>
+<ul>
+<li><em>观察</em>：头部的顺序恢复正常了！</li>
+</ul>
+</li>
+<li><p><strong>翻转剩余的元素</strong>（也就是后 n-k 个）：</p>
+<p><code>[5, 6, 7]</code> <code>[1, 2, 3, 4]</code></p>
+<ul>
+<li><em>观察</em>：大功告成！</li>
+</ul>
+</li>
+</ol>
+<p><strong>为什么有效？</strong></p>
+<p>本质上，翻转操作类似于矩阵转置 $(AB)^T &#x3D; B^T A^T$。</p>
+<p>我们想把数组看作两部分 $A$ (头部)和 $B$ (尾部)，原数组是 $AB$。我们想要 $BA$。</p>
+<p>$(A^R B^R)^R &#x3D; (B^R)^R (A^R)^R &#x3D; BA$。</p>
+<p>（这里 $R$ 代表 Reverse 翻转）。</p>
+<hr>
+<h3 id="3-C-代码实现-OI-ACM-风格"><a href="#3-C-代码实现-OI-ACM-风格" class="headerlink" title="3. C++ 代码实现 (OI&#x2F;ACM 风格)"></a>3. C++ 代码实现 (OI&#x2F;ACM 风格)</h3><p>C++ 标准库提供了非常强大的 <code>std::reverse</code> 函数，但在面试中，最好也能手写一个 <code>reverse</code> 函数来展示你对双指针的理解。</p>
+<p>C++</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    // 自定义翻转函数：使用双指针交换两端元素</span><br><span class="line">    // 作用：将 nums 中范围 [start, end] 的元素进行翻转</span><br><span class="line">    void myReverse(vector&lt;int&gt;&amp; nums, int start, int end) &#123;</span><br><span class="line">        while (start &lt; end) &#123;</span><br><span class="line">            swap(nums[start], nums[end]);</span><br><span class="line">            start++;</span><br><span class="line">            end--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    void rotate(vector&lt;int&gt;&amp; nums, int k) &#123;</span><br><span class="line">        int n = nums.size();</span><br><span class="line">        </span><br><span class="line">        // 【关键防御】</span><br><span class="line">        // 如果 k &gt; n，我们不需要转那么多圈，取余数即可</span><br><span class="line">        k = k % n; </span><br><span class="line">        </span><br><span class="line">        // 如果 k 是 0，或者数组为空，直接不用动</span><br><span class="line">        if (k == 0 || n == 0) return;</span><br><span class="line"></span><br><span class="line">        // 【核心三步走】</span><br><span class="line">        </span><br><span class="line">        // 1. 翻转整个数组</span><br><span class="line">        // 变成: [7, 6, 5, 4, 3, 2, 1]</span><br><span class="line">        myReverse(nums, 0, n - 1);</span><br><span class="line">        </span><br><span class="line">        // 2. 翻转前 k 个元素 (修正前半部分的顺序)</span><br><span class="line">        // 变成: [5, 6, 7, 4, 3, 2, 1]</span><br><span class="line">        myReverse(nums, 0, k - 1);</span><br><span class="line">        </span><br><span class="line">        // 3. 翻转剩余的元素 (修正后半部分的顺序)</span><br><span class="line">        // 变成: [5, 6, 7, 1, 2, 3, 4]</span><br><span class="line">        myReverse(nums, k, n - 1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><h4 id="时间复杂度：-O-n"><a href="#时间复杂度：-O-n" class="headerlink" title="时间复杂度：$O(n)$"></a><strong>时间复杂度：$O(n)$</strong></h4><ul>
+<li>第一次翻转整个数组：遍历 $n$ 个元素。</li>
+<li>第二次翻转前 $k$ 个：遍历 $k$ 个。</li>
+<li>第三次翻转后 $n-k$ 个：遍历 $n-k$ 个。</li>
+<li>总遍历次数：$n + k + (n-k) &#x3D; 2n$。</li>
+<li>忽略常数，结果为线性时间 <strong>$O(n)$</strong>。</li>
+</ul>
+<h4 id="空间复杂度：-O-1"><a href="#空间复杂度：-O-1" class="headerlink" title="空间复杂度：$O(1)$"></a><strong>空间复杂度：$O(1)$</strong></h4><ul>
+<li>我们没有申请新的数组 (<code>new vector</code>)。</li>
+<li><code>myReverse</code> 函数只使用了常数个变量 (<code>start</code>, <code>end</code>, <code>temp</code> 交换用)。</li>
+<li>符合题目要求的<strong>原地算法</strong>。</li>
+</ul>
+<hr>
+<h3 id="5-进阶思考：环状替换-Cyclic-Replacements"><a href="#5-进阶思考：环状替换-Cyclic-Replacements" class="headerlink" title="5. 进阶思考：环状替换 (Cyclic Replacements)"></a>5. 进阶思考：环状替换 (Cyclic Replacements)</h3><p>除了翻转法，还有一种方法叫 <strong>环状替换</strong>。</p>
+<p>它的思路是：直接把 <code>nums[i]</code> 放到它该去的位置 <code>(i+k)%n</code>，把那个位置原本的数拿出来，再找下一个位置…</p>
+<p><strong>为什么不推荐首选这种方法？</strong></p>
+<p>虽然空间也是 $O(1)$，但代码很难写对。</p>
+<ul>
+<li>如果 $n$ 和 $k$ 的最大公约数不是 1（比如 n&#x3D;6, k&#x3D;2），你会发现你在这个环里转圈圈，回到了原点，但还有很多元素没动过！</li>
+<li>你需要处理这种“多轮循环”的情况，代码逻辑复杂，边界条件多，面试时容易翻车。</li>
+<li><strong>翻转法</strong>逻辑清晰，不易出错，是最佳选择。</li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag"># 双指针</a>
+              <a href="/tags/%E6%95%B0%E7%BB%84/" rel="tag"># 数组</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E9%99%A4%E4%BA%86%E8%87%AA%E8%BA%AB%E4%BB%A5%E5%A4%96%E6%95%B0%E7%BB%84%E7%9A%84%E4%B9%98%E7%A7%AF/" rel="prev" title="238. 除了自身以外数组的乘积">
+      <i class="fa fa-chevron-left"></i> 238. 除了自身以外数组的乘积
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/13/Hot100/%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8CIII/" rel="next" title="437. 路径总和 III">
+      437. 路径总和 III <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%8E%E7%A1%AE%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-text">1. 明确问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E5%88%86%E6%9E%90"><span class="nav-text">2. 核心思路分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%9D%91%E7%82%B9%E9%A2%84%E8%AD%A6%EF%BC%9Ak-%E5%8F%AF%E8%83%BD%E5%BE%88%E5%A4%A7"><span class="nav-text">2.1 坑点预警：k 可能很大</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9A%B4%E5%8A%9B%E6%B3%95%E5%92%8C%E8%BE%85%E5%8A%A9%E6%95%B0%E7%BB%84%E6%B3%95%E4%B8%8D%E5%A4%9F%E5%A5%BD%EF%BC%9F"><span class="nav-text">2.2 为什么暴力法和辅助数组法不够好？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E6%A0%B8%E5%BF%83%E7%AD%96%E7%95%A5%EF%BC%9A%E4%B8%89%E6%AC%A1%E7%BF%BB%E8%BD%AC%E6%B3%95-The-%E2%80%9CThree-Reversals%E2%80%9D-Trick"><span class="nav-text">2.3 核心策略：三次翻转法 (The “Three Reversals” Trick)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-OI-ACM-%E9%A3%8E%E6%A0%BC"><span class="nav-text">3. C++ 代码实现 (OI&#x2F;ACM 风格)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-text">4. 复杂度分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-n"><span class="nav-text">时间复杂度：$O(n)$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9A-O-1"><span class="nav-text">空间复杂度：$O(1)$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%BF%9B%E9%98%B6%E6%80%9D%E8%80%83%EF%BC%9A%E7%8E%AF%E7%8A%B6%E6%9B%BF%E6%8D%A2-Cyclic-Replacements"><span class="nav-text">5. 进阶思考：环状替换 (Cyclic Replacements)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">154</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">696k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">16:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
