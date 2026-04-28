@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详细介绍TTL，RS232，RS485，RS422物理层电平标准。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TTL，RS232，RS485，RS422">
+<meta property="og:url" content="https://yanxianan.github.io/2026/04/28/%E5%B5%8C%E5%85%A5%E5%BC%8F/TTLRS232485422/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍TTL，RS232，RS485，RS422物理层电平标准。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-28T02:40:00.000Z">
+<meta property="article:modified_time" content="2026-04-28T02:40:49.691Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="电平标准">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/2026/04/28/%E5%B5%8C%E5%85%A5%E5%BC%8F/TTLRS232485422/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>TTL，RS232，RS485，RS422 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/2026/04/28/%E5%B5%8C%E5%85%A5%E5%BC%8F/TTLRS232485422/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          TTL，RS232，RS485，RS422
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-04-28 10:40:00 / 修改时间：10:40:49" itemprop="dateCreated datePublished" datetime="2026-04-28T10:40:00+08:00">2026-04-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文详细介绍TTL，RS232，RS485，RS422物理层电平标准。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这四种都是串行通信中常见的物理层标准，通常用来传输UART数据。它们最核心的区别在于<strong>电平定义、信号传输方式以及支持的拓扑结构</strong>。下面从定义到转换，为你逐一拆解。</p>
+<hr>
+<h3 id="一、TTL-电平串口"><a href="#一、TTL-电平串口" class="headerlink" title="一、TTL 电平串口"></a>一、TTL 电平串口</h3><p><strong>TTL</strong> 本身是“晶体管-晶体管逻辑”电平标准，用在串口通信时，泛指直接使用芯片的UART逻辑电平，最常见的有 <strong>3.3V TTL</strong> 和 <strong>5V TTL</strong>。</p>
+<ul>
+<li><strong>电气特性（单端信号）</strong><ul>
+<li><strong>逻辑“0”</strong>：0V ~ 0.8V（低电平）</li>
+<li><strong>逻辑“1”</strong>：2.0V ~ VCC（高电平，VCC为3.3V或5V）</li>
+<li><strong>空闲状态</strong>：高电平</li>
+<li><strong>传输方式</strong>：以公共地(GND)为参考的单端信号。</li>
+</ul>
+</li>
+<li><strong>工作模式</strong>：通常为全双工，使用 TX（发送）、RX（接收）、GND 三根线。</li>
+<li><strong>优缺点</strong><ul>
+<li><strong>优点</strong>：直接从芯片引出，无需额外转换芯片，成本极低。</li>
+<li><strong>缺点</strong>：抗干扰能力很差，仅适合极短距离（通常建议不超过20-30厘米），稍有共模电压差就容易烧毁芯片。</li>
+</ul>
+</li>
+<li><strong>典型场景</strong>：单片机与板载蓝牙、WiFi模块、GPS模块等的通信。比如 Arduino 的串口管脚。</li>
+</ul>
+<hr>
+<h3 id="二、RS-232"><a href="#二、RS-232" class="headerlink" title="二、RS-232"></a>二、RS-232</h3><p>经典PC串口标准，为了解决早期TTL信号易受干扰、传输距离短的问题。</p>
+<ul>
+<li><strong>电气特性（单端信号，负逻辑）</strong><ul>
+<li><strong>逻辑“1”（MARK）</strong>： -3V 至 -15V</li>
+<li><strong>逻辑“0”（SPACE）</strong>： +3V 至 +15V</li>
+<li><strong>空闲状态</strong>：逻辑“1”，即负电压。</li>
+<li><strong>传输方式</strong>：仍为单端信号，以GND为参考，但对电平范围和噪声容限做了巨大提升。</li>
+</ul>
+</li>
+<li><strong>接口与工作模式</strong><ul>
+<li><strong>全双工</strong>，点对点通信，仅允许一主一从。</li>
+<li>除 TX、RX 外，标准还定义了 RTS、CTS 等完整的硬件流控信号线，常见接口为 DB9。</li>
+</ul>
+</li>
+<li><strong>优缺点</strong><ul>
+<li><strong>优点</strong>：电平高、抗干扰比TTL强，互连简单。</li>
+<li><strong>缺点</strong>：通信距离短（标准约15米），速率偏低（标准最大115.2kbps），且只支持点对点。</li>
+</ul>
+</li>
+<li><strong>典型场景</strong>：过去的PC机串口、早期鼠标、工控机调试口、对网速要求不高的仪器仪表连接。</li>
+</ul>
+<hr>
+<h3 id="三、RS-485"><a href="#三、RS-485" class="headerlink" title="三、RS-485"></a>三、RS-485</h3><p>为多设备、长距离、高抗干扰的工业级通信而生，是一种<strong>差分</strong>标准。</p>
+<ul>
+<li><strong>电气特性（差分平衡信号）</strong><ul>
+<li><strong>逻辑“1”</strong>：A、B两线电压差 ( V_A - V_B \ge +200mV )</li>
+<li><strong>逻辑“0”</strong>：A、B两线电压差 ( V_A - V_B \le -200mV )</li>
+<li><strong>核心优势</strong>：不看绝对电压，只看两线间的<strong>差值</strong>。差分信号能有效抵消共模干扰，这是它传输千米级距离的关键。</li>
+</ul>
+</li>
+<li><strong>工作模式与拓扑</strong><ul>
+<li><strong>半双工</strong>：一对差分线（A&#x2F;B）既发送又接收，需通过使能引脚（DE&#x2F;RE）切换。因此通常称为“两线制”。</li>
+<li><strong>全双工</strong>：使用两对差分线，收发分开，即“四线制”，本质就是RS-422。</li>
+<li><strong>多站点总线</strong>：支持一个总线上挂载最多<strong>32个标准节点</strong>（使用1&#x2F;4单位负载芯片可达128甚至256个）。所有从机地址独立，主机轮询通信。</li>
+</ul>
+</li>
+<li><strong>优缺点</strong><ul>
+<li><strong>优点</strong>：抗干扰极强，速率与距离平衡性好（100kbps下可达1200米），支持多点组网，成本低。</li>
+<li><strong>缺点</strong>：是总线型网络，需要软件或硬件进行数据碰撞管理和收发状态切换。</li>
+</ul>
+</li>
+<li><strong>典型场景</strong>：工业Modbus总线、楼宇自控、安防摄像头云台控制、仪表数据采集等，是目前工业领域最流行的串行通信标准。</li>
+</ul>
+<hr>
+<h3 id="四、RS-422"><a href="#四、RS-422" class="headerlink" title="四、RS-422"></a>四、RS-422</h3><p>它与RS-485的电气特性完全相同，区别在于物理拓扑和应用模式。</p>
+<ul>
+<li><strong>电气特性</strong>：与RS-485完全一致，( V_A - V_B \ge +200mV ) 为逻辑1。</li>
+<li><strong>工作模式与拓扑</strong><ul>
+<li><strong>全双工</strong>：使用4根线（一对发送T+&#x2F;T-，一对接收R+&#x2F;R-），收发可同时进行。</li>
+<li><strong>主从广播拓扑</strong>：一个主设备的发送器，可同时驱动最多<strong>10个从设备的接收器</strong>。这种“一发多收”的模式不能反向进行多设备回传，从设备只能通过其接收线收到主设备数据，回传需通过另一对线单独连回主设备的接收口，且通常需要主设备进行选通。</li>
+</ul>
+</li>
+<li><strong>优缺点</strong><ul>
+<li><strong>优点</strong>：全双工，无需切换方向；差分信号，抗干扰强；收发独立，通信逻辑简单。</li>
+<li><strong>缺点</strong>：线缆多，无法像RS-485那样构建廉价的多机共享总线。</li>
+</ul>
+</li>
+<li><strong>典型场景</strong>：需要长距离、全双工、抗干扰的点对点链路，或一主多从接收（如向多台显示器广播信息），现在常被RS-485或以太网替代。</li>
+</ul>
+<hr>
+<h3 id="五、核心异同对比表"><a href="#五、核心异同对比表" class="headerlink" title="五、核心异同对比表"></a>五、核心异同对比表</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">TTL</th>
+<th align="left">RS-232</th>
+<th align="left">RS-485</th>
+<th align="left">RS-422</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>信号类型</strong></td>
+<td align="left">单端，对地 (GND)</td>
+<td align="left">单端，对地 (GND)</td>
+<td align="left"><strong>差分</strong> (A&#x2F;B)</td>
+<td align="left"><strong>差分</strong> (T+&#x2F;T-， R+&#x2F;R-)</td>
+</tr>
+<tr>
+<td align="left"><strong>逻辑电平</strong></td>
+<td align="left">0<del>0.8V &#x3D; ‘0’<br>2.0</del>VCC &#x3D; ‘1’</td>
+<td align="left">+3<del>+15V &#x3D; ‘0’<br>-3</del>-15V &#x3D; ‘1’ (负逻辑)</td>
+<td align="left">(V_A-V_B \ge +0.2V) &#x3D; ‘1’<br>(V_A-V_B \le -0.2V) &#x3D; ‘0’</td>
+<td align="left">同 RS-485</td>
+</tr>
+<tr>
+<td align="left"><strong>工作模式</strong></td>
+<td align="left">全双工 (点对点)</td>
+<td align="left">全双工 (点对点)</td>
+<td align="left"><strong>半双工</strong> (两线制)<br>或 全双工 (四线制)</td>
+<td align="left"><strong>全双工</strong> (点对多)</td>
+</tr>
+<tr>
+<td align="left"><strong>拓扑结构</strong></td>
+<td align="left">点对点</td>
+<td align="left">点对点</td>
+<td align="left"><strong>多点总线</strong> (最多32&#x2F;256节点)</td>
+<td align="left"><strong>一发多收</strong><br>(1个发送，最多10个接收)</td>
+</tr>
+<tr>
+<td align="left"><strong>最大距离</strong></td>
+<td align="left">&lt; 1米</td>
+<td align="left">标准15米</td>
+<td align="left"><strong>1200米</strong> (@100kbps)</td>
+<td align="left">1200米 (@100kbps)</td>
+</tr>
+<tr>
+<td align="left"><strong>抗干扰能力</strong></td>
+<td align="left">极弱</td>
+<td align="left">一般</td>
+<td align="left"><strong>极强</strong></td>
+<td align="left"><strong>极强</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>典型场景</strong></td>
+<td align="left">板上芯片间通信</td>
+<td align="left">PC直连老式设备</td>
+<td align="left">工业现场总线、Modbus网络</td>
+<td align="left">长距离全双工点对点链路</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="六、使用场景速览"><a href="#六、使用场景速览" class="headerlink" title="六、使用场景速览"></a>六、使用场景速览</h3><ul>
+<li><strong>选 TTL</strong>：当你直接用微控制器（MCU）连接一个紧挨着的模块时，比如在面包板上连接一个蓝牙透传模块。</li>
+<li><strong>选 RS-232</strong>：当需要连接一台传统工控机或旧设备的调试口，且距离在几米以内，只连一台设备。</li>
+<li><strong>选 RS-485</strong>：当需要将几十台传感器或控制器用两根线串接起来，在几百米外统一采集数据，如工厂能源监控系统。</li>
+<li><strong>选 RS-422</strong>：当需要一条长距离、抗干扰的全双工链路，且是一主控器向几个终端单向广播数据，或简单的收发分离点对点，且不想处理方向控制时。</li>
+</ul>
+<hr>
+<h3 id="七、如何互相转换"><a href="#七、如何互相转换" class="headerlink" title="七、如何互相转换"></a>七、如何互相转换</h3><p>这些接口无法直连，必须通过专用转换芯片或模块，本质是<strong>电平转换</strong>和<strong>信号模式转换</strong>。</p>
+<h4 id="1-TTL-↔-RS-232"><a href="#1-TTL-↔-RS-232" class="headerlink" title="1. TTL ↔ RS-232"></a>1. TTL ↔ RS-232</h4><ul>
+<li><strong>芯片</strong>：经典芯片是 <strong>MAX232</strong>（5V）、<strong>MAX3232</strong>（3.3V）。</li>
+<li><strong>原理</strong>：内部有电荷泵电路，能将TTL电压升压并反相到±10V左右的RS-232电平，反之亦然。</li>
+<li><strong>转换模块</strong>：市面上常见的“USB转TTL”或“USB转RS-232”模块已集成好。</li>
+</ul>
+<h4 id="2-TTL-↔-RS-485"><a href="#2-TTL-↔-RS-485" class="headerlink" title="2. TTL ↔ RS-485"></a>2. TTL ↔ RS-485</h4><ul>
+<li><strong>芯片</strong>：<strong>MAX485</strong>、<strong>SP3485</strong>（3.3V）等。</li>
+<li><strong>原理</strong>：将TTL的单端信号转换为A&#x2F;B差分信号。由于是半双工，需将芯片的发送使能(DE)和接收使能(RE)接在一起，通过一个GPIO控制数据方向。</li>
+<li><strong>自动流向</strong>：部分模块用分立元件搭出自动方向控制电路，无需MCU参与，接线更简单。</li>
+</ul>
+<h4 id="3-TTL-↔-RS-422"><a href="#3-TTL-↔-RS-422" class="headerlink" title="3. TTL ↔ RS-422"></a>3. TTL ↔ RS-422</h4><ul>
+<li><strong>芯片</strong>：<strong>MAX490</strong>、<strong>SP3490</strong>等。</li>
+<li><strong>原理</strong>：收发独立，将TTL的TX转为T+&#x2F;T-，将R+&#x2F;R-转为TTL的RX，无需方向控制。</li>
+</ul>
+<h4 id="4-RS-232-↔-RS-485-422"><a href="#4-RS-232-↔-RS-485-422" class="headerlink" title="4. RS-232 ↔ RS-485&#x2F;422"></a>4. RS-232 ↔ RS-485&#x2F;422</h4><ul>
+<li><strong>方法</strong>：这类转换器内部实际上经过了 <strong>RS-232 → TTL → RS-485</strong> 的两次转换。因此买一个集成的“RS-232转RS-485”无源&#x2F;有源转换器即可。</li>
+<li><strong>注意供电</strong>：无源转换器从RS-232的握手信号“偷电”，稳定性较差，建议优先选外部供电的有源转换器。</li>
+</ul>
+<h4 id="5-RS-485-↔-RS-422"><a href="#5-RS-485-↔-RS-422" class="headerlink" title="5. RS-485 ↔ RS-422"></a>5. RS-485 ↔ RS-422</h4><ul>
+<li><strong>被动接线</strong>：因电气一致，在<strong>点对点全双工</strong>场景下，可将一个RS-485设备（四线全双工模式）与一个RS-422设备直连，只要保证A接R+、B接R-，交叉对应即可。但用于总线时，两者拓扑不兼容。</li>
+</ul>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>理解它们的核心是抓住两点：</p>
+<ol>
+<li><strong>电平与信号</strong>：TTL&#x2F;RS-232是<strong>单端对地</strong>，易受干扰；RS-485&#x2F;422是<strong>差分</strong>，能耐大。RS-232的±电压本质上还是单端，只是电平范围大，抗干扰有改善但远逊于差分。</li>
+<li><strong>拓扑与双工</strong>：<strong>RS-232</strong> 是远古的点对点全双工；<strong>RS-485</strong> 是现代的少线缆、多站点半双工总线；<strong>RS-422</strong> 则是用多出的一对线换来的全双工广播模式；<strong>TTL</strong> 是纯粹给芯片用的低电压语言。</li>
+</ol>
+<p>所有转换，就是在这些物理标准之间，通过芯片搭起桥梁。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%94%B5%E5%B9%B3%E6%A0%87%E5%87%86/" rel="tag"># 电平标准</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/04/27/C_C++/new/" rel="prev" title="自动类型推导auto">
+      <i class="fa fa-chevron-left"></i> 自动类型推导auto
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/04/28/%E5%B5%8C%E5%85%A5%E5%BC%8F/USB%E5%8D%8F%E8%AE%AE/" rel="next" title="USB协议">
+      USB协议 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81TTL-%E7%94%B5%E5%B9%B3%E4%B8%B2%E5%8F%A3"><span class="nav-text">一、TTL 电平串口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81RS-232"><span class="nav-text">二、RS-232</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81RS-485"><span class="nav-text">三、RS-485</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81RS-422"><span class="nav-text">四、RS-422</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%A0%B8%E5%BF%83%E5%BC%82%E5%90%8C%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="nav-text">五、核心异同对比表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E9%80%9F%E8%A7%88"><span class="nav-text">六、使用场景速览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%A6%82%E4%BD%95%E4%BA%92%E7%9B%B8%E8%BD%AC%E6%8D%A2"><span class="nav-text">七、如何互相转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-TTL-%E2%86%94-RS-232"><span class="nav-text">1. TTL ↔ RS-232</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-TTL-%E2%86%94-RS-485"><span class="nav-text">2. TTL ↔ RS-485</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-TTL-%E2%86%94-RS-422"><span class="nav-text">3. TTL ↔ RS-422</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-RS-232-%E2%86%94-RS-485-422"><span class="nav-text">4. RS-232 ↔ RS-485&#x2F;422</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-RS-485-%E2%86%94-RS-422"><span class="nav-text">5. RS-485 ↔ RS-422</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">164</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">737k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:33</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
