@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详解linux中的软链接和硬链接。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式中的软链接和硬链接">
+<meta property="og:url" content="https://yanxianan.github.io/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详解linux中的软链接和硬链接。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-28T12:07:00.000Z">
+<meta property="article:modified_time" content="2026-04-28T12:08:29.178Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="软链接">
+<meta property="article:tag" content="硬链接">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>嵌入式中的软链接和硬链接 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式中的软链接和硬链接
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-04-28 20:07:00 / 修改时间：20:08:29" itemprop="dateCreated datePublished" datetime="2026-04-28T20:07:00+08:00">2026-04-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+            <div class="post-description">本文详解linux中的软链接和硬链接。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 Linux 里，“链接”可以理解成给文件或目录起的一个别名或快捷方式。主要分两种：<strong>硬链接</strong> 和 <strong>软链接</strong>（也叫符号链接）。我用最生活化的方式来拆解它们。</p>
+<hr>
+<h3 id="一、先弄懂文件是怎么存的"><a href="#一、先弄懂文件是怎么存的" class="headerlink" title="一、先弄懂文件是怎么存的"></a>一、先弄懂文件是怎么存的</h3><p>在 Linux 中，一个文件其实分为两部分：</p>
+<ul>
+<li><strong>数据本身</strong>：硬盘上存着的真实内容（文字、图片等）</li>
+<li><strong>文件名 + inode 编号</strong>：inode 就像这个文件的身份证号，记录着数据存放在哪、谁有权限等。而文件名只是一张写着 inode 编号的“标签”。</li>
+</ul>
+<p>当我们 <code>ls -l</code> 看到一个文件时，第一列权限前面的数字就是<strong>链接数</strong>，表示有多少个“标签”指向同一个 inode。</p>
+<hr>
+<h3 id="二、硬链接-——-同一个文件的前门和后门"><a href="#二、硬链接-——-同一个文件的前门和后门" class="headerlink" title="二、硬链接 —— 同一个文件的前门和后门"></a>二、硬链接 —— 同一个文件的前门和后门</h3><p><strong>比喻：同一间房子，开了好几个门。</strong><br>你有一间房子（文件的数据块），这间房原本只有一个门牌号（文件名）。硬链接就是给同一间房<strong>多开一扇门</strong>，贴上不同的门牌。无论你从哪个门进去，看到的是完全同一间屋子。如果一个门拆了，只要还有别的门，房子依然在，里面的东西不会丢。</p>
+<p><strong>创建硬链接：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> 原文件 新链接名</span><br></pre></td></tr></table></figure>
+
+<p><strong>本质：</strong><br>硬链接让多个文件名指向<strong>同一个 inode 编号</strong>。系统并不区分哪个是“原本的文件名”，它们是完全平等的。</p>
+<p><strong>硬链接的特点（很重要）：</strong></p>
+<ul>
+<li><strong>共享同一份数据</strong>：修改任何一个，另一个同步变化（因为它们就是同一个文件）。</li>
+<li><strong>不能跨文件系统</strong>：硬链接得在同一个分区里，因为不同分区有各自的 inode 管理区域，无法共用。</li>
+<li><strong>不能给目录创建硬链接</strong>（除非用超级用户强制，但系统一般不允许，防止目录循环引用导致问题）。</li>
+<li><strong>删除原文件不影响</strong>：只要还有一个硬链接存在，文件数据就不会被删除。只有当最后指向该 inode 的文件名被删除时，数据才释放。</li>
+<li><strong>链接数</strong>可以通过 <code>ls -l</code> 的第二列看出来，数字表示有几个“门”通向这个 inode。</li>
+</ul>
+<p><strong>举例：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;hello&quot;</span> &gt; file1</span><br><span class="line"><span class="built_in">ln</span> file1 file2          <span class="comment"># 给 file1 创建硬链接 file2</span></span><br><span class="line"><span class="built_in">ls</span> -li file1 file2      <span class="comment"># 第一列是 inode 号，相同；第三列是链接数，会变成2</span></span><br><span class="line"><span class="built_in">rm</span> file1                <span class="comment"># 删除原文件 file1</span></span><br><span class="line"><span class="built_in">cat</span> file2               <span class="comment"># 内容仍在</span></span><br></pre></td></tr></table></figure>
+<p>你会发现 inode 号一样，文件其实是用不同名字存在的同一个实体。</p>
+<hr>
+<h3 id="三、软链接-——-路标式的快捷方式"><a href="#三、软链接-——-路标式的快捷方式" class="headerlink" title="三、软链接 —— 路标式的快捷方式"></a>三、软链接 —— 路标式的快捷方式</h3><p><strong>比喻：一块路牌，写着“请去那间屋子”。</strong><br>软链接本身是一间很小的新“小屋”，里面只存放<strong>目标文件的路径</strong>。你敲软链接的名字，系统就会按照路径找到真正的文件。如果你把目标文件拆了（删除），路牌还在，但指向的地方已经空了，就会找不到。</p>
+<p><strong>创建软链接：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s 原文件 新链接名</span><br></pre></td></tr></table></figure>
+
+<p><strong>本质：</strong><br>软链接是一个<strong>特殊的新文件</strong>，有自己独立的 inode，数据内容就是目标文件的“路径字符串”。</p>
+<p><strong>软链接的特点：</strong></p>
+<ul>
+<li><strong>可以跨文件系统</strong>：因为只存路径，和 inode 无关，所以可以链接到另一个硬盘分区的文件。</li>
+<li><strong>可以链接目录</strong>：比如 <code>ln -s /usr/local/bin mybin</code>。</li>
+<li><strong>删除原文件后，软链接会失效</strong>：变成一个“死链接”（broken link），访问时报错“没有那个文件或目录”。</li>
+<li><strong>修改软链接文件的内容，实际上会写入原文件</strong>，因为它只是一个跳转。</li>
+<li><code>ls -l</code> 会显示 <code>lrwxrwxrwx</code>，并且用箭头 <code>软链接 -&gt; 原文件</code> 清晰标示。</li>
+<li>软链接的权限始终是 <code>lrwxrwxrwx</code>，实际权限由目标文件决定。</li>
+</ul>
+<p><strong>举例：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;world&quot;</span> &gt; original</span><br><span class="line"><span class="built_in">ln</span> -s original softlink      <span class="comment"># 创建软链接</span></span><br><span class="line"><span class="built_in">ls</span> -li original softlink     <span class="comment"># inode 不同，文件类型是 l</span></span><br><span class="line"><span class="built_in">cat</span> softlink                 <span class="comment"># 输出 world</span></span><br><span class="line"><span class="built_in">rm</span> original                  <span class="comment"># 删除原文件</span></span><br><span class="line"><span class="built_in">cat</span> softlink                 <span class="comment"># 报错：No such file or directory</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、核心区别一张表"><a href="#四、核心区别一张表" class="headerlink" title="四、核心区别一张表"></a>四、核心区别一张表</h3><table>
+<thead>
+<tr>
+<th>特征</th>
+<th>硬链接</th>
+<th>软链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本质</td>
+<td>与源文件完全相同的 inode</td>
+<td>独立文件，存的是源文件的路径</td>
+</tr>
+<tr>
+<td>inode 号</td>
+<td>相同</td>
+<td>不同</td>
+</tr>
+<tr>
+<td>能否跨分区</td>
+<td>不能</td>
+<td>能</td>
+</tr>
+<tr>
+<td>能否链接目录</td>
+<td>通常不能</td>
+<td>能</td>
+</tr>
+<tr>
+<td>删除源文件后</td>
+<td>链接仍有效</td>
+<td>链接失效（变成死链接）</td>
+</tr>
+<tr>
+<td>文件权限</td>
+<td>与源文件完全同步</td>
+<td>始终 lrwxrwxrwx，受目标限制</td>
+</tr>
+<tr>
+<td>空间占用</td>
+<td>几乎不占额外空间（仅多一个目录项）</td>
+<td>占用一点点空间（存路径）</td>
+</tr>
+<tr>
+<td>相对&#x2F;绝对路径</td>
+<td>不涉及路径概念</td>
+<td>可以用相对路径或绝对路径</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="五、什么时候用哪个？"><a href="#五、什么时候用哪个？" class="headerlink" title="五、什么时候用哪个？"></a>五、什么时候用哪个？</h3><ul>
+<li><strong>要备份重要文件，防止误删</strong>：用硬链接。比如你有重要的数据文件，创建一个硬链接，即使原文件名被 rm 了，数据依然在。</li>
+<li><strong>要方便快速访问、且可能链接到其他硬盘或目录</strong>：用软链接。比如给经常用的长目录创建快捷方式，或者让某个脚本调用其它分区的库。</li>
+<li><strong>需要多个入口点共享同一份不停变动的配置</strong>：硬链接很合适，改动同步无延时。</li>
+<li><strong>避免循环链接或清晰的引用关系</strong>：软链接相对更安全，因为它能清楚地看出路径。</li>
+</ul>
+<p>一个通俗的记忆：<strong>硬链接是“分身”，软链接是“指向牌”</strong>。分身和本体同等重要，一体同命；指向牌指向某个位置，位置没了牌子就成了废纸。</p>
+<p>这样解释是否能帮你分清它们了呢？如果还有模糊的地方，可以继续问我。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/blog/tags/%E8%BD%AF%E9%93%BE%E6%8E%A5/" rel="tag"># 软链接</a>
+              <a href="/blog/tags/%E7%A1%AC%E9%93%BE%E6%8E%A5/" rel="tag"># 硬链接</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/USB%E5%8D%8F%E8%AE%AE/" rel="prev" title="USB协议">
+      <i class="fa fa-chevron-left"></i> USB协议
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/ZYNQ/ZYNQ%E5%BC%80%E5%8F%91%E4%BA%86%E8%A7%A3/" rel="next" title="ZYNQ裸机开发流程">
+      ZYNQ裸机开发流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%85%88%E5%BC%84%E6%87%82%E6%96%87%E4%BB%B6%E6%98%AF%E6%80%8E%E4%B9%88%E5%AD%98%E7%9A%84"><span class="nav-text">一、先弄懂文件是怎么存的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%A1%AC%E9%93%BE%E6%8E%A5-%E2%80%94%E2%80%94-%E5%90%8C%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E7%9A%84%E5%89%8D%E9%97%A8%E5%92%8C%E5%90%8E%E9%97%A8"><span class="nav-text">二、硬链接 —— 同一个文件的前门和后门</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BD%AF%E9%93%BE%E6%8E%A5-%E2%80%94%E2%80%94-%E8%B7%AF%E6%A0%87%E5%BC%8F%E7%9A%84%E5%BF%AB%E6%8D%B7%E6%96%B9%E5%BC%8F"><span class="nav-text">三、软链接 —— 路标式的快捷方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E4%B8%80%E5%BC%A0%E8%A1%A8"><span class="nav-text">四、核心区别一张表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E7%94%A8%E5%93%AA%E4%B8%AA%EF%BC%9F"><span class="nav-text">五、什么时候用哪个？</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">746k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:46</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

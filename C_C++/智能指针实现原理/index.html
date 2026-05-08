@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详细介绍智能指针（Smart Pointer）的实现原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="智能指针实现原理">
+<meta property="og:url" content="https://yanxianan.github.io/blog/C_C++/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍智能指针（Smart Pointer）的实现原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-27T03:50:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T02:14:09.942Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="智能指针">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/blog/C_C++/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>智能指针实现原理 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/blog/C_C++/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          智能指针实现原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-10-27 11:50:00" itemprop="dateCreated datePublished" datetime="2025-10-27T11:50:00+08:00">2025-10-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-04-27 10:14:09" itemprop="dateModified" datetime="2026-04-27T10:14:09+08:00">2026-04-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+            <div class="post-description">本文详细介绍智能指针（Smart Pointer）的实现原理。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>智能指针（Smart Pointer）是 C++ 中用于自动管理动态分配内存的工具，它们封装了原始指针，并在其生命周期结束时自动释放所管理的资源，从而避免内存泄漏、悬空指针等问题。C++11 引入了标准库中的三种主要智能指针：<code>std::unique_ptr</code>、<code>std::shared_ptr</code> 和 <code>std::weak_ptr</code>。智能指针的核心原理并不复杂，拆开来看其实就是三个关键技术：<strong>RAII</strong>、<strong>引用计数</strong>和<strong>控制块</strong>。下面我用最直白的方式，把 <code>unique_ptr</code>、<code>shared_ptr</code> 和 <code>weak_ptr</code> 的底层机制讲清楚，还会写一些简化的实现代码，让你看得见摸得着。</p>
+<hr>
+<h2 id="一、灵魂原则：RAII"><a href="#一、灵魂原则：RAII" class="headerlink" title="一、灵魂原则：RAII"></a>一、灵魂原则：RAII</h2><p>无论哪种智能指针，都遵循一个原则：<strong>在构造函数里拿到资源，在析构函数里释放资源</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SmartPtr</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">SmartPtr</span><span class="params">(T* ptr)</span> : ptr_(ptr) &#123;</span>&#125;</span><br><span class="line">    ~<span class="built_in">SmartPtr</span>() &#123; <span class="keyword">delete</span> ptr_; &#125; <span class="comment">// 离开作用域自动释放</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    T* ptr_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这就是最早的 <code>auto_ptr</code> 雏形，但有很多问题（比如拷贝时会转移所有权导致悬空）。现代智能指针在此基础上加上了<strong>所有权语义</strong>的控制。</p>
+<hr>
+<h2 id="二、unique-ptr：独占的实现"><a href="#二、unique-ptr：独占的实现" class="headerlink" title="二、unique_ptr：独占的实现"></a>二、<code>unique_ptr</code>：独占的实现</h2><p><code>unique_ptr</code> 的实现很简单：<strong>只允许一个人持有那个裸指针，禁止拷贝，允许移动</strong>。</p>
+<h3 id="简化实现（核心逻辑）"><a href="#简化实现（核心逻辑）" class="headerlink" title="简化实现（核心逻辑）"></a>简化实现（核心逻辑）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">unique_ptr</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数：接管裸指针</span></span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">unique_ptr</span><span class="params">(T* ptr = <span class="literal">nullptr</span>)</span> : ptr_(ptr) &#123;</span>&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 禁止拷贝</span></span><br><span class="line">    <span class="built_in">unique_ptr</span>(<span class="type">const</span> unique_ptr&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    unique_ptr&amp; <span class="keyword">operator</span>=(<span class="type">const</span> unique_ptr&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 移动构造函数：把源指针的资源“偷”过来，并把源指针置空</span></span><br><span class="line">    <span class="built_in">unique_ptr</span>(unique_ptr&amp;&amp; other) <span class="keyword">noexcept</span> : <span class="built_in">ptr_</span>(other.ptr_) &#123;</span><br><span class="line">        other.ptr_ = <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 移动赋值</span></span><br><span class="line">    unique_ptr&amp; <span class="keyword">operator</span>=(unique_ptr&amp;&amp; other) <span class="keyword">noexcept</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> != &amp;other) &#123;</span><br><span class="line">            <span class="keyword">delete</span> ptr_;          <span class="comment">// 先释放自己原来的资源</span></span><br><span class="line">            ptr_ = other.ptr_;    <span class="comment">// 偷过来</span></span><br><span class="line">            other.ptr_ = <span class="literal">nullptr</span>; <span class="comment">// 源置空</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构：如果持有资源，释放它</span></span><br><span class="line">    ~<span class="built_in">unique_ptr</span>() &#123;</span><br><span class="line">        <span class="keyword">delete</span> ptr_;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 像指针一样使用</span></span><br><span class="line">    T* <span class="keyword">operator</span>-&gt;() <span class="type">const</span> &#123; <span class="keyword">return</span> ptr_; &#125;</span><br><span class="line">    T&amp; <span class="keyword">operator</span>*()  <span class="type">const</span> &#123; <span class="keyword">return</span> *ptr_; &#125;</span><br><span class="line">    <span class="function">T* <span class="title">get</span><span class="params">()</span>        <span class="type">const</span> </span>&#123; <span class="keyword">return</span> ptr_; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="keyword">operator</span> <span class="title">bool</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> ptr_ != <span class="literal">nullptr</span>; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    T* ptr_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>关键点：  </p>
+<ul>
+<li>拷贝被 <code>delete</code> 了，从根本上杜绝了“一个资源两个人删”的问题。  </li>
+<li>移动时通过<strong>移交内部指针</strong>实现所有权转移，代价极低（就复制一个指针并置空源指针）。  </li>
+<li>真实标准库还支持<strong>自定义删除器</strong>，这里删了以突出核心。</li>
+</ul>
+<hr>
+<h2 id="三、shared-ptr：引用计数的实现"><a href="#三、shared-ptr：引用计数的实现" class="headerlink" title="三、shared_ptr：引用计数的实现"></a>三、<code>shared_ptr</code>：引用计数的实现</h2><p><code>shared_ptr</code> 比 <code>unique_ptr</code> 复杂，因为它要允许<strong>多个指针共享同一个对象</strong>。这个“共享”依靠一个<strong>控制块</strong>（Control Block）来实现，控制块里存放两个计数器：</p>
+<ul>
+<li><strong>强引用计数 <code>shared_count</code></strong>：记录当前有多少个 <code>shared_ptr</code> 指向对象。</li>
+<li><strong>弱引用计数 <code>weak_count</code></strong>：记录当前有多少个 <code>weak_ptr</code> 在观察对象。</li>
+</ul>
+<h3 id="控制块长什么样？"><a href="#控制块长什么样？" class="headerlink" title="控制块长什么样？"></a>控制块长什么样？</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ControlBlock</span> &#123;</span><br><span class="line">    <span class="type">long</span> shared_count;   <span class="comment">// 强引用计数</span></span><br><span class="line">    <span class="type">long</span> weak_count;     <span class="comment">// 弱引用计数</span></span><br><span class="line">    <span class="comment">// 实际标准库还可能包含删除器、分配器等，这里简化</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">ControlBlock</span>() : <span class="built_in">shared_count</span>(<span class="number">1</span>), <span class="built_in">weak_count</span>(<span class="number">0</span>) &#123;&#125; <span class="comment">// 初始时一个shared_ptr持有</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>shared_ptr</code> 内部一般有两个指针（或者一个指针+偏移）：</p>
+<ul>
+<li>一个指针 <code>ptr_</code> 指向被管理的对象。</li>
+<li>一个指针 <code>cb_</code> 指向堆上分配的控制块。</li>
+</ul>
+<h3 id="shared-ptr-的简化实现"><a href="#shared-ptr-的简化实现" class="headerlink" title="shared_ptr 的简化实现"></a><code>shared_ptr</code> 的简化实现</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">shared_ptr</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 从裸指针构造（注意：这只能一次，不能对同一个裸指针构造多个 shared_ptr）</span></span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">shared_ptr</span><span class="params">(T* ptr = <span class="literal">nullptr</span>)</span> </span></span><br><span class="line"><span class="function">        : ptr_(ptr), cb_(ptr ? new ControlBlock() : nullptr) &#123;</span>&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 拷贝构造：共享控制块，强引用计数+1</span></span><br><span class="line">    <span class="built_in">shared_ptr</span>(<span class="type">const</span> shared_ptr&amp; other)</span><br><span class="line">        : <span class="built_in">ptr_</span>(other.ptr_), <span class="built_in">cb_</span>(other.cb_) &#123;</span><br><span class="line">        <span class="keyword">if</span> (cb_) &#123;</span><br><span class="line">            cb_-&gt;shared_count++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 移动构造：把资源偷过来，源指针置空，不用改计数</span></span><br><span class="line">    <span class="built_in">shared_ptr</span>(shared_ptr&amp;&amp; other) <span class="keyword">noexcept</span></span><br><span class="line">        : <span class="built_in">ptr_</span>(other.ptr_), <span class="built_in">cb_</span>(other.cb_) &#123;</span><br><span class="line">        other.ptr_ = <span class="literal">nullptr</span>;</span><br><span class="line">        other.cb_  = <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构函数：强引用计数-1，如果归零就删除对象，并考虑删除控制块</span></span><br><span class="line">    ~<span class="built_in">shared_ptr</span>() &#123;</span><br><span class="line">        <span class="built_in">release</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 赋值省略，原理类似</span></span><br><span class="line"></span><br><span class="line">    T* <span class="keyword">operator</span>-&gt;() <span class="type">const</span> &#123; <span class="keyword">return</span> ptr_; &#125;</span><br><span class="line">    T&amp; <span class="keyword">operator</span>*()  <span class="type">const</span> &#123; <span class="keyword">return</span> *ptr_; &#125;</span><br><span class="line">    <span class="function"><span class="type">long</span> <span class="title">use_count</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> cb_ ? cb_-&gt;shared_count : <span class="number">0</span>; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">release</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (cb_) &#123;</span><br><span class="line">            cb_-&gt;shared_count--;</span><br><span class="line">            <span class="keyword">if</span> (cb_-&gt;shared_count == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">delete</span> ptr_;        <span class="comment">// 销毁对象</span></span><br><span class="line">                ptr_ = <span class="literal">nullptr</span>;</span><br><span class="line">                <span class="comment">// 如果此时弱引用计数也为0，可以删除控制块</span></span><br><span class="line">                <span class="keyword">if</span> (cb_-&gt;weak_count == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">delete</span> cb_;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 注意：如果 weak_count &gt; 0，控制块暂时保留（由 weak_ptr 存活）</span></span><br><span class="line">            &#125;</span><br><span class="line">            cb_ = <span class="literal">nullptr</span>; <span class="comment">// 当前 shared_ptr 不再关联任何控制块</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    T* ptr_;</span><br><span class="line">    ControlBlock* cb_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>要点解释：</strong></p>
+<ol>
+<li><p><strong>控制块生命周期</strong>  </p>
+<ul>
+<li>当 <code>shared_count</code> 变为 0，说明没有 <code>shared_ptr</code> 再指向这个对象，就 <code>delete ptr_</code> 释放对象。  </li>
+<li>但控制块不一定立即释放：因为可能还有 <code>weak_ptr</code> 存在，它们还需要通过控制块得知对象是否存活。只有当 <code>weak_count</code> 也为 0 时，才 <code>delete cb_</code>。</li>
+</ul>
+</li>
+<li><p><strong>移动构造</strong>不改变计数，只是转移所有权，效率很高。</p>
+</li>
+<li><p><strong>线程安全</strong><br>标准库的 <code>shared_ptr</code> 中，<code>shared_count</code> 和 <code>weak_count</code> 的增减必须使用<strong>原子操作</strong>（<code>std::atomic</code> 的 <code>fetch_add</code>&#x2F;<code>fetch_sub</code>），保证多线程下对计数的修改不会出现竞争。<br>但是，<strong>对象本身的操作不是线程安全的</strong>，需要额外保护。</p>
+</li>
+</ol>
+<hr>
+<h2 id="四、weak-ptr：旁观的实现"><a href="#四、weak-ptr：旁观的实现" class="headerlink" title="四、weak_ptr：旁观的实现"></a>四、<code>weak_ptr</code>：旁观的实现</h2><p><code>weak_ptr</code> 不参与对象生命周期的控制，但它需要知道对象还在不在。因此它也持有指向控制块的指针，但<strong>不增加 <code>shared_count</code></strong>，只增加 <code>weak_count</code>。</p>
+<h3 id="简化实现"><a href="#简化实现" class="headerlink" title="简化实现"></a>简化实现</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">weak_ptr</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 可以从 shared_ptr 构造</span></span><br><span class="line">    <span class="built_in">weak_ptr</span>(<span class="type">const</span> shared_ptr&lt;T&gt;&amp; sp)</span><br><span class="line">        : <span class="built_in">ptr_</span>(sp.ptr_), <span class="built_in">cb_</span>(sp.cb_) &#123;</span><br><span class="line">        <span class="keyword">if</span> (cb_) &#123;</span><br><span class="line">            cb_-&gt;weak_count++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">weak_ptr</span>(<span class="type">const</span> weak_ptr&amp; other)</span><br><span class="line">        : <span class="built_in">ptr_</span>(other.ptr_), <span class="built_in">cb_</span>(other.cb_) &#123;</span><br><span class="line">        <span class="keyword">if</span> (cb_) cb_-&gt;weak_count++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ~<span class="built_in">weak_ptr</span>() &#123;</span><br><span class="line">        <span class="keyword">if</span> (cb_) &#123;</span><br><span class="line">            cb_-&gt;weak_count--;</span><br><span class="line">            <span class="comment">// 如果强引用和弱引用都归零，可以删除控制块</span></span><br><span class="line">            <span class="keyword">if</span> (cb_-&gt;shared_count == <span class="number">0</span> &amp;&amp; cb_-&gt;weak_count == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">delete</span> cb_;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 尝试升级为 shared_ptr</span></span><br><span class="line">    <span class="function">shared_ptr&lt;T&gt; <span class="title">lock</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!cb_ || cb_-&gt;shared_count == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">shared_ptr</span>&lt;T&gt;(); <span class="comment">// 空</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 原子地增加 shared_count，这里简化直接 ++</span></span><br><span class="line">        cb_-&gt;shared_count++;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">shared_ptr</span>&lt;T&gt;(ptr_, cb_); <span class="comment">// 交出新构造的 shared_ptr</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">expired</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !cb_ || cb_-&gt;shared_count == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    T* ptr_;</span><br><span class="line">    ControlBlock* cb_;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这个私有构造给 lock() 用</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="keyword">class</span> <span class="title class_">shared_ptr</span>&lt;T&gt;;</span><br><span class="line">    <span class="built_in">weak_ptr</span>(T* p, ControlBlock* cb) : <span class="built_in">ptr_</span>(p), <span class="built_in">cb_</span>(cb) &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>关键：  </p>
+<ul>
+<li><code>weak_ptr</code> 不增加 <code>shared_count</code>，所以对象可能被销毁。  </li>
+<li><code>lock()</code> 检查 <code>shared_count &gt; 0</code>，若为真就创建一个新的 <code>shared_ptr</code>（增加计数），否则返回空。  </li>
+<li>这也是解决循环引用的根本机制：当两个对象互相引用时，把一方的 <code>shared_ptr</code> 换成 <code>weak_ptr</code>，就不会阻止对象释放。</li>
+</ul>
+<hr>
+<h2 id="五、make-shared-的优化原理"><a href="#五、make-shared-的优化原理" class="headerlink" title="五、make_shared 的优化原理"></a>五、<code>make_shared</code> 的优化原理</h2><p>如果你写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::shared_ptr&lt;Data&gt; <span class="title">sp</span><span class="params">(<span class="keyword">new</span> Data)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>会发生两次内存分配：一次分配 <code>Data</code> 对象，一次分配 <code>控制块</code>。<br>而 <code>std::make_shared&lt;Data&gt;()</code> 会<strong>一次性分配一块能同时放下对象和控制块的内存</strong>，然后在这块内存上构造对象和控制块。</p>
+<h3 id="这样做的好处："><a href="#这样做的好处：" class="headerlink" title="这样做的好处："></a>这样做的好处：</h3><ul>
+<li><strong>减少内存分配次数</strong>，提升性能。</li>
+<li><strong>缓存局部性更好</strong>，对象和控制块在内存中紧挨着，访问更快。</li>
+<li><strong>安全性更高</strong>，避免了潜在的内存泄漏（如果构造函数抛异常但分配已完成，<code>make_shared</code> 能保证释放）。</li>
+</ul>
+<p><code>make_shared</code> 返回的 <code>shared_ptr</code>，其内部指针可能不再区分对象指针和控制块指针，而是直接通过偏移得到控制块。这是库的实现细节，不影响使用。</p>
+<hr>
+<h2 id="六、一张图看懂数据关系"><a href="#六、一张图看懂数据关系" class="headerlink" title="六、一张图看懂数据关系"></a>六、一张图看懂数据关系</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">shared_ptr1 ----&gt; [T object]</span><br><span class="line">shared_ptr2 ----&gt; [T object]  &lt;--- 实际两个 shared_ptr 都指向同一个对象</span><br><span class="line">     |                |</span><br><span class="line">     +---&gt; [ControlBlock] &lt;---+</span><br><span class="line">             shared_count = 2</span><br><span class="line">             weak_count   = 1   &lt;--- weak_ptr 也指向这个控制块</span><br><span class="line">             </span><br><span class="line">weak_ptr  -----&gt; [ControlBlock]</span><br></pre></td></tr></table></figure>
+
+<p>当最后一个 <code>shared_ptr</code> 销毁时，<code>shared_count</code> 变为 0，对象被释放；但控制块由于 <code>weak_count &gt; 0</code> 还保留着。直到最后一个 <code>weak_ptr</code> 也销毁，<code>weak_count</code> 归零，控制块才被释放。</p>
+<hr>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><ul>
+<li><strong><code>unique_ptr</code></strong>：内部只存一个裸指针，靠“禁用拷贝 + 移动时置空”实现独占，零额外开销。</li>
+<li><strong><code>shared_ptr</code></strong>：内部存储<strong>对象指针</strong>和<strong>控制块指针</strong>，控制块里用原子计数管理共享强弱引用，计满删物，计空删块。</li>
+<li><strong><code>weak_ptr</code></strong>：共享控制块但不增加强计数，通过 <code>lock()</code> 检查对象存活，是打破循环引用的关键。</li>
+<li><strong><code>make_shared</code></strong>：一次分配对象+控制块，性能更优。</li>
+</ul>
+<p>把这些原理和前面的比喻结合起来，你就会发现智能指针的底层设计其实非常“朴素”：<br><strong>用一个会自毁的小管家（RAII对象）替你盯着资源，靠计数器或独占规则决定什么时候关门。</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/C/" rel="tag"># C++</a>
+              <a href="/blog/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" rel="tag"># 智能指针</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/C_C++/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" rel="prev" title="C++ 中的智能指针">
+      <i class="fa fa-chevron-left"></i> C++ 中的智能指针
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/%E5%86%85%E9%83%A8%E4%B8%AD%E6%96%AD%E5%92%8C%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" rel="next" title="内部中断和外部中断">
+      内部中断和外部中断 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%81%B5%E9%AD%82%E5%8E%9F%E5%88%99%EF%BC%9ARAII"><span class="nav-text">一、灵魂原则：RAII</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81unique-ptr%EF%BC%9A%E7%8B%AC%E5%8D%A0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">二、unique_ptr：独占的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8C%96%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91%EF%BC%89"><span class="nav-text">简化实现（核心逻辑）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81shared-ptr%EF%BC%9A%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">三、shared_ptr：引用计数的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%9D%97%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F"><span class="nav-text">控制块长什么样？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shared-ptr-%E7%9A%84%E7%AE%80%E5%8C%96%E5%AE%9E%E7%8E%B0"><span class="nav-text">shared_ptr 的简化实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81weak-ptr%EF%BC%9A%E6%97%81%E8%A7%82%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">四、weak_ptr：旁观的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8C%96%E5%AE%9E%E7%8E%B0"><span class="nav-text">简化实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81make-shared-%E7%9A%84%E4%BC%98%E5%8C%96%E5%8E%9F%E7%90%86"><span class="nav-text">五、make_shared 的优化原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%99%E6%A0%B7%E5%81%9A%E7%9A%84%E5%A5%BD%E5%A4%84%EF%BC%9A"><span class="nav-text">这样做的好处：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%9C%8B%E6%87%82%E6%95%B0%E6%8D%AE%E5%85%B3%E7%B3%BB"><span class="nav-text">六、一张图看懂数据关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">七、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">746k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:46</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

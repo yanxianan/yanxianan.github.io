@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍ZYNQ裸机上电的第一个阶段BootROM。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BootROM阶段">
+<meta property="og:url" content="https://yanxianan.github.io/blog/ZYNQ/BootROM/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍ZYNQ裸机上电的第一个阶段BootROM。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-06T03:37:00.000Z">
+<meta property="article:modified_time" content="2026-05-07T03:41:37.300Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ZYNQ">
+<meta property="article:tag" content="裸机">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/blog/ZYNQ/BootROM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BootROM阶段 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/blog/ZYNQ/BootROM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BootROM阶段
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-06 11:37:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:37:00+08:00">2026-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-05-07 11:41:37" itemprop="dateModified" datetime="2026-05-07T11:41:37+08:00">2026-05-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">本文介绍ZYNQ裸机上电的第一个阶段BootROM。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ZYNQ芯片上电后运行的第一个阶段就是BootROM。它是一段<strong>固化在芯片内部、物理上不可修改的只读存储器（掩膜ROM）代码</strong>。你可以把它理解为ZYNQ芯片的“出厂本能”或最底层的BIOS，它的核心使命非常单一且明确：<strong>完成最基本的硬件唤醒，并找到、加载下一级引导程序（FSBL）</strong>。</p>
+<p>以下是BootROM阶段的详细拆解：</p>
+<h3 id="1-BootROM的启动触发与硬件准备"><a href="#1-BootROM的启动触发与硬件准备" class="headerlink" title="1. BootROM的启动触发与硬件准备"></a>1. BootROM的启动触发与硬件准备</h3><p>当开发板上电或按下复位键时，芯片会经历一个上电复位（POR）过程。此时硬件会自动完成以下操作：</p>
+<ul>
+<li><strong>采样启动模式引脚</strong>：硬件会读取PS端特定的MIO引脚（通常是MIO[8:2]）的高低电平状态。这些引脚的接线（通常由板载拨码开关控制）决定了芯片接下来要从哪里读取程序，例如SD卡、QSPI Flash、NAND Flash还是JTAG接口。</li>
+<li><strong>CPU0开始执行</strong>：复位结束后，ARM处理器核CPU0会自动从芯片内部的BootROM起始地址开始取指令执行，而CPU1则会保持等待事件（WFE）的休眠状态。</li>
+</ul>
+<h3 id="2-BootROM的核心执行流程"><a href="#2-BootROM的核心执行流程" class="headerlink" title="2. BootROM的核心执行流程"></a>2. BootROM的核心执行流程</h3><p>BootROM代码执行时，DDR内存还没有被初始化，因此它只能在芯片内部极小的**256KB片上内存（OCM）**中运行。其内部流程主要包含以下几个关键步骤：</p>
+<ul>
+<li><p><strong>基础硬件初始化</strong>：根据之前采样到的启动模式，BootROM会配置对应的存储控制器（如SD卡控制器或QSPI控制器），并初始化最基础的时钟树。</p>
+</li>
+<li><p>搜索启动镜像（BOOT.BIN）</p>
+<p>：</p>
+<ul>
+<li>BootROM会尝试从选定的启动设备中寻找启动镜像。</li>
+<li>它会在存储设备上寻找一个特定的<strong>BootROM头部信息（Header）</strong>。这个Header通常包含一个“XLNX”魔术字作为标识。</li>
+<li><strong>智能搜索机制</strong>：如果在默认地址（如0x0）没有找到有效的Header，BootROM会触发“多启动（MultiBoot）”搜索机制。它会以<strong>32KB为步进</strong>，不断向后跳跃搜索，直到找到有效的Header或达到搜索边界。这也是为什么可以在Flash中存放多个系统镜像（如主镜像和备份镜像）来实现系统冗余备份的原理。</li>
+</ul>
+</li>
+<li><p>解析Header并加载FSBL：</p>
+<ul>
+<li>找到有效的Header后，BootROM会解析其中的目录信息，获取第一阶段引导加载程序（FSBL）在镜像文件中的偏移量、大小以及它应该被加载到OCM中的具体地址。</li>
+<li>BootROM将FSBL代码从外部存储设备（如SD卡）精准地拷贝到OCM的指定位置（通常是OCM的低地址区域，0x00000000附近）。</li>
+</ul>
+</li>
+<li><p><strong>移交控制权</strong>：FSBL加载完毕后，BootROM会通过一条跳转指令，将CPU的执行权彻底交给FSBL。至此，BootROM的使命结束，后续复杂的DDR初始化、PL比特流加载等工作全部由FSBL接手。</p>
+</li>
+</ul>
+<h3 id="3-两种主要的启动模式"><a href="#3-两种主要的启动模式" class="headerlink" title="3. 两种主要的启动模式"></a>3. 两种主要的启动模式</h3><p>BootROM的执行行为会根据启动模式的不同而有所差异，主要分为两大类：</p>
+<ul>
+<li><strong>主启动模式（从Flash&#x2F;SD卡启动）</strong>：<br>这是最常见的量产模式。BootROM主动配置控制器，从NAND、NOR (QSPI)、SD卡等闪存设备中读取BOOT.BIN并加载FSBL。</li>
+<li><strong>JTAG从启动模式（调试模式）</strong>：<br>主要用于开发调试阶段。当MIO引脚被配置为JTAG模式时，BootROM执行最少的系统配置，随后使能JTAG接口并进入空闲等待状态。此时，开发者可以通过电脑上的Vivado&#x2F;SDK工具，利用JTAG下载器直接将FSBL或应用程序下载到芯片的OCM或DDR中运行。</li>
+</ul>
+<h3 id="4-BootROM阶段的关键限制与冷知识"><a href="#4-BootROM阶段的关键限制与冷知识" class="headerlink" title="4. BootROM阶段的关键限制与冷知识"></a>4. BootROM阶段的关键限制与冷知识</h3><ul>
+<li><strong>FSBL大小限制</strong>：由于BootROM阶段DDR尚未初始化，FSBL必须被加载到容量仅为256KB的OCM中。而BootROM自身在执行时会占用OCM的高64KB区域，因此<strong>FSBL的实际可用空间必须小于192KB</strong>，否则会导致启动异常。</li>
+<li><strong>无法修改</strong>：BootROM是芯片出厂时通过光刻工艺固化在硅片里的，任何用户都无法通过软件手段擦除或修改它。</li>
+<li><strong>安全性检测</strong>：在安全启动场景下，BootROM还会负责校验eFUSE中的安全配置位，并对加密的FSBL进行初步的解密和身份验证，确保加载的代码未被篡改。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/blog/tags/ZYNQ/" rel="tag"># ZYNQ</a>
+              <a href="/blog/tags/%E8%A3%B8%E6%9C%BA/" rel="tag"># 裸机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/ZYNQ/ZYNQ%E5%BC%80%E5%8F%91%E4%BA%86%E8%A7%A3/" rel="prev" title="ZYNQ裸机开发流程">
+      <i class="fa fa-chevron-left"></i> ZYNQ裸机开发流程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/ZYNQ/FSBL/" rel="next" title="FSBL阶段">
+      FSBL阶段 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-BootROM%E7%9A%84%E5%90%AF%E5%8A%A8%E8%A7%A6%E5%8F%91%E4%B8%8E%E7%A1%AC%E4%BB%B6%E5%87%86%E5%A4%87"><span class="nav-text">1. BootROM的启动触发与硬件准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-BootROM%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-text">2. BootROM的核心执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%A4%E7%A7%8D%E4%B8%BB%E8%A6%81%E7%9A%84%E5%90%AF%E5%8A%A8%E6%A8%A1%E5%BC%8F"><span class="nav-text">3. 两种主要的启动模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-BootROM%E9%98%B6%E6%AE%B5%E7%9A%84%E5%85%B3%E9%94%AE%E9%99%90%E5%88%B6%E4%B8%8E%E5%86%B7%E7%9F%A5%E8%AF%86"><span class="nav-text">4. BootROM阶段的关键限制与冷知识</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">746k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:46</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

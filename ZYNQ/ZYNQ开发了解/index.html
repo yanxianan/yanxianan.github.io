@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍ZYNQ裸机开发的流程及基础知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZYNQ裸机开发流程">
+<meta property="og:url" content="https://yanxianan.github.io/blog/ZYNQ/ZYNQ%E5%BC%80%E5%8F%91%E4%BA%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍ZYNQ裸机开发的流程及基础知识。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-06T03:07:00.000Z">
+<meta property="article:modified_time" content="2026-05-07T03:32:32.116Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ZYNQ">
+<meta property="article:tag" content="裸机">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/blog/ZYNQ/ZYNQ%E5%BC%80%E5%8F%91%E4%BA%86%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ZYNQ裸机开发流程 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/blog/ZYNQ/ZYNQ%E5%BC%80%E5%8F%91%E4%BA%86%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ZYNQ裸机开发流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-06 11:07:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:07:00+08:00">2026-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-05-07 11:32:32" itemprop="dateModified" datetime="2026-05-07T11:32:32+08:00">2026-05-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文介绍ZYNQ裸机开发的流程及基础知识。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ZYNQ裸机开发是指<strong>直接在ARM处理器（PS端）上运行不依赖操作系统的底层代码，通过寄存器操作控制硬件资源（包括PL端逻辑）的开发方式</strong>。其核心流程为：<strong>使用Vivado完成硬件设计并导出平台文件 → 在SDK&#x2F;Vitis中创建裸机应用工程 → 编译生成包含FSBL、比特流和应用程序的BOOT.BIN镜像 → 烧录至开发板启动</strong>。以下结合关键步骤与原理进行详细说明：</p>
+<hr>
+<h2 id="一、基础概念与开发环境"><a href="#一、基础概念与开发环境" class="headerlink" title="一、基础概念与开发环境"></a>一、基础概念与开发环境</h2><h3 id="1-ZYNQ架构核心组成"><a href="#1-ZYNQ架构核心组成" class="headerlink" title="1. ZYNQ架构核心组成"></a>1. ZYNQ架构核心组成</h3><ul>
+<li><strong>PS端（Processing System）</strong>：集成ARM Cortex-A9（Zynq-7000）或Cortex-A53&#x2F;R5（Zynq UltraScale+）处理器，负责运行软件代码，<strong>裸机开发即直接操作PS端外设寄存器</strong>。</li>
+<li><strong>PL端（Programmable Logic）</strong>：FPGA逻辑部分，通过AXI总线与PS端交互，需在Vivado中设计并生成比特流文件（<code>.bit</code>）。</li>
+<li><strong>裸机（Baremetal）定义</strong>：<strong>不依赖操作系统</strong>，直接调用Xilinx提供的硬件抽象层（HAL）库函数操作寄存器，适用于实时性要求高、资源受限的场景。</li>
+</ul>
+<h3 id="2-开发工具链"><a href="#2-开发工具链" class="headerlink" title="2. 开发工具链"></a>2. 开发工具链</h3><ul>
+<li><p><strong>Vivado</strong>：用于设计PL端逻辑、配置PS端外设（如DDR、UART）、生成硬件平台文件（<code>.xsa</code>或<code>.hdf</code>）。</p>
+</li>
+<li><p>SDK（2018.3及以前）或Vitis（2019.1+）</p>
+<p>：基于Eclipse的IDE，用于编写裸机代码、编译生成可执行文件（</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.elf</span><br></pre></td></tr></table></figure>
+
+<p>）及制作启动镜像。</p>
+<ul>
+<li><strong>关键区别</strong>：Vitis是SDK的升级版，但裸机开发流程基本一致，仅界面和部分操作路径略有差异。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="二、裸机开发详细流程"><a href="#二、裸机开发详细流程" class="headerlink" title="二、裸机开发详细流程"></a>二、裸机开发详细流程</h2><h3 id="1-硬件设计（Vivado阶段）"><a href="#1-硬件设计（Vivado阶段）" class="headerlink" title="1. 硬件设计（Vivado阶段）"></a>1. 硬件设计（Vivado阶段）</h3><h4 id="（1）创建工程与添加ZYNQ-IP"><a href="#（1）创建工程与添加ZYNQ-IP" class="headerlink" title="（1）创建工程与添加ZYNQ IP"></a>（1）创建工程与添加ZYNQ IP</h4><ul>
+<li><p>新建RTL工程，选择目标器件（如<code>xc7z020clg400-1</code>）。</p>
+</li>
+<li><p>在Block Design中添加 <strong><code>ZYNQ7 Processing System</code>（Zynq-7000）或<code>ZYNQ UltraScale+ MPSoC</code>（UltraScale+）IP核</strong>。</p>
+</li>
+<li><p>关键配置项</p>
+<p>：</p>
+<ul>
+<li><strong>Clock Configuration</strong>：设置输入时钟频率（通常50MHz）及输出频率（如CPU主频667MHz、DDR 533MHz）。</li>
+<li><strong>DDR Configuration</strong>：<strong>必须与开发板实际DDR型号匹配</strong>（如MT41K256M16），否则FSBL初始化失败。</li>
+<li><strong>MIO&#x2F;EMIO配置</strong>：启用UART（调试输出）、GPIO等必要外设，<strong>电压标准需与硬件一致</strong>（如3.3V）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="（2）生成比特流与导出硬件平台"><a href="#（2）生成比特流与导出硬件平台" class="headerlink" title="（2）生成比特流与导出硬件平台"></a>（2）生成比特流与导出硬件平台</h4><ul>
+<li><p>自动连接PS-PL接口（AXI总线），运行综合、实现，生成比特流文件（<code>.bit</code>）。</p>
+</li>
+<li><p>导出硬件平台文件</p>
+<p>：</p>
+<ul>
+<li>Vivado 2018.3及以前：导出<code>.hdf</code>文件（<code>File → Export → Export Hardware</code>）。</li>
+<li>Vivado 2019.1+：导出<code>.xsa</code>文件（<strong>Vitis仅支持.xsa</strong>）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、软件开发（SDK-Vitis阶段）"><a href="#三、软件开发（SDK-Vitis阶段）" class="headerlink" title="三、软件开发（SDK&#x2F;Vitis阶段）"></a>三、软件开发（SDK&#x2F;Vitis阶段）</h2><h3 id="1-创建裸机应用工程"><a href="#1-创建裸机应用工程" class="headerlink" title="1. 创建裸机应用工程"></a>1. 创建裸机应用工程</h3><ul>
+<li><p><strong>启动SDK&#x2F;Vitis</strong>：在Vivado中点击<code>File → Launch SDK/Vitis</code>，或直接打开工具并导入<code>.xsa/.hdf</code>文件。</p>
+</li>
+<li><p>新建应用工程</p>
+<p>：</p>
+<ul>
+<li><p>选择<code>File → New → Application Project</code>。</p>
+</li>
+<li><p>关键参数</p>
+<p>：</p>
+<ul>
+<li><code>OS Platform</code>：<strong>必须选择<code>standalone</code>（裸机模式）</strong>。</li>
+<li><code>Processor</code>：选择PS端对应ARM核（如<code>ps7_cortexa9_0</code>）。</li>
+<li><code>Templates</code>：初学者选<code>Hello World</code>模板，自动生成基础代码框架。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-编写与编译代码"><a href="#2-编写与编译代码" class="headerlink" title="2. 编写与编译代码"></a>2. 编写与编译代码</h3><ul>
+<li><p>核心文件</p>
+<p>：</p>
+<ul>
+<li><code>helloworld.c</code>：主程序入口，包含<code>main()</code>函数。</li>
+<li><code>platform.h</code>：由BSP自动生成，包含硬件初始化函数（如<code>init_platform()</code>）。</li>
+</ul>
+</li>
+<li><p>关键操作</p>
+<p>：</p>
+<ul>
+<li><strong>直接调用HAL库函数</strong>：例如通过<code>XUartPs_Send()</code>操作UART，<strong>避免使用Linux系统调用</strong>。</li>
+<li><strong>硬件抽象层（HAL）作用</strong>：将寄存器操作封装为C函数（如<code>Xil_Out32(addr, value)</code>），<strong>屏蔽底层硬件差异</strong>。</li>
+</ul>
+</li>
+<li><p>编译工程：点击工具栏“锤子”图标生成<code>.elf</code>文件。</p>
+</li>
+</ul>
+<hr>
+<h2 id="四、启动流程与镜像制作"><a href="#四、启动流程与镜像制作" class="headerlink" title="四、启动流程与镜像制作"></a>四、启动流程与镜像制作</h2><h3 id="1-ZYNQ启动四阶段"><a href="#1-ZYNQ启动四阶段" class="headerlink" title="1. ZYNQ启动四阶段"></a>1. ZYNQ启动四阶段</h3><ol>
+<li><strong>Stage 0：BootROM</strong><br>芯片上电后，从固化ROM执行代码，<strong>根据MIO引脚状态选择启动设备</strong>（如SD卡、QSPI Flash）。</li>
+<li>Stage 1：FSBL（First Stage Boot Loader）<ul>
+<li><strong>初始化DDR控制器</strong>（关键步骤，失败则无法继续）。</li>
+<li><strong>配置PL端逻辑</strong>（通过PCAP接口加载比特流）。</li>
+<li><strong>加载应用程序至DDR</strong>，跳转至<code>main()</code>入口。</li>
+</ul>
+</li>
+<li><strong>Stage 2：裸机应用程序</strong><br>直接执行用户代码（无操作系统介入）。</li>
+<li><strong>（可选）Stage 3：SSBL</strong><br>裸机开发中通常<strong>跳过此阶段</strong>（仅Linux开发需U-Boot）。</li>
+</ol>
+<h3 id="2-制作BOOT-BIN启动镜像"><a href="#2-制作BOOT-BIN启动镜像" class="headerlink" title="2. 制作BOOT.BIN启动镜像"></a>2. 制作BOOT.BIN启动镜像</h3><ul>
+<li><p>必要组件</p>
+<p>（严格顺序）：</p>
+<ol>
+<li><strong>FSBL.elf</strong>：由SDK&#x2F;Vitis自动生成（<code>File → New → Application Project → 选择Zynq FSBL模板</code>）。</li>
+<li><strong>比特流文件（.bit）</strong>：PL端配置数据。</li>
+<li><strong>应用程序.elf</strong>：用户编译生成的裸机代码。</li>
+</ol>
+</li>
+<li><p>操作步骤</p>
+<p>：</p>
+<ul>
+<li>在SDK&#x2F;Vitis中选择<code>Xilinx → Create Boot Image</code>。</li>
+<li>添加上述三个文件，指定输出路径（生成<code>BOOT.BIN</code>）。</li>
+<li><strong>关键验证</strong>：确保FSBL在首位，否则PL无法初始化。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-烧录与启动"><a href="#3-烧录与启动" class="headerlink" title="3. 烧录与启动"></a>3. 烧录与启动</h3><ul>
+<li>将<code>BOOT.BIN</code>复制到SD卡根目录（FAT32格式），或烧录至QSPI Flash。</li>
+<li><strong>设置启动模式</strong>：根据开发板原理图，<strong>配置MIO[8:2]引脚为SD卡&#x2F;QSPI启动模式</strong>（通常通过拨码开关）。</li>
+<li>上电后，BootROM自动加载<code>BOOT.BIN</code>，依次执行FSBL→应用程序。</li>
+</ul>
+<hr>
+<h2 id="五、关键注意事项"><a href="#五、关键注意事项" class="headerlink" title="五、关键注意事项"></a>五、关键注意事项</h2><h3 id="1-常见问题排查"><a href="#1-常见问题排查" class="headerlink" title="1. 常见问题排查"></a>1. 常见问题排查</h3><ul>
+<li><strong>DDR初始化失败</strong>：<br>检查Vivado中DDR配置是否与<strong>开发板实际芯片型号完全一致</strong>（如时序参数、电压），这是FSBL阶段最常见错误。</li>
+<li><strong>PL未配置成功</strong>：<br>确认比特流文件已包含在<code>BOOT.BIN</code>中，且<strong>FSBL版本与硬件设计匹配</strong>（不同Vivado版本生成的FSBL可能不兼容）。</li>
+<li><strong>串口无输出</strong>：<br>检查MIO UART引脚配置、波特率设置（默认115200），以及代码中是否调用<code>init_uart()</code>初始化。</li>
+</ul>
+<h3 id="2-裸机开发核心优势"><a href="#2-裸机开发核心优势" class="headerlink" title="2. 裸机开发核心优势"></a>2. 裸机开发核心优势</h3><ul>
+<li><strong>实时性高</strong>：无操作系统调度开销，中断响应延迟<strong>可低至微秒级</strong>。</li>
+<li><strong>资源占用小</strong>：代码直接运行在DDR&#x2F;OCM中，<strong>无需Linux内核的数百MB内存</strong>。</li>
+<li><strong>硬件控制精细</strong>：可直接操作寄存器，适合驱动开发、实时控制等场景。</li>
+</ul>
+<h3 id="3-与Linux开发的本质区别"><a href="#3-与Linux开发的本质区别" class="headerlink" title="3. 与Linux开发的本质区别"></a>3. 与Linux开发的本质区别</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>裸机开发</th>
+<th>Linux开发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>执行环境</strong></td>
+<td>直接运行在ARM核上</td>
+<td>通过Linux内核调度执行</td>
+</tr>
+<tr>
+<td><strong>硬件访问</strong></td>
+<td>直接操作寄存器</td>
+<td>通过设备驱动和系统调用</td>
+</tr>
+<tr>
+<td><strong>启动流程</strong></td>
+<td>BootROM → FSBL → 应用程序</td>
+<td>BootROM → FSBL → U-Boot → Linux内核 → 应用</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>实时控制、资源受限系统</td>
+<td>复杂应用、网络服务、GUI等</td>
+</tr>
+</tbody></table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/blog/tags/ZYNQ/" rel="tag"># ZYNQ</a>
+              <a href="/blog/tags/%E8%A3%B8%E6%9C%BA/" rel="tag"># 裸机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/" rel="prev" title="嵌入式中的软链接和硬链接">
+      <i class="fa fa-chevron-left"></i> 嵌入式中的软链接和硬链接
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/ZYNQ/BootROM/" rel="next" title="BootROM阶段">
+      BootROM阶段 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83"><span class="nav-text">一、基础概念与开发环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ZYNQ%E6%9E%B6%E6%9E%84%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="nav-text">1. ZYNQ架构核心组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="nav-text">2. 开发工具链</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E8%AF%A6%E7%BB%86%E6%B5%81%E7%A8%8B"><span class="nav-text">二、裸机开发详细流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E8%AE%BE%E8%AE%A1%EF%BC%88Vivado%E9%98%B6%E6%AE%B5%EF%BC%89"><span class="nav-text">1. 硬件设计（Vivado阶段）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%88%9B%E5%BB%BA%E5%B7%A5%E7%A8%8B%E4%B8%8E%E6%B7%BB%E5%8A%A0ZYNQ-IP"><span class="nav-text">（1）创建工程与添加ZYNQ IP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E7%94%9F%E6%88%90%E6%AF%94%E7%89%B9%E6%B5%81%E4%B8%8E%E5%AF%BC%E5%87%BA%E7%A1%AC%E4%BB%B6%E5%B9%B3%E5%8F%B0"><span class="nav-text">（2）生成比特流与导出硬件平台</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%88SDK-Vitis%E9%98%B6%E6%AE%B5%EF%BC%89"><span class="nav-text">三、软件开发（SDK&#x2F;Vitis阶段）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E8%A3%B8%E6%9C%BA%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B"><span class="nav-text">1. 创建裸机应用工程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%BC%96%E5%86%99%E4%B8%8E%E7%BC%96%E8%AF%91%E4%BB%A3%E7%A0%81"><span class="nav-text">2. 编写与编译代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E4%B8%8E%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C"><span class="nav-text">四、启动流程与镜像制作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ZYNQ%E5%90%AF%E5%8A%A8%E5%9B%9B%E9%98%B6%E6%AE%B5"><span class="nav-text">1. ZYNQ启动四阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%B6%E4%BD%9CBOOT-BIN%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F"><span class="nav-text">2. 制作BOOT.BIN启动镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%83%A7%E5%BD%95%E4%B8%8E%E5%90%AF%E5%8A%A8"><span class="nav-text">3. 烧录与启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-text">五、关键注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-text">1. 常见问题排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="nav-text">2. 裸机开发核心优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%8ELinux%E5%BC%80%E5%8F%91%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB"><span class="nav-text">3. 与Linux开发的本质区别</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">746k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:46</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

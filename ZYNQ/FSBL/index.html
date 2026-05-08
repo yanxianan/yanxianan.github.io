@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍ZYNQ裸机上电的第二个阶段FSBL。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FSBL阶段">
+<meta property="og:url" content="https://yanxianan.github.io/blog/ZYNQ/FSBL/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文介绍ZYNQ裸机上电的第二个阶段FSBL。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-06T03:57:00.000Z">
+<meta property="article:modified_time" content="2026-05-07T03:46:37.449Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ZYNQ">
+<meta property="article:tag" content="裸机">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/blog/ZYNQ/FSBL/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>FSBL阶段 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/blog/ZYNQ/FSBL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FSBL阶段
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-06 11:57:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:57:00+08:00">2026-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-05-07 11:46:37" itemprop="dateModified" datetime="2026-05-07T11:46:37+08:00">2026-05-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文介绍ZYNQ裸机上电的第二个阶段FSBL。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><p>FSBL（First Stage Boot Loader）是ZYNQ启动流程中<strong>首个由用户可定制的软件阶段</strong>，在BootROM完成基础硬件唤醒后立即执行。其核心使命是：<strong>完成PS端关键外设初始化、配置PL逻辑、加载并移交控制权至下一阶段程序（SSBL或裸机应用）</strong>。若FSBL执行失败，系统将无法进入后续阶段。以下结合技术细节展开说明：</p>
+<hr>
+<h2 id="一、FSBL的核心作用"><a href="#一、FSBL的核心作用" class="headerlink" title="一、FSBL的核心作用"></a>一、FSBL的核心作用</h2><h3 id="1-硬件初始化（关键基础）"><a href="#1-硬件初始化（关键基础）" class="headerlink" title="1. 硬件初始化（关键基础）"></a>1. <strong>硬件初始化（关键基础）</strong></h3><ul>
+<li><strong>DDR控制器初始化</strong>：<br>执行完整的DDR PHY训练流程（包括时序校准、信号完整性测试），<strong>这是FSBL最核心且最易出错的环节</strong>。若DDR初始化失败（如时序参数与硬件不匹配），后续所有内存操作均会崩溃。  </li>
+<li><strong>PS端外设配置</strong>：<br>根据Vivado生成的硬件描述文件（HDF&#x2F;XSA），初始化MIO引脚、时钟树（PLL）、UART（用于调试输出）、GPIO等基础外设。  </li>
+<li><strong>关键限制</strong>：<br>FSBL运行于无MMU的裸机环境，<strong>代码必须严格控制在192KB以内</strong>（因OCM高64KB被BootROM占用），超限将导致启动异常。</li>
+</ul>
+<h3 id="2-PL逻辑配置（可选但关键）"><a href="#2-PL逻辑配置（可选但关键）" class="headerlink" title="2. PL逻辑配置（可选但关键）"></a>2. <strong>PL逻辑配置（可选但关键）</strong></h3><ul>
+<li><strong>比特流加载</strong>：<br>通过PCAP（Processor Configuration Access Port）接口，将PL比特流文件（<code>.bit</code>）从启动设备加载至FPGA逻辑单元。  </li>
+<li><strong>时序严格性</strong>：<br>需精确控制<code>PROG_B</code>复位脉冲（≥300ns）、<code>INIT_B</code>响应检测（超时阈值建议1ms），<strong>时序偏差会导致PL配置失败</strong>。  </li>
+<li><strong>非必选项</strong>：<br>若系统仅使用PS端（如纯ARM裸机应用），可跳过PL配置步骤。</li>
+</ul>
+<h3 id="3-下一阶段程序加载"><a href="#3-下一阶段程序加载" class="headerlink" title="3. 下一阶段程序加载"></a>3. <strong>下一阶段程序加载</strong></h3><ul>
+<li>目标程序类型：  <ul>
+<li><strong>SSBL</strong>（如U-Boot）：用于Linux系统启动。  </li>
+<li><strong>裸机应用程序</strong>：直接运行无操作系统的用户代码（如<code>helloworld.elf</code>）。</li>
+</ul>
+</li>
+<li><strong>加载机制</strong>：<br>FSBL解析BOOT.BIN中的分区表，将目标程序从启动设备复制到DDR指定地址，并<strong>在跳转前禁用MMU</strong>（因Linux内核要求启动时MMU处于关闭状态）。</li>
+</ul>
+<hr>
+<h2 id="二、FSBL的详细执行流程"><a href="#二、FSBL的详细执行流程" class="headerlink" title="二、FSBL的详细执行流程"></a>二、FSBL的详细执行流程</h2><h3 id="1-启动入口与环境准备"><a href="#1-启动入口与环境准备" class="headerlink" title="1. 启动入口与环境准备"></a>1. <strong>启动入口与环境准备</strong></h3><ul>
+<li><strong>执行起点</strong>：<br>BootROM将FSBL加载至OCM（通常地址<code>0x00000000</code>），并跳转至其入口点（<code>_vector_table</code>）。  </li>
+<li>初始环境：  <ul>
+<li>CPU运行于SVC特权模式。  </li>
+<li><strong>MMU与缓存（Cache）处于关闭状态</strong>。  </li>
+<li>仅依赖OCM作为临时存储空间。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-关键初始化步骤"><a href="#2-关键初始化步骤" class="headerlink" title="2. 关键初始化步骤"></a>2. <strong>关键初始化步骤</strong></h3><h4 id="1-硬件抽象层（HAL）初始化"><a href="#1-硬件抽象层（HAL）初始化" class="headerlink" title="1. 硬件抽象层（HAL）初始化"></a>1. 硬件抽象层（HAL）初始化</h4><ul>
+<li>解析HDF&#x2F;XSA文件中的硬件描述信息，生成外设寄存器映射表。  </li>
+<li><strong>HDF文件是FSBL的“配置中枢”</strong>：若其中<code>clock-frequency</code>等参数错误，将直接导致UART波特率计算偏差，引发通信乱码。</li>
+</ul>
+<h4 id="2-DDR内存初始化"><a href="#2-DDR内存初始化" class="headerlink" title="2. DDR内存初始化"></a>2. DDR内存初始化</h4><ul>
+<li>三阶段训练流程：  <ol>
+<li><strong>DQS训练</strong>：校准数据选通信号时序。  </li>
+<li><strong>写入训练</strong>：优化数据写入窗口。  </li>
+<li><strong>读取训练</strong>：校准数据读取窗口。</li>
+</ol>
+</li>
+<li><strong>失败后果</strong>：<br>DDR初始化失败是<strong>裸机开发中最常见的启动卡死原因</strong>，通常因Vivado中DDR配置与实际硬件（如芯片型号、PCB走线）不匹配所致。</li>
+</ul>
+<h4 id="3-PL比特流加载（若启用）"><a href="#3-PL比特流加载（若启用）" class="headerlink" title="3. PL比特流加载（若启用）"></a>3. PL比特流加载（若启用）</h4><ul>
+<li><strong>PCAP接口通信</strong>：<br>通过DMA将比特流数据从启动设备传输至PL，<strong>传输长度必须4字节对齐</strong>，否则触发硬件异常。  </li>
+<li><strong>状态监控</strong>：<br>持续轮询PCAP状态寄存器，确认<code>DMA_DONE</code>标志置位后才继续后续流程。</li>
+</ul>
+<h4 id="4-下一阶段程序加载"><a href="#4-下一阶段程序加载" class="headerlink" title="4. 下一阶段程序加载"></a>4. 下一阶段程序加载</h4><ul>
+<li><strong>分区表解析</strong>：<br>遍历BOOT.BIN中的分区头表，定位SSBL或裸机程序的偏移地址与大小。  </li>
+<li><strong>安全校验（可选）</strong>：<br>若启用安全启动，FSBL会验证下一阶段镜像的数字签名（如RSA校验），<strong>跳过此步将导致系统易受固件篡改攻击</strong>。</li>
+</ul>
+<h4 id="5-控制权移交"><a href="#5-控制权移交" class="headerlink" title="5. 控制权移交"></a>5. 控制权移交</h4><ul>
+<li>关键操作：  <ol>
+<li>清空BSS段（未初始化全局变量置零）。  </li>
+<li>设置堆栈指针（SP）至DDR中的有效地址。  </li>
+<li><strong>跳转至目标程序入口地址</strong>（通过函数指针调用）。</li>
+</ol>
+</li>
+<li><strong>移交前状态</strong>：<br><strong>MMU必须保持禁用</strong>，否则Linux内核将无法正确初始化虚拟内存。</li>
+</ul>
+<hr>
+<h2 id="三、FSBL开发与调试要点"><a href="#三、FSBL开发与调试要点" class="headerlink" title="三、FSBL开发与调试要点"></a>三、FSBL开发与调试要点</h2><h3 id="1-生成与定制方法"><a href="#1-生成与定制方法" class="headerlink" title="1. 生成与定制方法"></a>1. <strong>生成与定制方法</strong></h3><ul>
+<li><strong>标准生成流程</strong>：<br>在Vivado导出硬件平台（<code>.xsa</code>）后，于Vitis中创建应用工程 → 选择模板 <strong><code>Zynq FSBL</code></strong> → 自动生成源码（<code>fsbl_main.c</code>等）。  </li>
+<li>关键可定制点：  <ul>
+<li>修改<code>fsbl_hooks.c</code>中的钩子函数（如<code>FsblHookBeforeHandoff()</code>），插入自定义逻辑。  </li>
+<li>调整HDF中的时钟&#x2F;DDR参数以适配硬件。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-常见故障与排查"><a href="#2-常见故障与排查" class="headerlink" title="2. 常见故障与排查"></a>2. <strong>常见故障与排查</strong></h3><h4 id="1-启动卡死在FSBL阶段"><a href="#1-启动卡死在FSBL阶段" class="headerlink" title="1. 启动卡死在FSBL阶段"></a>1. 启动卡死在FSBL阶段</h4><ul>
+<li><p><strong>典型现象</strong>：<br>串口无输出或输出中断于“DDR init”环节。  </p>
+</li>
+<li><p>根因与解决</p>
+<p>：  </p>
+<ul>
+<li><strong>DDR配置错误</strong>：检查Vivado中DDR PHY参数是否与开发板手册一致（如<code>MT41K256M16</code>需匹配时序表）。  </li>
+<li><strong>OCM超限</strong>：精简FSBL代码（如关闭<code>FSBL_DEBUG_INFO</code>宏减少日志输出）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-PL配置失败"><a href="#2-PL配置失败" class="headerlink" title="2. PL配置失败"></a>2. PL配置失败</h4><ul>
+<li><strong>典型现象</strong>：<br>PL端逻辑功能异常，或串口输出<code>Bitstream load failed</code>。  </li>
+<li>根因与解决：  <ul>
+<li><strong>比特流未包含在BOOT.BIN中</strong>：确认Create Boot Image时已添加<code>.bit</code>文件。  </li>
+<li><strong>PCAP时序超限</strong>：在FSBL源码中调整<code>XFsbl_PcapWaitForDmaDone()</code>的超时阈值。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-调试核心手段"><a href="#3-调试核心手段" class="headerlink" title="3. 调试核心手段"></a>3. <strong>调试核心手段</strong></h3><ul>
+<li><strong>串口日志</strong>：<br>启用<code>FSBL_DEBUG_INFO</code>宏（在<code>fsbl_debug.h</code>中定义），通过UART输出各阶段状态（如DDR训练结果）。  </li>
+<li><strong>JTAG断点</strong>：<br>在Vitis中设置断点于<code>main()</code>函数，单步跟踪初始化流程。  </li>
+<li><strong>寄存器快照</strong>：<br>使用XSCT脚本读取关键寄存器（如DDR控制器状态寄存器<code>0xF8006000</code>）。</li>
+</ul>
+<hr>
+<h2 id="四、FSBL与裸机开发的关联"><a href="#四、FSBL与裸机开发的关联" class="headerlink" title="四、FSBL与裸机开发的关联"></a>四、FSBL与裸机开发的关联</h2><ul>
+<li><strong>裸机程序的启动依赖</strong>：<br>裸机应用（如<code>helloworld.elf</code>）<strong>必须通过FSBL加载至DDR</strong>，无法直接由BootROM启动（因BootROM不支持DDR初始化）。  </li>
+<li><strong>FSBL的裁剪必要性</strong>：<br>纯裸机场景可删除FSBL中SSBL&#x2F;U-Boot相关代码，<strong>仅保留PS初始化与应用程序加载逻辑</strong>，以缩短启动时间。  </li>
+<li><strong>关键区别</strong>：<br>若跳过FSBL（如JTAG直接加载裸机程序），<strong>PL端逻辑将无法自动配置</strong>，需手动通过JTAG下载比特流。</li>
+</ul>
+<hr>
+<p>FSBL是ZYNQ启动链的<strong>关键信任锚点</strong>，其稳定性直接决定系统能否进入用户代码阶段。<strong>开发裸机应用时，必须确保FSBL正确完成DDR初始化与PL配置（若需要），否则后续程序必然崩溃</strong>。建议首次开发时优先验证FSBL日志，确认“DDR init done”及“Handoff to application”等关键输出后再调试应用逻辑。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/blog/tags/ZYNQ/" rel="tag"># ZYNQ</a>
+              <a href="/blog/tags/%E8%A3%B8%E6%9C%BA/" rel="tag"># 裸机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/ZYNQ/BootROM/" rel="prev" title="BootROM阶段">
+      <i class="fa fa-chevron-left"></i> BootROM阶段
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/%E5%B5%8C%E5%85%A5%E5%BC%8F/NAND%20Flash%E4%B8%8ENOR%20Flash%E7%9A%84%E5%BC%82%E5%90%8C/" rel="next" title="NAND Flash与NOR Flash的异同">
+      NAND Flash与NOR Flash的异同 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81FSBL%E7%9A%84%E6%A0%B8%E5%BF%83%E4%BD%9C%E7%94%A8"><span class="nav-text">一、FSBL的核心作用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88%E5%85%B3%E9%94%AE%E5%9F%BA%E7%A1%80%EF%BC%89"><span class="nav-text">1. 硬件初始化（关键基础）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-PL%E9%80%BB%E8%BE%91%E9%85%8D%E7%BD%AE%EF%BC%88%E5%8F%AF%E9%80%89%E4%BD%86%E5%85%B3%E9%94%AE%EF%BC%89"><span class="nav-text">2. PL逻辑配置（可选但关键）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%8B%E4%B8%80%E9%98%B6%E6%AE%B5%E7%A8%8B%E5%BA%8F%E5%8A%A0%E8%BD%BD"><span class="nav-text">3. 下一阶段程序加载</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81FSBL%E7%9A%84%E8%AF%A6%E7%BB%86%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-text">二、FSBL的详细执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%90%AF%E5%8A%A8%E5%85%A5%E5%8F%A3%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-text">1. 启动入口与环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%85%B3%E9%94%AE%E5%88%9D%E5%A7%8B%E5%8C%96%E6%AD%A5%E9%AA%A4"><span class="nav-text">2. 关键初始化步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E6%8A%BD%E8%B1%A1%E5%B1%82%EF%BC%88HAL%EF%BC%89%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-text">1. 硬件抽象层（HAL）初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-DDR%E5%86%85%E5%AD%98%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-text">2. DDR内存初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-PL%E6%AF%94%E7%89%B9%E6%B5%81%E5%8A%A0%E8%BD%BD%EF%BC%88%E8%8B%A5%E5%90%AF%E7%94%A8%EF%BC%89"><span class="nav-text">3. PL比特流加载（若启用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E4%B8%8B%E4%B8%80%E9%98%B6%E6%AE%B5%E7%A8%8B%E5%BA%8F%E5%8A%A0%E8%BD%BD"><span class="nav-text">4. 下一阶段程序加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E6%8E%A7%E5%88%B6%E6%9D%83%E7%A7%BB%E4%BA%A4"><span class="nav-text">5. 控制权移交</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81FSBL%E5%BC%80%E5%8F%91%E4%B8%8E%E8%B0%83%E8%AF%95%E8%A6%81%E7%82%B9"><span class="nav-text">三、FSBL开发与调试要点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%94%9F%E6%88%90%E4%B8%8E%E5%AE%9A%E5%88%B6%E6%96%B9%E6%B3%95"><span class="nav-text">1. 生成与定制方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B8%B8%E8%A7%81%E6%95%85%E9%9A%9C%E4%B8%8E%E6%8E%92%E6%9F%A5"><span class="nav-text">2. 常见故障与排查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%90%AF%E5%8A%A8%E5%8D%A1%E6%AD%BB%E5%9C%A8FSBL%E9%98%B6%E6%AE%B5"><span class="nav-text">1. 启动卡死在FSBL阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-PL%E9%85%8D%E7%BD%AE%E5%A4%B1%E8%B4%A5"><span class="nav-text">2. PL配置失败</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%B0%83%E8%AF%95%E6%A0%B8%E5%BF%83%E6%89%8B%E6%AE%B5"><span class="nav-text">3. 调试核心手段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81FSBL%E4%B8%8E%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E7%9A%84%E5%85%B3%E8%81%94"><span class="nav-text">四、FSBL与裸机开发的关联</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">746k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:46</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
