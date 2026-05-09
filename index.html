@@ -447,26 +447,10 @@ p::before {
 }
 
 .highlight {
-    display: inline-block;
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-    position: relative;
-    animation: shimmer 3s ease-in-out forwards;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-    animation-fill-mode: forwards;
-}
-
-@keyframes shimmer {
-    0%, 100% {
-        background-position: 0% 50%;
-        filter: brightness(1);
-    }
-    50% {
-        background-position: 100% 50%;
-        filter: brightness(1.2);
-    }
+    display: inline;
+    color: inherit;
+    font-weight: inherit;
+    margin-left: 0.18em;
 }
 
 /* 艺术性社交链接 */
@@ -1196,6 +1180,7 @@ footer::before {
     bottom: 0;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,165.3C384,171,480,149,576,154.7C672,160,768,192,864,197.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
     background-size: cover;
+    pointer-events: none;
 }
 
 footer p {
@@ -1204,6 +1189,12 @@ footer p {
     position: relative;
     z-index: 1;
     margin-bottom: 0;
+}
+
+footer .container,
+.blog-footer-link {
+    position: relative;
+    z-index: 1;
 }
 
 /* 响应式设计 */
@@ -1556,19 +1547,18 @@ footer p {
             <div class="row align-items-center min-vh-100">
                 <div class="col-lg-6">
                     <div class="hero-content">
-                        <h1 class="display-4 fw-bold mb-4">您好，我是<span class="highlight">您的姓名</span></h1>
+                        <h1 class="display-4 fw-bold mb-4">您好，我是<span class="highlight">yxa</span></h1>
                         <h2 class="mb-4">计算机科学与技术专业应届毕业生</h2>
                         <p class="lead mb-4">热爱编程，善于解决问题，具有扎实的专业基础和实践经验</p>
                         <div class="social-links mb-4">
                             <!-- 社交链接已移除 -->
                         </div>
-                        <a href="https://020429.xyz/blog/" target="_blank" class="btn btn-blog btn-lg me-3"><i class="fas fa-blog me-2"></i>进入博客</a>
-                        <button class="btn btn-outline-primary btn-lg">联系我</button>
+                        <a href="https://020429.xyz/blog/" target="_blank" class="btn btn-blog btn-lg"><i class="fas fa-blog me-2"></i>进入博客</a>
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
                     <div class="profile-image">
-                        <img src="profile.jpg" alt="个人照片" class="img-fluid rounded shadow-lg">
+                        <img src="images/avatar.jpg" alt="个人照片" class="img-fluid rounded shadow-lg">
                     </div>
                 </div>
             </div>
@@ -1750,31 +1740,31 @@ footer p {
                 <div class="col-md-12">
                     <div class="timeline">
                         <div class="timeline-item">
-                            <div class="timeline-date">2023.07 - 2023.09</div>
+                            <div class="timeline-date">2024.03 - 2024.06</div>
                             <div class="timeline-content">
-                                <h4>某互联网公司 - 后端开发实习生</h4>
-                                <p><strong>主要职责：</strong></p>
+                                <h4>某互联网公司 - Java 后端开发实习生</h4>
+                                <p><strong>实习内容：</strong></p>
                                 <ul>
-                                    <li>参与公司核心业务系统的开发和维护</li>
-                                    <li>负责用户模块的后端API开发，日均处理请求10万+</li>
-                                    <li>优化数据库查询，提升系统性能30%</li>
-                                    <li>参与系统架构设计，编写技术文档</li>
+                                    <li>参与后台管理系统的接口开发，负责用户、权限和操作日志等基础模块的编码与联调。</li>
+                                    <li>根据产品需求编写接口文档，使用 Postman 完成接口自测，并配合前端排查联调问题。</li>
+                                    <li>优化部分列表查询逻辑，补充分页、条件筛选和异常提示，提升页面数据加载稳定性。</li>
+                                    <li>参与日常代码评审和版本发布，熟悉从需求评审、开发、自测到上线的完整协作流程。</li>
                                 </ul>
-                                <p><strong>技术栈：</strong> Java, Spring Boot, MySQL, Redis, Kafka</p>
+                                <p><strong>技术栈：</strong> Java, Spring Boot, MyBatis, MySQL, Redis</p>
                             </div>
                         </div>
                         <div class="timeline-item">
-                            <div class="timeline-date">2022.07 - 2022.08</div>
+                            <div class="timeline-date">2023.07 - 2023.09</div>
                             <div class="timeline-content">
-                                <h4>某科技公司 - 前端开发实习生</h4>
-                                <p><strong>主要职责：</strong></p>
+                                <h4>某科技公司 - Web 前端开发实习生</h4>
+                                <p><strong>实习内容：</strong></p>
                                 <ul>
-                                    <li>开发公司产品的前端界面，提升用户体验</li>
-                                    <li>优化页面性能，减少加载时间40%</li>
-                                    <li>参与UI/UX设计评审，提出改进建议</li>
-                                    <li>编写单元测试，保证代码质量</li>
+                                    <li>根据设计稿完成业务页面开发，包含列表、表单、详情弹窗和基础数据展示组件。</li>
+                                    <li>封装常用请求和表单校验逻辑，减少重复代码，提升页面维护效率。</li>
+                                    <li>处理移动端适配和浏览器兼容问题，保证主要页面在不同屏幕下显示正常。</li>
+                                    <li>整理页面修改说明和组件使用方式，方便后续同学继续维护。</li>
                                 </ul>
-                                <p><strong>技术栈：</strong> React, TypeScript, Ant Design, Jest</p>
+                                <p><strong>技术栈：</strong> Vue.js, JavaScript, Element UI, Axios</p>
                             </div>
                         </div>
                     </div>
@@ -1787,7 +1777,7 @@ footer p {
     <footer class="bg-dark text-white py-4">
         <div class="container text-center">
             <div class="mb-3">
-                <a href="https://020429.xyz/blog/" target="_blank" class="text-white text-decoration-none blog-footer-link" onclick="window.open('https://020429.xyz/blog/', '_blank')">
+                <a href="https://020429.xyz/blog/" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none blog-footer-link">
                     <i class="fas fa-blog me-2"></i>访问我的博客
                 </a>
             </div>
@@ -2110,10 +2100,64 @@ function initScrollEffects() {
     });
 }
 
+// 初始化技能进度条
+function initSkillsProgress() {
+    const skillsSection = document.getElementById('skills');
+    if (!skillsSection) return;
+
+    if (!('IntersectionObserver' in window)) {
+        animateProgressBars();
+        return;
+    }
+
+    let hasAnimated = false;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !hasAnimated) {
+                hasAnimated = true;
+                animateProgressBars();
+                observer.unobserve(skillsSection);
+            }
+        });
+    }, {
+        threshold: 0.2
+    });
+
+    observer.observe(skillsSection);
+}
+
+// 初始化实习经历时间线
+function initTimeline() {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    if (!timelineItems.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+        timelineItems.forEach(item => item.classList.add('visible'));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    timelineItems.forEach(item => observer.observe(item));
+}
+
 // 技能进度条动画
 function animateProgressBars() {
     const progressBars = document.querySelectorAll('.progress-bar');
     progressBars.forEach(bar => {
+        if (bar.dataset.animated === 'true') return;
+        bar.dataset.animated = 'true';
+
         const width = bar.style.width;
         bar.style.width = '0';
 
