@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详细介绍C和C++中的整型提升。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="整型提升">
+<meta property="og:url" content="https://yanxianan.github.io/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍C和C++中的整型提升。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-12T01:10:00.000Z">
+<meta property="article:modified_time" content="2026-05-12T02:24:06.473Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="整型提升">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>整型提升 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          整型提升
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-05-12 09:10:00 / 修改时间：10:24:06" itemprop="dateCreated datePublished" datetime="2026-05-12T09:10:00+08:00">2026-05-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+            <div class="post-description">本文详细介绍C和C++中的整型提升。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在C语言中，<strong>整型提升（Integer Promotion）</strong> 是指表达式中所有<strong>长度小于<code>int</code>的整型操作数</strong>（如<code>char</code>、<code>short</code>、<code>bool</code>等）在参与运算前，<strong>自动隐式转换为<code>int</code>或<code>unsigned int</code></strong> 的规则。这是C标准强制规定的底层机制，<strong>核心目的是匹配CPU运算器的标准操作长度（通常为<code>int</code>），避免低精度运算导致数据丢失或效率问题</strong>。若忽略此规则，极易引发符号错误、溢出等隐蔽Bug。</p>
+<hr>
+<h2 id="一、整型提升的触发条件与规则"><a href="#一、整型提升的触发条件与规则" class="headerlink" title="一、整型提升的触发条件与规则"></a>一、整型提升的触发条件与规则</h2><h3 id="1-触发场景"><a href="#1-触发场景" class="headerlink" title="1. 触发场景"></a>1. <strong>触发场景</strong></h3><p>整型提升在以下情况<strong>自动发生</strong>（无需显式代码）：</p>
+<ul>
+<li><strong>算术运算</strong>：<code>char a = 10; int b = a + 5;</code>（<code>a</code>先提升为<code>int</code>再计算）。</li>
+<li><strong>关系&#x2F;逻辑运算</strong>：<code>if (signed_char &lt; unsigned_char)</code>（两者均先提升）。</li>
+<li><strong>函数参数传递</strong>：<code>printf(&quot;%d&quot;, &#39;A&#39;);</code>（字符<code>&#39;A&#39;</code>被提升为<code>int</code>）。</li>
+<li><strong>位运算</strong>：<code>unsigned char flags = 0x80; flags &lt;&lt; 1;</code>（<code>flags</code>先提升）。</li>
+</ul>
+<h3 id="2-提升规则（C11标准-§6-3-1-1）"><a href="#2-提升规则（C11标准-§6-3-1-1）" class="headerlink" title="2. 提升规则（C11标准 §6.3.1.1）"></a>2. <strong>提升规则（C11标准 §6.3.1.1）</strong></h3><p>提升方向取决于<strong>原类型的取值范围能否被<code>int</code>完全表示</strong>：</p>
+<ul>
+<li><strong>若能被<code>int</code>表示</strong> → 提升为 <strong><code>int</code></strong><br>（例如：<code>signed char</code>、<code>short</code>、<code>bool</code>等，因<code>int</code>通常为32位，覆盖8&#x2F;16位类型）。</li>
+<li><strong>若不能被<code>int</code>表示</strong> → 提升为 <strong><code>unsigned int</code></strong><br>（例如：<code>unsigned short</code>在<code>int</code>为16位的罕见平台，但现代系统极少出现）。</li>
+</ul>
+<h4 id="符号扩展规则"><a href="#符号扩展规则" class="headerlink" title="符号扩展规则"></a><strong>符号扩展规则</strong></h4><ul>
+<li><strong>有符号类型</strong>：高位<strong>补符号位</strong>（负数补<code>1</code>，正数补<code>0</code>）。<br>例如：<code>signed char c = -1</code>（二进制<code>11111111</code>）→ 提升为<code>int</code>后为<code>11111111 11111111 11111111 11111111</code>（即<code>-1</code>）。</li>
+<li><strong>无符号类型</strong>：高位<strong>补<code>0</code></strong>。<br>例如：<code>unsigned char c = 255</code>（二进制<code>11111111</code>）→ 提升为<code>int</code>后为<code>00000000 00000000 00000000 11111111</code>（即<code>255</code>）。</li>
+</ul>
+<hr>
+<h2 id="二、为什么需要整型提升？"><a href="#二、为什么需要整型提升？" class="headerlink" title="二、为什么需要整型提升？"></a>二、为什么需要整型提升？</h2><h3 id="1-硬件效率优化"><a href="#1-硬件效率优化" class="headerlink" title="1. 硬件效率优化"></a>1. <strong>硬件效率优化</strong></h3><ul>
+<li>CPU的整型运算器（ALU）和通用寄存器通常以**<code>int</code>长度为标准操作单位**（32&#x2F;64位系统中为4字节）。  </li>
+<li>直接操作8位（<code>char</code>）或16位（<code>short</code>）数据需额外指令，<strong>转换为<code>int</code>可减少指令周期，提升执行效率</strong>。</li>
+</ul>
+<h3 id="2-精度保障"><a href="#2-精度保障" class="headerlink" title="2. 精度保障"></a>2. <strong>精度保障</strong></h3><ul>
+<li>小类型运算易溢出（如<code>char a = 100, b = 50; char c = a + b;</code>，<code>150</code>超出<code>signed char</code>范围）。  </li>
+<li>提升为<code>int</code>后运算可<strong>避免中间结果截断</strong>，确保计算逻辑正确。</li>
+</ul>
+<h3 id="3-跨平台一致性"><a href="#3-跨平台一致性" class="headerlink" title="3. 跨平台一致性"></a>3. <strong>跨平台一致性</strong></h3><ul>
+<li>统一提升规则使不同编译器对同一表达式求值结果一致，<strong>减少因平台差异导致的未定义行为</strong>。</li>
+</ul>
+<hr>
+<h2 id="三、典型陷阱与案例分析"><a href="#三、典型陷阱与案例分析" class="headerlink" title="三、典型陷阱与案例分析"></a>三、典型陷阱与案例分析</h2><h3 id="1-符号扩展导致比较错误"><a href="#1-符号扩展导致比较错误" class="headerlink" title="1. 符号扩展导致比较错误"></a>1. <strong>符号扩展导致比较错误</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">signed</span> <span class="type">char</span> sc = <span class="number">-1</span>;      <span class="comment">// 二进制: 11111111</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> uc = <span class="number">255</span>;   <span class="comment">// 二进制: 11111111</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;sc == uc ? %s&quot;</span>, (sc == uc) ? <span class="string">&quot;yes&quot;</span> : <span class="string">&quot;no&quot;</span>); <span class="comment">// 输出 &quot;no&quot;！</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>原因：  <ul>
+<li><code>sc</code> 提升为<code>int</code> → <strong>符号扩展</strong> → <code>0xFFFFFFFF</code>（值为<code>-1</code>）。  </li>
+<li><code>uc</code> 提升为<code>int</code> → <strong>零扩展</strong> → <code>0x000000FF</code>（值为<code>255</code>）。  </li>
+<li>比较实际是 <code>-1 == 255</code>，结果为假。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-运算结果截断引发溢出"><a href="#2-运算结果截断引发溢出" class="headerlink" title="2. 运算结果截断引发溢出"></a>2. <strong>运算结果截断引发溢出</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">char</span> a = <span class="number">200</span>, b = <span class="number">100</span>;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> c = a + b;  <span class="comment">// 期望 300，实际结果 44</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;a + b = %d\n&quot;</span>, a + b); <span class="comment">// 输出 300（提升后结果）</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;c = %d\n&quot;</span>, c);         <span class="comment">// 输出 44（截断后值）</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>过程：  <ol>
+<li><code>a</code> 和 <code>b</code> 先<strong>整型提升为<code>int</code></strong>（<code>200 + 100 = 300</code>）。  </li>
+<li>赋值给<code>c</code>时，<strong>300被截断为8位</strong> → <code>300 % 256 = 44</code>。</li>
+</ol>
+</li>
+</ul>
+<h3 id="3-有符号与无符号混合比较的隐患"><a href="#3-有符号与无符号混合比较的隐患" class="headerlink" title="3. 有符号与无符号混合比较的隐患"></a>3. <strong>有符号与无符号混合比较的隐患</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> b = <span class="number">-1</span>;</span><br><span class="line"><span class="keyword">if</span> (a &gt; b) &#123; ... &#125; <span class="comment">// 实际条件为假！</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关键点：  <ul>
+<li>整型提升<strong>先于算术转换</strong>。此处<code>a</code>和<code>b</code>均为<code>int</code>或更大类型，<strong>不触发整型提升</strong>。  </li>
+<li>但比较时触发<strong>算术转换</strong>：<code>b</code>（<code>int</code>）被转为<code>unsigned int</code>，<code>-1</code>变为<code>4294967295</code>。  </li>
+<li>最终比较：<code>1 &gt; 4294967295</code> → <strong>假</strong>（走<code>else</code>分支）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="四、如何避免整型提升陷阱？"><a href="#四、如何避免整型提升陷阱？" class="headerlink" title="四、如何避免整型提升陷阱？"></a>四、如何避免整型提升陷阱？</h2><ol>
+<li><p><strong>显式类型转换</strong><br>当需精确控制类型时，用强制转换明确意图：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">char</span> a = <span class="number">200</span>, b = <span class="number">100</span>;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> c = (<span class="type">unsigned</span> <span class="type">char</span>)(a + b); <span class="comment">// 显式截断，避免隐式行为</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>统一操作数类型</strong><br>避免混合有符号&#x2F;无符号小类型运算：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((<span class="type">int</span>)signed_char &gt; (<span class="type">int</span>)unsigned_char) <span class="comment">// 全部转为有符号比较</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用固定宽度类型</strong><br>在<code>&lt;stdint.h&gt;</code>中选择明确长度的类型（如<code>int32_t</code>），<strong>避免依赖<code>char</code>的符号性</strong>（编译器实现相关）。</p>
+</li>
+<li><p><strong>开启编译器警告</strong><br>启用<code>-Wsign-compare</code>等选项，让编译器提示潜在问题。</p>
+</li>
+</ol>
+<hr>
+<p><strong>整型提升是C语言底层设计的基石之一</strong>，理解其规则可避免大量隐蔽Bug。<strong>核心要点</strong>：  </p>
+<ul>
+<li>所有小于<code>int</code>的整型<strong>参与运算前必先提升</strong>。  </li>
+<li>提升方向由<strong>符号性</strong>和<strong>取值范围</strong>决定（符号扩展&#x2F;零扩展）。  </li>
+<li><strong>运算结果可能因截断或算术转换产生意外行为</strong>，需通过显式转换确保逻辑正确。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/" rel="tag"># 整型提升</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/NAND%20Flash%E4%B8%8ENOR%20Flash%E7%9A%84%E5%BC%82%E5%90%8C/" rel="prev" title="NAND Flash与NOR Flash的异同">
+      <i class="fa fa-chevron-left"></i> NAND Flash与NOR Flash的异同
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/volatile%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/" rel="next" title="volatile的使用场景">
+      volatile的使用场景 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87%E7%9A%84%E8%A7%A6%E5%8F%91%E6%9D%A1%E4%BB%B6%E4%B8%8E%E8%A7%84%E5%88%99"><span class="nav-text">一、整型提升的触发条件与规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%A7%A6%E5%8F%91%E5%9C%BA%E6%99%AF"><span class="nav-text">1. 触发场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8F%90%E5%8D%87%E8%A7%84%E5%88%99%EF%BC%88C11%E6%A0%87%E5%87%86-%C2%A76-3-1-1%EF%BC%89"><span class="nav-text">2. 提升规则（C11标准 §6.3.1.1）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A9%E5%B1%95%E8%A7%84%E5%88%99"><span class="nav-text">符号扩展规则</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87%EF%BC%9F"><span class="nav-text">二、为什么需要整型提升？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96"><span class="nav-text">1. 硬件效率优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%B2%BE%E5%BA%A6%E4%BF%9D%E9%9A%9C"><span class="nav-text">2. 精度保障</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%B7%A8%E5%B9%B3%E5%8F%B0%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">3. 跨平台一致性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%85%B8%E5%9E%8B%E9%99%B7%E9%98%B1%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-text">三、典型陷阱与案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%AC%A6%E5%8F%B7%E6%89%A9%E5%B1%95%E5%AF%BC%E8%87%B4%E6%AF%94%E8%BE%83%E9%94%99%E8%AF%AF"><span class="nav-text">1. 符号扩展导致比较错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BF%90%E7%AE%97%E7%BB%93%E6%9E%9C%E6%88%AA%E6%96%AD%E5%BC%95%E5%8F%91%E6%BA%A2%E5%87%BA"><span class="nav-text">2. 运算结果截断引发溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9C%89%E7%AC%A6%E5%8F%B7%E4%B8%8E%E6%97%A0%E7%AC%A6%E5%8F%B7%E6%B7%B7%E5%90%88%E6%AF%94%E8%BE%83%E7%9A%84%E9%9A%90%E6%82%A3"><span class="nav-text">3. 有符号与无符号混合比较的隐患</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87%E9%99%B7%E9%98%B1%EF%BC%9F"><span class="nav-text">四、如何避免整型提升陷阱？</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">168</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">752k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">17:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
