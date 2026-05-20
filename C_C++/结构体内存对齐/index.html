@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详细介绍结构体内存对齐。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="结构体内存对齐">
+<meta property="og:url" content="https://yanxianan.github.io/C_C++/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍结构体内存对齐。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-20T01:50:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T01:51:13.916Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="内存对齐">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/C_C++/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>结构体内存对齐 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          结构体内存对齐
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-05-20 09:50:00 / 修改时间：09:51:13" itemprop="dateCreated datePublished" datetime="2026-05-20T09:50:00+08:00">2026-05-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文详细介绍结构体内存对齐。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>结构体内存对齐，简单说就是编译器在分配内存时，并不是简单地把结构体成员一个接一个紧挨着存放，而是会按照某种规则，在成员之间、甚至在结构体末尾<strong>插入一些空白字节（填充 padding）</strong>，使得每个成员的地址都满足特定的对齐要求。</p>
+<p>下面从三个层面来详细拆解：<strong>是什么、为什么要、不对齐会怎样</strong>。</p>
+<hr>
+<h2 id="一、结构体内存对齐是什么？"><a href="#一、结构体内存对齐是什么？" class="headerlink" title="一、结构体内存对齐是什么？"></a>一、结构体内存对齐是什么？</h2><h3 id="1-自然对齐规则"><a href="#1-自然对齐规则" class="headerlink" title="1. 自然对齐规则"></a>1. 自然对齐规则</h3><p>每种数据类型都有一个“对齐值”（alignment），通常是它自身的大小，比如：</p>
+<ul>
+<li><code>char</code> &#x2F; <code>bool</code> —— 1 字节对齐（可以放在任何地址）</li>
+<li><code>short</code> —— 2 字节对齐（地址必须是 2 的倍数）</li>
+<li><code>int</code> &#x2F; <code>float</code> —— 4 字节对齐（地址必须是 4 的倍数）</li>
+<li><code>double</code> &#x2F; <code>long long</code> —— 8 字节对齐（地址必须是 8 的倍数，在 64 位平台）</li>
+<li>指针 —— 8 字节对齐（64 位）</li>
+</ul>
+<p>结构体内部成员排列时，必须保证<strong>每个成员的起始地址相对于结构体起始地址的偏移量，是这个成员自身对齐值的整数倍</strong>。</p>
+<p>同时，为了保证结构体数组也能正确对齐，结构体的总大小必须是<strong>最大对齐成员对齐值的整数倍</strong>，必要时在末尾额外填充。</p>
+<h3 id="2-举例说明"><a href="#2-举例说明" class="headerlink" title="2. 举例说明"></a>2. 举例说明</h3><p>假设有如下结构体（在常见的 64 位 x86 机器上，默认对齐为 8）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Demo</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>  a;   <span class="comment">// 1 字节</span></span><br><span class="line">    <span class="type">int</span>   b;   <span class="comment">// 4 字节</span></span><br><span class="line">    <span class="type">char</span>  c;   <span class="comment">// 1 字节</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>成员分配过程（偏移量从 0 开始）：</p>
+<ul>
+<li><code>a</code> 是 char，对齐 1，偏移 0，占用 1 字节（地址 0）</li>
+<li><code>b</code> 是 int，对齐 4，必须放在偏移量为 4 的倍数的位置<br>当前偏移 1，不是 4 的倍数 → <strong>填充 3 字节</strong>，b 放在偏移 4，占用 4 字节（地址 4～7）</li>
+<li><code>c</code> 是 char，对齐 1，偏移 8，占用 1 字节（地址 8）</li>
+</ul>
+<p>现在结构体占用了 0～8 共 9 个字节，但最大对齐成员是 <code>int</code>（对齐 4），结构体总大小必须是 4 的倍数 → <strong>末尾填充 3 字节</strong>，最终 <code>sizeof(struct Demo)</code> &#x3D; <strong>12 字节</strong>。</p>
+<p>内存布局示意（数字为偏移量）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+---+---+---+---+---+---+---+---+---+---+---+---+</span><br><span class="line">| a | P | P | P |    b     | c | P | P | P |</span><br><span class="line">+---+---+---+---+---+---+---+---+---+---+---+---+</span><br><span class="line"> 0   1   2   3   4   5   6   7   8   9  10  11</span><br><span class="line">（P = 填充字节）</span><br></pre></td></tr></table></figure>
+
+<p>如果调整成员顺序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Better</span> &#123;</span></span><br><span class="line">    <span class="type">int</span>   b;</span><br><span class="line">    <span class="type">char</span>  a;</span><br><span class="line">    <span class="type">char</span>  c;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>布局变成：</p>
+<ul>
+<li><code>b</code> 偏移 0，占 4 字节</li>
+<li><code>a</code> 偏移 4，占 1 字节</li>
+<li><code>c</code> 偏移 5，占 1 字节<br>末尾填充 2 字节，总大小 <strong>8 字节</strong>。<br>可见，<strong>合理安排成员顺序可以节省内存</strong>。</li>
+</ul>
+<h3 id="3-对齐系数的影响"><a href="#3-对齐系数的影响" class="headerlink" title="3. 对齐系数的影响"></a>3. 对齐系数的影响</h3><p>程序员可以通过 <code>#pragma pack(n)</code> 或 <code>__attribute__((packed))</code> 改变对齐行为。<br>实际对齐值 &#x3D; <code>min(成员自身对齐值, 指定对齐值)</code>。</p>
+<p>例如 <code>#pragma pack(1)</code> 强制按 1 字节对齐，上面的 <code>Demo</code> 将变成 6 字节，没有任何填充。<br>C++11 起还提供了 <code>alignof</code> 查询对齐值、<code>alignas</code> 指定对齐。</p>
+<hr>
+<h2 id="二、为什么要对齐？"><a href="#二、为什么要对齐？" class="headerlink" title="二、为什么要对齐？"></a>二、为什么要对齐？</h2><h3 id="1-硬件要求：CPU-访问内存的对齐限制"><a href="#1-硬件要求：CPU-访问内存的对齐限制" class="headerlink" title="1. 硬件要求：CPU 访问内存的对齐限制"></a>1. 硬件要求：CPU 访问内存的对齐限制</h3><p>现代 CPU 并不是一个字节一个字节地读写内存，而是以“字（word）”、“双字”等为单位，通过数据总线与内存交互。<br>例如，一个 64 位 CPU 一次可以从内存读取 8 个对齐的字节。如果数据跨越了对齐边界，CPU 就必须做额外的工作。</p>
+<ul>
+<li><strong>有些 CPU 严格要求对齐</strong>（如许多 RISC 处理器：旧版 ARM、MIPS、SPARC 等），访问未对齐的地址会直接触发<strong>硬件异常</strong>（bus error），程序崩溃。</li>
+<li><strong>x86 架构允许未对齐访问</strong>，但会付出性能代价：CPU 需要做两次内存访问，然后拼接字节，这比对齐访问慢很多。</li>
+</ul>
+<h3 id="2-性能：减少内存访问次数"><a href="#2-性能：减少内存访问次数" class="headerlink" title="2. 性能：减少内存访问次数"></a>2. 性能：减少内存访问次数</h3><p>对齐保证了一个基本类型的数据不会“跨两次读取”：</p>
+<ul>
+<li>假设一个 4 字节 <code>int</code> 存放在地址 0x1001（未对齐）。CPU 要读取它，需要先读 0x1000～0x1003 这 4 个字节，再读 0x1004～0x1007，然后移位、拼接，才能得到完整数据。</li>
+<li>而对齐到 0x1000 或 0x1004 时，一次 4 字节读取就搞定。</li>
+</ul>
+<p>对于频繁访问的结构体（如游戏循环中的向量、数据库缓冲区的记录），这个开销会被放大，直接影响吞吐量。</p>
+<h3 id="3-原子操作的保证"><a href="#3-原子操作的保证" class="headerlink" title="3. 原子操作的保证"></a>3. 原子操作的保证</h3><p>多线程编程中，许多原子操作（如 <code>std::atomic</code>）要求操作对象<strong>自然对齐</strong>。<br>如果不对齐，读写可能不是原子的：一个线程在两次内存访问之间，另一个线程可能看到了“一半旧值一半新值”，造成难以调试的竞争。</p>
+<h3 id="4-缓存行与伪共享"><a href="#4-缓存行与伪共享" class="headerlink" title="4. 缓存行与伪共享"></a>4. 缓存行与伪共享</h3><p>CPU 缓存以“缓存行”为单位（通常 64 字节）。<br>如果结构体成员没有对齐好，一个关键字段可能横跨两个缓存行，导致缓存命中率下降。<br>在多核编程中，还会因此引入“伪共享”（多个核修改同一缓存行的不同变量，互相使缓存失效），性能急剧降低。有时甚至需要用 <code>alignas(64)</code> 强制对齐到缓存行边界。</p>
+<h3 id="5-标准规定与编译器优化"><a href="#5-标准规定与编译器优化" class="headerlink" title="5. 标准规定与编译器优化"></a>5. 标准规定与编译器优化</h3><p>C&#x2F;C++ 标准规定，通过未对齐的指针访问数据属于<strong>未定义行为（UB）</strong>。<br>这意味着编译器在生成代码时可以<strong>假设指针是对齐的</strong>，从而使用更高效的 SSE&#x2F;AVX 等对齐加载指令。如果你偷偷传了一个未对齐地址，程序可能直接崩掉，或者得到错误结果。</p>
+<hr>
+<h2 id="三、不对齐会怎么样？"><a href="#三、不对齐会怎么样？" class="headerlink" title="三、不对齐会怎么样？"></a>三、不对齐会怎么样？</h2><p>“不对齐”通常指的是<strong>通过某些手段强行紧凑存放结构体</strong>（如 <code>__attribute__((packed))</code>），导致成员地址不再满足自然对齐。这可能带来以下后果：</p>
+<h3 id="1-程序崩溃"><a href="#1-程序崩溃" class="headerlink" title="1. 程序崩溃"></a>1. 程序崩溃</h3><p>在不允许未对齐访问的硬件上（某些 ARM、MIPS、SPARC），执行 <code>packed</code> 结构体成员的读写，会立刻触发 <strong>SIGBUS</strong> 或类似的硬件异常。</p>
+<p>即使是 x86，当使用 SIMD 指令（如 <code>movaps</code> 要求 16 字节对齐）去操作未对齐的数据时，也会引发一般保护错误。</p>
+<h3 id="2-性能急剧下降"><a href="#2-性能急剧下降" class="headerlink" title="2. 性能急剧下降"></a>2. 性能急剧下降</h3><p>即使硬件支持未对齐访问（如 x86），未对齐读写比对齐读写慢好几倍。<br>编译器在知道某个指针<strong>可能未对齐</strong>时（如 <code>packed</code> 结构体成员的地址），往往被迫生成更保守的代码，比如用多次单字节移动代替一次 <code>mov</code>，或者使用专门处理未对齐的指令，拖累所有相关代码的性能。</p>
+<h3 id="3-原子性丧失，多线程崩溃"><a href="#3-原子性丧失，多线程崩溃" class="headerlink" title="3. 原子性丧失，多线程崩溃"></a>3. 原子性丧失，多线程崩溃</h3><p>一个未对齐的 <code>int</code> 在多核环境下，可能被拆成两次内存事务，导致<strong>读-修改-写操作不是原子的</strong>，进而导致计数器错误、状态不一致等灾难性问题。</p>
+<h3 id="4-触发未定义行为"><a href="#4-触发未定义行为" class="headerlink" title="4. 触发未定义行为"></a>4. 触发未定义行为</h3><p>如果你把 <code>packed</code> 结构体中某个未对齐的 <code>int</code> 成员的地址取出来，强转成一个普通的 <code>int*</code>，然后解引用，这在 C&#x2F;C++ 标准中就是 UB。<br>编译器优化时可能会假定这个 <code>int*</code> 是 4 字节对齐的，从而产生错误的代码，不会给你任何警告。</p>
+<h3 id="5-代码不可移植"><a href="#5-代码不可移植" class="headerlink" title="5. 代码不可移植"></a>5. 代码不可移植</h3><p>依赖未对齐的代码，可能在你的 x86 开发机上跑得好好的，部署到 ARM 服务器或嵌入式设备上就崩溃，排查起来极其痛苦。</p>
+<hr>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><ul>
+<li><strong>结构体内存对齐</strong>是编译器自动完成的工作，遵循“每个成员放在其对齐倍数的偏移上，总大小是最大对齐倍数”的原则。</li>
+<li><strong>为什么要对齐？</strong> 为了<strong>硬件兼容、高性能、原子性保证、标准合规</strong>。本质上是一种<strong>以空间换时间</strong>的优化策略。</li>
+<li><strong>不对齐会怎样？</strong> 轻则<strong>性能骤降</strong>，重则<strong>崩溃、数据损坏、难以调试的并发 bug</strong>。</li>
+</ul>
+<p>在日常开发中，除非在做网络协议解析、二进制文件格式映射、内存极度受限的嵌入式场景，一般不推荐盲目使用 <code>packed</code>。当你必须紧凑存放时，也请清楚其代价，并务必做好跨平台测试。如果只是为了节省内存，不妨先试试<strong>重排结构体成员顺序</strong>——它完全免费且安全。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" rel="tag"># 内存对齐</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/ZYNQ/ZYNQ%E7%A8%8B%E5%BA%8F%E5%9B%BA%E5%8C%96bug/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">一、结构体内存对齐是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%87%AA%E7%84%B6%E5%AF%B9%E9%BD%90%E8%A7%84%E5%88%99"><span class="nav-text">1. 自然对齐规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E"><span class="nav-text">2. 举例说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%B9%E9%BD%90%E7%B3%BB%E6%95%B0%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-text">3. 对齐系数的影响</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AF%B9%E9%BD%90%EF%BC%9F"><span class="nav-text">二、为什么要对齐？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82%EF%BC%9ACPU-%E8%AE%BF%E9%97%AE%E5%86%85%E5%AD%98%E7%9A%84%E5%AF%B9%E9%BD%90%E9%99%90%E5%88%B6"><span class="nav-text">1. 硬件要求：CPU 访问内存的对齐限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%80%A7%E8%83%BD%EF%BC%9A%E5%87%8F%E5%B0%91%E5%86%85%E5%AD%98%E8%AE%BF%E9%97%AE%E6%AC%A1%E6%95%B0"><span class="nav-text">2. 性能：减少内存访问次数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%9A%84%E4%BF%9D%E8%AF%81"><span class="nav-text">3. 原子操作的保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%BC%93%E5%AD%98%E8%A1%8C%E4%B8%8E%E4%BC%AA%E5%85%B1%E4%BA%AB"><span class="nav-text">4. 缓存行与伪共享</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%A0%87%E5%87%86%E8%A7%84%E5%AE%9A%E4%B8%8E%E7%BC%96%E8%AF%91%E5%99%A8%E4%BC%98%E5%8C%96"><span class="nav-text">5. 标准规定与编译器优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%B8%8D%E5%AF%B9%E9%BD%90%E4%BC%9A%E6%80%8E%E4%B9%88%E6%A0%B7%EF%BC%9F"><span class="nav-text">三、不对齐会怎么样？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A8%8B%E5%BA%8F%E5%B4%A9%E6%BA%83"><span class="nav-text">1. 程序崩溃</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%80%A7%E8%83%BD%E6%80%A5%E5%89%A7%E4%B8%8B%E9%99%8D"><span class="nav-text">2. 性能急剧下降</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8E%9F%E5%AD%90%E6%80%A7%E4%B8%A7%E5%A4%B1%EF%BC%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B4%A9%E6%BA%83"><span class="nav-text">3. 原子性丧失，多线程崩溃</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%A7%A6%E5%8F%91%E6%9C%AA%E5%AE%9A%E4%B9%89%E8%A1%8C%E4%B8%BA"><span class="nav-text">4. 触发未定义行为</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BB%A3%E7%A0%81%E4%B8%8D%E5%8F%AF%E7%A7%BB%E6%A4%8D"><span class="nav-text">5. 代码不可移植</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">四、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">168</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">169</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">757k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">18:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
