@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="详解 MySQL 中事务的 ACID 特性、隔离级别、锁机制、死锁处理等并发控制的核心概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="事务和并发控制">
+<meta property="og:url" content="https://yanxianan.github.io/MySQL/15_%E4%BA%8B%E5%8A%A1%E5%92%8C%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="详解 MySQL 中事务的 ACID 特性、隔离级别、锁机制、死锁处理等并发控制的核心概念。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-15T09:52:23.720Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="事务">
+<meta property="article:tag" content="并发控制">
+<meta property="article:tag" content="隔离级别">
+<meta property="article:tag" content="锁">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/MySQL/15_%E4%BA%8B%E5%8A%A1%E5%92%8C%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>事务和并发控制 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/MySQL/15_%E4%BA%8B%E5%8A%A1%E5%92%8C%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          事务和并发控制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-06-15 00:00:00 / 修改时间：17:52:23" itemprop="dateCreated datePublished" datetime="2026-06-15T00:00:00+08:00">2026-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+            <div class="post-description">详解 MySQL 中事务的 ACID 特性、隔离级别、锁机制、死锁处理等并发控制的核心概念。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="事务和并发控制"><a href="#事务和并发控制" class="headerlink" title="事务和并发控制"></a>事务和并发控制</h1><h2 id="1-事务基本概念"><a href="#1-事务基本概念" class="headerlink" title="1. 事务基本概念"></a>1. 事务基本概念</h2><h3 id="1-1-什么是事务"><a href="#1-1-什么是事务" class="headerlink" title="1.1 什么是事务"></a>1.1 什么是事务</h3><p>事务是一组 SQL 操作的集合，具有原子性，要么全部执行成功，要么全部回滚。</p>
+<h3 id="1-2-ACID-特性"><a href="#1-2-ACID-特性" class="headerlink" title="1.2 ACID 特性"></a>1.2 ACID 特性</h3><p><strong>A (Atomicity) - 原子性</strong>：事务中的所有操作要么全部完成，要么都不完成</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line"><span class="keyword">COMMIT</span>;  <span class="comment">-- 两个 UPDATE 都成功或都失败</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>C (Consistency) - 一致性</strong>：数据库从一个一致的状态转移到另一个一致的状态</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 转账例子：总金额在转账前后保持不变</span></span><br><span class="line"><span class="comment">-- 转账前：账户1有1000，账户2有500，总额1500</span></span><br><span class="line"><span class="comment">-- 转账100后：账户1有900，账户2有600，总额仍为1500</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>I (Isolation) - 隔离性</strong>：并发事务之间相互隔离，不会相互干扰</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 事务1和事务2同时执行，但相互看不到对方未提交的更改</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>D (Durability) - 持久性</strong>：事务提交后，数据永久保存</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- COMMIT 后即使发生故障，数据也不会丢失</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-事务控制"><a href="#2-事务控制" class="headerlink" title="2. 事务控制"></a>2. 事务控制</h2><h3 id="2-1-事务基本命令"><a href="#2-1-事务基本命令" class="headerlink" title="2.1 事务基本命令"></a>2.1 事务基本命令</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 开始事务</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line">或</span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 提交事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 回滚事务</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看自动提交模式</span></span><br><span class="line"><span class="keyword">SELECT</span> @<span class="variable">@autocommit</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 关闭自动提交</span></span><br><span class="line"><span class="keyword">SET</span> autocommit <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 打开自动提交</span></span><br><span class="line"><span class="keyword">SET</span> autocommit <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-完整事务示例"><a href="#2-2-完整事务示例" class="headerlink" title="2.2 完整事务示例"></a>2.2 完整事务示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 场景：转账 100 元从账户 1 到账户 2</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第一步：账户 1 扣款</span></span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">100</span> </span><br><span class="line"><span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 检查账户 1 余额是否足够</span></span><br><span class="line">IF (<span class="keyword">SELECT</span> balance <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>) <span class="operator">&lt;</span> <span class="number">0</span> <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">ROLLBACK</span>;</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="string">&#x27;ERROR: 余额不足&#x27;</span> <span class="keyword">AS</span> <span class="keyword">result</span>;</span><br><span class="line"><span class="keyword">ELSE</span></span><br><span class="line">    <span class="comment">-- 第二步：账户 2 加款</span></span><br><span class="line">    <span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> <span class="number">100</span> </span><br><span class="line">    <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 提交事务</span></span><br><span class="line">    <span class="keyword">COMMIT</span>;</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="string">&#x27;SUCCESS: 转账完成&#x27;</span> <span class="keyword">AS</span> <span class="keyword">result</span>;</span><br><span class="line"><span class="keyword">END</span> IF;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-保存点（SAVEPOINT）"><a href="#2-3-保存点（SAVEPOINT）" class="headerlink" title="2.3 保存点（SAVEPOINT）"></a>2.3 保存点（SAVEPOINT）</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> users (name) <span class="keyword">VALUES</span> (<span class="string">&#x27;用户1&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 设置保存点</span></span><br><span class="line"><span class="keyword">SAVEPOINT</span> sp1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> users (name) <span class="keyword">VALUES</span> (<span class="string">&#x27;用户2&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果想回滚到 sp1，用户2 不会被插入</span></span><br><span class="line"><span class="keyword">ROLLBACK</span> <span class="keyword">TO</span> <span class="keyword">SAVEPOINT</span> sp1;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 继续执行其他操作</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> users (name) <span class="keyword">VALUES</span> (<span class="string">&#x27;用户3&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 最终提交</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-隔离级别"><a href="#3-隔离级别" class="headerlink" title="3. 隔离级别"></a>3. 隔离级别</h2><h3 id="3-1-四个隔离级别"><a href="#3-1-四个隔离级别" class="headerlink" title="3.1 四个隔离级别"></a>3.1 四个隔离级别</h3><table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>性能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ UNCOMMITTED</td>
+<td>可能</td>
+<td>可能</td>
+<td>可能</td>
+<td>最快</td>
+</tr>
+<tr>
+<td>READ COMMITTED</td>
+<td>✓</td>
+<td>可能</td>
+<td>可能</td>
+<td>快</td>
+</tr>
+<tr>
+<td>REPEATABLE READ</td>
+<td>✓</td>
+<td>✓</td>
+<td>可能</td>
+<td>中</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>最慢</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-问题定义"><a href="#3-2-问题定义" class="headerlink" title="3.2 问题定义"></a>3.2 问题定义</h3><p><strong>脏读（Dirty Read）</strong>：读取未提交的数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 未提交</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务2（READ UNCOMMITTED 隔离级别）</span></span><br><span class="line"><span class="keyword">SELECT</span> balance <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- 读到未提交的数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务1 回滚，事务2 读到的数据成为脏数据</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>不可重复读（Non-repeatable Read）</strong>：两次读取同一数据得到不同结果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> user_id <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- 第一次读取</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务2</span></span><br><span class="line"><span class="keyword">UPDATE</span> users <span class="keyword">SET</span> age <span class="operator">=</span> <span class="number">30</span> <span class="keyword">WHERE</span> user_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> user_id <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- 第二次读取，结果不同</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>幻读（Phantom Read）</strong>：两次读取返回的行数不同</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> age <span class="operator">&gt;</span> <span class="number">20</span>;  <span class="comment">-- 假设返回 10 行</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务2</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> users (name, age) <span class="keyword">VALUES</span> (<span class="string">&#x27;新用户&#x27;</span>, <span class="number">25</span>);</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> age <span class="operator">&gt;</span> <span class="number">20</span>;  <span class="comment">-- 返回 11 行，多了一行</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-设置隔离级别"><a href="#3-3-设置隔离级别" class="headerlink" title="3.3 设置隔离级别"></a>3.3 设置隔离级别</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看当前隔离级别</span></span><br><span class="line"><span class="keyword">SELECT</span> @<span class="variable">@global</span>.transaction_isolation;</span><br><span class="line"><span class="keyword">SELECT</span> @<span class="variable">@session</span>.transaction_isolation;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 设置全局隔离级别</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> transaction_isolation <span class="operator">=</span> <span class="string">&#x27;READ-COMMITTED&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 设置会话隔离级别</span></span><br><span class="line"><span class="keyword">SET</span> SESSION transaction_isolation <span class="operator">=</span> <span class="string">&#x27;REPEATABLE-READ&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在 MySQL 8.0 之前的语法</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> tx_isolation <span class="operator">=</span> <span class="string">&#x27;READ-COMMITTED&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-隔离级别选择"><a href="#3-4-隔离级别选择" class="headerlink" title="3.4 隔离级别选择"></a>3.4 隔离级别选择</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">READ UNCOMMITTED：</span><br><span class="line">- 性能最好，但可能读到脏数据</span><br><span class="line">- 用于数据不一致影响不大的场景</span><br><span class="line"></span><br><span class="line">READ COMMITTED（PostgreSQL 默认）：</span><br><span class="line">- 避免脏读，但可能不可重复读</span><br><span class="line">- MySQL 的推荐配置</span><br><span class="line"></span><br><span class="line">REPEATABLE READ（MySQL 默认）：</span><br><span class="line">- 避免脏读和不可重复读</span><br><span class="line">- 可能出现幻读</span><br><span class="line"></span><br><span class="line">SERIALIZABLE：</span><br><span class="line">- 最安全但性能最差</span><br><span class="line">- 相当于单线程执行</span><br><span class="line">- 仅在特殊场景使用</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-锁机制"><a href="#4-锁机制" class="headerlink" title="4. 锁机制"></a>4. 锁机制</h2><h3 id="4-1-行锁和表锁"><a href="#4-1-行锁和表锁" class="headerlink" title="4.1 行锁和表锁"></a>4.1 行锁和表锁</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- InnoDB 使用行锁（默认存储引擎）</span></span><br><span class="line"><span class="comment">-- MyISAM 使用表锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 显式加行锁（悲观锁）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 共享锁（读锁）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">FOR</span> SHARE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 释放锁：提交或回滚事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-乐观锁（版本号）"><a href="#4-2-乐观锁（版本号）" class="headerlink" title="4.2 乐观锁（版本号）"></a>4.2 乐观锁（版本号）</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> products (</span><br><span class="line">    product_id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">100</span>),</span><br><span class="line">    price <span class="type">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>),</span><br><span class="line">    version <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>  <span class="comment">-- 版本号</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 更新时检查版本号</span></span><br><span class="line"><span class="keyword">UPDATE</span> products </span><br><span class="line"><span class="keyword">SET</span> price <span class="operator">=</span> <span class="number">99.99</span>, version <span class="operator">=</span> version <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> version <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果没有行被更新，说明有其他事务修改过，需要重试</span></span><br><span class="line"><span class="keyword">SELECT</span> ROW_COUNT();</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-死锁"><a href="#4-3-死锁" class="headerlink" title="4.3 死锁"></a>4.3 死锁</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 死锁场景</span></span><br><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 事务1 等待账户2的锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务2</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 事务2 等待账户1的锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 结果：互相等待，形成死锁</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>死锁避免策略</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 按照相同的顺序访问资源</span></span><br><span class="line"><span class="comment">-- 优化前（易产生死锁）</span></span><br><span class="line"><span class="comment">-- 事务1：更新账户1，再更新账户2</span></span><br><span class="line"><span class="comment">-- 事务2：更新账户2，再更新账户1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化后（按 ID 升序）</span></span><br><span class="line"><span class="comment">-- 所有事务都：先更新账户1，再更新账户2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 缩短事务时间</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="comment">-- 尽快完成操作</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 使用适当的隔离级别</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> transaction_isolation <span class="operator">=</span> <span class="string">&#x27;READ-COMMITTED&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>处理死锁</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看最近的死锁信息</span></span><br><span class="line"><span class="keyword">SHOW</span> ENGINE INNODB STATUS;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 应用层重试</span></span><br><span class="line">try &#123;</span><br><span class="line">    executeTransaction();</span><br><span class="line">&#125; catch (DeadlockException e) &#123;</span><br><span class="line">    Thread.sleep(random(<span class="number">100</span>, <span class="number">1000</span>));  <span class="operator">/</span><span class="operator">/</span> 随机延迟</span><br><span class="line">    executeTransaction();  <span class="operator">/</span><span class="operator">/</span> 重试</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-并发控制策略"><a href="#5-并发控制策略" class="headerlink" title="5. 并发控制策略"></a>5. 并发控制策略</h2><h3 id="5-1-悲观锁"><a href="#5-1-悲观锁" class="headerlink" title="5.1 悲观锁"></a>5.1 悲观锁</h3><p>假设并发冲突很多，先加锁再操作。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 悲观锁实现</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 选择并锁定记录</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在获得锁的基础上进行操作</span></span><br><span class="line"><span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> <span class="number">100</span> <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;  <span class="comment">-- 释放锁</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>优点</strong>：简单直接，避免冲突重试<br><strong>缺点</strong>：性能差，容易产生死锁</p>
+<h3 id="5-2-乐观锁"><a href="#5-2-乐观锁" class="headerlink" title="5.2 乐观锁"></a>5.2 乐观锁</h3><p>假设并发冲突少，先操作再验证。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 乐观锁实现</span></span><br><span class="line"><span class="comment">-- 1. 读取当前版本</span></span><br><span class="line"><span class="keyword">SELECT</span> id, balance, version <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 进行计算</span></span><br><span class="line">new_balance <span class="operator">=</span> current_balance <span class="operator">+</span> <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 更新时验证版本</span></span><br><span class="line"><span class="keyword">UPDATE</span> accounts </span><br><span class="line"><span class="keyword">SET</span> balance <span class="operator">=</span> new_balance, version <span class="operator">=</span> version <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">WHERE</span> account_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> version <span class="operator">=</span> current_version;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 检查是否更新成功</span></span><br><span class="line">IF (affected_rows <span class="operator">=</span><span class="operator">=</span> <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> 版本冲突，重新读取和更新</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>优点</strong>：高并发性能好，无死锁<br><strong>缺点</strong>：可能需要重试，不适合冲突多的场景</p>
+<h3 id="5-3-MVCC（多版本并发控制）"><a href="#5-3-MVCC（多版本并发控制）" class="headerlink" title="5.3 MVCC（多版本并发控制）"></a>5.3 MVCC（多版本并发控制）</h3><p>InnoDB 的默认并发控制机制。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MVCC 让每个事务看到一个一致的数据快照</span></span><br><span class="line"><span class="keyword">SET</span> SESSION transaction_isolation <span class="operator">=</span> <span class="string">&#x27;REPEATABLE-READ&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users;  <span class="comment">-- 看到一个数据快照</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务2（同时进行）</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> users <span class="keyword">VALUES</span> (...);</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务1</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users;  <span class="comment">-- 仍然看到之前的快照，不会看到事务2的新插入</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-实战案例"><a href="#6-实战案例" class="headerlink" title="6. 实战案例"></a>6. 实战案例</h2><h3 id="6-1-银行转账事务"><a href="#6-1-银行转账事务" class="headerlink" title="6.1 银行转账事务"></a>6.1 银行转账事务</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> transfer_money(</span><br><span class="line">    <span class="keyword">IN</span> from_account <span class="type">INT</span>,</span><br><span class="line">    <span class="keyword">IN</span> to_account <span class="type">INT</span>,</span><br><span class="line">    <span class="keyword">IN</span> amount <span class="type">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>)</span><br><span class="line">)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">DECLARE</span> EXIT HANDLER <span class="keyword">FOR</span> <span class="keyword">SQLEXCEPTION</span></span><br><span class="line">    <span class="keyword">BEGIN</span></span><br><span class="line">        <span class="keyword">ROLLBACK</span>;</span><br><span class="line">        SIGNAL <span class="keyword">SQLSTATE</span> <span class="string">&#x27;45000&#x27;</span> <span class="keyword">SET</span> MESSAGE_TEXT <span class="operator">=</span> <span class="string">&#x27;Transfer failed&#x27;</span>;</span><br><span class="line">    <span class="keyword">END</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">START</span> TRANSACTION;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 检查源账户余额</span></span><br><span class="line">    IF (<span class="keyword">SELECT</span> balance <span class="keyword">FROM</span> accounts <span class="keyword">WHERE</span> account_id <span class="operator">=</span> from_account) <span class="operator">&lt;</span> amount <span class="keyword">THEN</span></span><br><span class="line">        SIGNAL <span class="keyword">SQLSTATE</span> <span class="string">&#x27;45000&#x27;</span> <span class="keyword">SET</span> MESSAGE_TEXT <span class="operator">=</span> <span class="string">&#x27;Insufficient balance&#x27;</span>;</span><br><span class="line">    <span class="keyword">END</span> IF;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 扣款</span></span><br><span class="line">    <span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> amount <span class="keyword">WHERE</span> account_id <span class="operator">=</span> from_account;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 加款</span></span><br><span class="line">    <span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> amount <span class="keyword">WHERE</span> account_id <span class="operator">=</span> to_account;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">END</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line">DELIMITER ;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 调用存储过程</span></span><br><span class="line"><span class="keyword">CALL</span> transfer_money(<span class="number">1</span>, <span class="number">2</span>, <span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-库存扣减"><a href="#6-2-库存扣减" class="headerlink" title="6.2 库存扣减"></a>6.2 库存扣减</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 扣减库存时需要考虑并发</span></span><br><span class="line"><span class="comment">-- 场景：多个用户同时下单，需要保证库存不超卖</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 方法1：悲观锁</span></span><br><span class="line"><span class="keyword">START</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> stock <span class="keyword">FROM</span> products <span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 检查库存</span></span><br><span class="line">IF stock <span class="operator">&gt;=</span> quantity <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">UPDATE</span> products <span class="keyword">SET</span> stock <span class="operator">=</span> stock <span class="operator">-</span> quantity <span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    <span class="comment">-- 插入订单</span></span><br><span class="line">    <span class="keyword">INSERT INTO</span> orders ...</span><br><span class="line">    <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">ELSE</span></span><br><span class="line">    <span class="keyword">ROLLBACK</span>;</span><br><span class="line"><span class="keyword">END</span> IF;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 方法2：乐观锁 + 版本号</span></span><br><span class="line"><span class="keyword">UPDATE</span> products </span><br><span class="line"><span class="keyword">SET</span> stock <span class="operator">=</span> stock <span class="operator">-</span> quantity, version <span class="operator">=</span> version <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> stock <span class="operator">&gt;=</span> quantity <span class="keyword">AND</span> version <span class="operator">=</span> current_version;</span><br><span class="line"></span><br><span class="line">IF (ROW_COUNT() <span class="operator">&gt;</span> <span class="number">0</span>) <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">INSERT INTO</span> orders ...</span><br><span class="line">    <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">ELSE</span></span><br><span class="line">    <span class="comment">-- 库存不足或版本冲突</span></span><br><span class="line">    <span class="keyword">ROLLBACK</span>;</span><br><span class="line"><span class="keyword">END</span> IF;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-小结"><a href="#7-小结" class="headerlink" title="7. 小结"></a>7. 小结</h2><p>本章介绍了 MySQL 的事务和并发控制：</p>
+<ul>
+<li><strong>ACID 特性</strong>：事务的基本属性</li>
+<li><strong>隔离级别</strong>：从低到高，性能和安全性的权衡</li>
+<li><strong>锁机制</strong>：行锁、表锁、死锁处理</li>
+<li><strong>并发控制</strong>：悲观锁、乐观锁、MVCC</li>
+<li><strong>实战应用</strong>：转账、库存扣减等场景</li>
+</ul>
+<p>合理使用事务和锁是保证数据一致性的关键。接下来，我们将学习视图、存储过程和触发器等高级数据库对象。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+              <a href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag"># 事务</a>
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/" rel="tag"># 并发控制</a>
+              <a href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag"># 隔离级别</a>
+              <a href="/tags/%E9%94%81/" rel="tag"># 锁</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/MySQL/17_%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5/" rel="prev" title="分区表和优化策略">
+      <i class="fa fa-chevron-left"></i> 分区表和优化策略
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/MySQL/16_%E8%A7%86%E5%9B%BE%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="next" title="视图、存储过程和触发器">
+      视图、存储过程和触发器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%92%8C%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="nav-text">事务和并发控制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BA%8B%E5%8A%A1%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-text">1. 事务基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1"><span class="nav-text">1.1 什么是事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-ACID-%E7%89%B9%E6%80%A7"><span class="nav-text">1.2 ACID 特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BA%8B%E5%8A%A1%E6%8E%A7%E5%88%B6"><span class="nav-text">2. 事务控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E4%BA%8B%E5%8A%A1%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="nav-text">2.1 事务基本命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AE%8C%E6%95%B4%E4%BA%8B%E5%8A%A1%E7%A4%BA%E4%BE%8B"><span class="nav-text">2.2 完整事务示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E4%BF%9D%E5%AD%98%E7%82%B9%EF%BC%88SAVEPOINT%EF%BC%89"><span class="nav-text">2.3 保存点（SAVEPOINT）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-text">3. 隔离级别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%9B%9B%E4%B8%AA%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-text">3.1 四个隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89"><span class="nav-text">3.2 问题定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%AE%BE%E7%BD%AE%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-text">3.3 设置隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E9%80%89%E6%8B%A9"><span class="nav-text">3.4 隔离级别选择</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E9%94%81%E6%9C%BA%E5%88%B6"><span class="nav-text">4. 锁机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E8%A1%8C%E9%94%81%E5%92%8C%E8%A1%A8%E9%94%81"><span class="nav-text">4.1 行锁和表锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E4%B9%90%E8%A7%82%E9%94%81%EF%BC%88%E7%89%88%E6%9C%AC%E5%8F%B7%EF%BC%89"><span class="nav-text">4.2 乐观锁（版本号）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%AD%BB%E9%94%81"><span class="nav-text">4.3 死锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%AD%96%E7%95%A5"><span class="nav-text">5. 并发控制策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%82%B2%E8%A7%82%E9%94%81"><span class="nav-text">5.1 悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-text">5.2 乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-MVCC%EF%BC%88%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%EF%BC%89"><span class="nav-text">5.3 MVCC（多版本并发控制）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-text">6. 实战案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%93%B6%E8%A1%8C%E8%BD%AC%E8%B4%A6%E4%BA%8B%E5%8A%A1"><span class="nav-text">6.1 银行转账事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%BA%93%E5%AD%98%E6%89%A3%E5%87%8F"><span class="nav-text">6.2 库存扣减</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%B0%8F%E7%BB%93"><span class="nav-text">7. 小结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">240</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">876k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">20:51</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

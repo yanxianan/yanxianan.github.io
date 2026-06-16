@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="详解 INNER JOIN、LEFT JOIN、RIGHT JOIN、FULL OUTER JOIN、CROSS JOIN 和自连接等多表关联查询方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JOIN 关联查询">
+<meta property="og:url" content="https://yanxianan.github.io/MySQL/08_JOIN%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="详解 INNER JOIN、LEFT JOIN、RIGHT JOIN、FULL OUTER JOIN、CROSS JOIN 和自连接等多表关联查询方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-15T09:46:21.388Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="JOIN">
+<meta property="article:tag" content="多表查询">
+<meta property="article:tag" content="关联">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/MySQL/08_JOIN%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JOIN 关联查询 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/MySQL/08_JOIN%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JOIN 关联查询
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-06-15 00:00:00 / 修改时间：17:46:21" itemprop="dateCreated datePublished" datetime="2026-06-15T00:00:00+08:00">2026-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+            <div class="post-description">详解 INNER JOIN、LEFT JOIN、RIGHT JOIN、FULL OUTER JOIN、CROSS JOIN 和自连接等多表关联查询方法。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="JOIN-关联查询"><a href="#JOIN-关联查询" class="headerlink" title="JOIN 关联查询"></a>JOIN 关联查询</h1><h2 id="1-JOIN-的基本概念"><a href="#1-JOIN-的基本概念" class="headerlink" title="1. JOIN 的基本概念"></a>1. JOIN 的基本概念</h2><p>JOIN 用于根据表间的关系联合两个或多个表的数据。根据不同的条件，可以获取满足需求的结果集。</p>
+<h3 id="1-1-表间关系"><a href="#1-1-表间关系" class="headerlink" title="1.1 表间关系"></a>1.1 表间关系</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">学生表 (students)          班级表 (classes)</span><br><span class="line">┌─────────────┐           ┌──────────────┐</span><br><span class="line">│ student_id  │           │ class_id     │</span><br><span class="line">│ name        │           │ class_name   │</span><br><span class="line">│ class_id    │──────────│ teacher_id   │</span><br><span class="line">└─────────────┘           └──────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-INNER-JOIN-内连接"><a href="#2-INNER-JOIN-内连接" class="headerlink" title="2. INNER JOIN 内连接"></a>2. INNER JOIN 内连接</h2><h3 id="2-1-INNER-JOIN-语法"><a href="#2-1-INNER-JOIN-语法" class="headerlink" title="2.1 INNER JOIN 语法"></a>2.1 INNER JOIN 语法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> column_list</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> table2</span><br><span class="line"><span class="keyword">ON</span> table1.key <span class="operator">=</span> table2.key;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 也可以省略 INNER 关键字</span></span><br><span class="line"><span class="keyword">SELECT</span> column_list</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">JOIN</span> table2</span><br><span class="line"><span class="keyword">ON</span> table1.key <span class="operator">=</span> table2.key;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-基本示例"><a href="#2-2-基本示例" class="headerlink" title="2.2 基本示例"></a>2.2 基本示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询每个学生及其所在班级的信息</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name,</span><br><span class="line">    s.age,</span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 不指定表别名也可以</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    students.student_id,</span><br><span class="line">    students.name,</span><br><span class="line">    students.age,</span><br><span class="line">    classes.class_id,</span><br><span class="line">    classes.class_name</span><br><span class="line"><span class="keyword">FROM</span> students</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes <span class="keyword">ON</span> students.class_id <span class="operator">=</span> classes.class_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-INNER-JOIN-的特点"><a href="#2-3-INNER-JOIN-的特点" class="headerlink" title="2.3 INNER JOIN 的特点"></a>2.3 INNER JOIN 的特点</h3><ul>
+<li>只返回两个表都匹配的记录</li>
+<li>如果一个学生的班级不存在，则该学生不会出现在结果中</li>
+<li>如果一个班级没有学生，则该班级不会出现在结果中</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 可视化 INNER JOIN</span></span><br><span class="line"><span class="keyword">SELECT</span> s.name, c.class_name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 结果：只显示有班级的学生</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-LEFT-JOIN-左连接"><a href="#3-LEFT-JOIN-左连接" class="headerlink" title="3. LEFT JOIN 左连接"></a>3. LEFT JOIN 左连接</h2><h3 id="3-1-LEFT-JOIN-语法"><a href="#3-1-LEFT-JOIN-语法" class="headerlink" title="3.1 LEFT JOIN 语法"></a>3.1 LEFT JOIN 语法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> column_list</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> table2</span><br><span class="line"><span class="keyword">ON</span> table1.key <span class="operator">=</span> table2.key;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- LEFT OUTER JOIN 和 LEFT JOIN 等价</span></span><br><span class="line"><span class="keyword">SELECT</span> column_list</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">OUTER</span> <span class="keyword">JOIN</span> table2</span><br><span class="line"><span class="keyword">ON</span> table1.key <span class="operator">=</span> table2.key;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-基本示例"><a href="#3-2-基本示例" class="headerlink" title="3.2 基本示例"></a>3.2 基本示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询所有学生及其班级信息（如果学生没有班级，班级信息为 NULL）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name,</span><br><span class="line">    s.age,</span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询所有订单及其客户信息</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    o.order_id,</span><br><span class="line">    o.order_no,</span><br><span class="line">    o.total_amount,</span><br><span class="line">    cust.customer_name,</span><br><span class="line">    cust.phone</span><br><span class="line"><span class="keyword">FROM</span> orders o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> customers cust <span class="keyword">ON</span> o.customer_id <span class="operator">=</span> cust.customer_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-LEFT-JOIN-的特点"><a href="#3-3-LEFT-JOIN-的特点" class="headerlink" title="3.3 LEFT JOIN 的特点"></a>3.3 LEFT JOIN 的特点</h3><ul>
+<li>返回左表的所有记录，即使右表没有匹配记录</li>
+<li>右表中不匹配的列显示为 NULL</li>
+<li>常用于查找”没有”的数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查找没有订单的客户</span></span><br><span class="line"><span class="keyword">SELECT</span> c.customer_id, c.customer_name</span><br><span class="line"><span class="keyword">FROM</span> customers c</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> orders o <span class="keyword">ON</span> c.customer_id <span class="operator">=</span> o.customer_id</span><br><span class="line"><span class="keyword">WHERE</span> o.order_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查找没有成绩的学生</span></span><br><span class="line"><span class="keyword">SELECT</span> s.student_id, s.name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> grades g <span class="keyword">ON</span> s.student_id <span class="operator">=</span> g.student_id</span><br><span class="line"><span class="keyword">WHERE</span> g.grade_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-RIGHT-JOIN-右连接"><a href="#4-RIGHT-JOIN-右连接" class="headerlink" title="4. RIGHT JOIN 右连接"></a>4. RIGHT JOIN 右连接</h2><h3 id="4-1-RIGHT-JOIN-语法"><a href="#4-1-RIGHT-JOIN-语法" class="headerlink" title="4.1 RIGHT JOIN 语法"></a>4.1 RIGHT JOIN 语法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> column_list</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> table2</span><br><span class="line"><span class="keyword">ON</span> table1.key <span class="operator">=</span> table2.key;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- RIGHT OUTER JOIN 和 RIGHT JOIN 等价</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-基本示例"><a href="#4-2-基本示例" class="headerlink" title="4.2 基本示例"></a>4.2 基本示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询所有班级及其学生信息（如果班级没有学生，学生信息为 NULL）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name,</span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name,</span><br><span class="line">    s.age</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询所有产品及其销售情况</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    p.product_id,</span><br><span class="line">    p.product_name,</span><br><span class="line">    oi.order_id,</span><br><span class="line">    oi.quantity,</span><br><span class="line">    oi.amount</span><br><span class="line"><span class="keyword">FROM</span> order_items oi</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> products p <span class="keyword">ON</span> oi.product_id <span class="operator">=</span> p.product_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-RIGHT-JOIN-vs-LEFT-JOIN"><a href="#4-3-RIGHT-JOIN-vs-LEFT-JOIN" class="headerlink" title="4.3 RIGHT JOIN vs LEFT JOIN"></a>4.3 RIGHT JOIN vs LEFT JOIN</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 这两个查询结果相同</span></span><br><span class="line"><span class="comment">-- 方法一：LEFT JOIN</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 方法二：RIGHT JOIN（表的顺序相反）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> classes c</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> students s <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 通常推荐使用 LEFT JOIN，避免混淆</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-FULL-OUTER-JOIN"><a href="#5-FULL-OUTER-JOIN" class="headerlink" title="5. FULL OUTER JOIN"></a>5. FULL OUTER JOIN</h2><p>MySQL 不支持 FULL OUTER JOIN，但可以用 UNION 实现相同效果。</p>
+<h3 id="5-1-使用-UNION-实现-FULL-OUTER-JOIN"><a href="#5-1-使用-UNION-实现-FULL-OUTER-JOIN" class="headerlink" title="5.1 使用 UNION 实现 FULL OUTER JOIN"></a>5.1 使用 UNION 实现 FULL OUTER JOIN</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询所有班级和学生的匹配关系（包括无学生的班级和无班级的学生）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name,</span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">FULL</span> <span class="keyword">OUTER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- MySQL 实现（使用 UNION）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name,</span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id</span><br><span class="line"></span><br><span class="line"><span class="keyword">UNION</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c.class_id,</span><br><span class="line">    c.class_name,</span><br><span class="line">    s.student_id,</span><br><span class="line">    s.name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-CROSS-JOIN-笛卡尔积"><a href="#6-CROSS-JOIN-笛卡尔积" class="headerlink" title="6. CROSS JOIN 笛卡尔积"></a>6. CROSS JOIN 笛卡尔积</h2><h3 id="6-1-CROSS-JOIN-语法"><a href="#6-1-CROSS-JOIN-语法" class="headerlink" title="6.1 CROSS JOIN 语法"></a>6.1 CROSS JOIN 语法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table1 <span class="keyword">CROSS</span> <span class="keyword">JOIN</span> table2;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或等价于</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table1, table2;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-基本示例"><a href="#6-2-基本示例" class="headerlink" title="6.2 基本示例"></a>6.2 基本示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 获取所有可能的组合</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.name,</span><br><span class="line">    c.course_name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">CROSS</span> <span class="keyword">JOIN</span> courses c;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 结果：每个学生与每个课程都会组合一次</span></span><br><span class="line"><span class="comment">-- 如果有 100 个学生和 50 门课程，结果将有 5000 行</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-应用场景"><a href="#6-3-应用场景" class="headerlink" title="6.3 应用场景"></a>6.3 应用场景</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 生成所有可能的日期组合</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    d1.date,</span><br><span class="line">    d2.time</span><br><span class="line"><span class="keyword">FROM</span> dates d1</span><br><span class="line"><span class="keyword">CROSS</span> <span class="keyword">JOIN</span> times d2;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建座位安排表</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    r.room_number,</span><br><span class="line">    s.seat_number</span><br><span class="line"><span class="keyword">FROM</span> rooms r</span><br><span class="line"><span class="keyword">CROSS</span> <span class="keyword">JOIN</span> seats s;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-自连接（Self-Join）"><a href="#7-自连接（Self-Join）" class="headerlink" title="7. 自连接（Self Join）"></a>7. 自连接（Self Join）</h2><h3 id="7-1-自连接基础"><a href="#7-1-自连接基础" class="headerlink" title="7.1 自连接基础"></a>7.1 自连接基础</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询每个学生的名字和他的同班同学的名字</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s1.name <span class="keyword">AS</span> student1,</span><br><span class="line">    s2.name <span class="keyword">AS</span> student2</span><br><span class="line"><span class="keyword">FROM</span> students s1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> students s2 <span class="keyword">ON</span> s1.class_id <span class="operator">=</span> s2.class_id</span><br><span class="line"><span class="keyword">WHERE</span> s1.student_id <span class="operator">&lt;</span> s2.student_id;  <span class="comment">-- 避免重复</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询员工及其上级的信息</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    e.employee_id,</span><br><span class="line">    e.name <span class="keyword">AS</span> employee_name,</span><br><span class="line">    m.name <span class="keyword">AS</span> manager_name</span><br><span class="line"><span class="keyword">FROM</span> employees e</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> employees m <span class="keyword">ON</span> e.manager_id <span class="operator">=</span> m.employee_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-自连接示例"><a href="#7-2-自连接示例" class="headerlink" title="7.2 自连接示例"></a>7.2 自连接示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询产品及其相关产品（同一类别的其他产品）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    p1.product_id,</span><br><span class="line">    p1.product_name,</span><br><span class="line">    p2.product_id <span class="keyword">AS</span> related_product_id,</span><br><span class="line">    p2.product_name <span class="keyword">AS</span> related_product_name</span><br><span class="line"><span class="keyword">FROM</span> products p1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> products p2 </span><br><span class="line">    <span class="keyword">ON</span> p1.category_id <span class="operator">=</span> p2.category_id </span><br><span class="line">    <span class="keyword">AND</span> p1.product_id <span class="operator">&lt;</span> p2.product_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询城市及其附近的城市（根据距离）</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c1.city_name,</span><br><span class="line">    c2.city_name <span class="keyword">AS</span> nearby_city,</span><br><span class="line">    c1.distance_to_c2</span><br><span class="line"><span class="keyword">FROM</span> cities c1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> cities c2 </span><br><span class="line">    <span class="keyword">ON</span> <span class="built_in">SQRT</span>(POW(c1.latitude <span class="operator">-</span> c2.latitude, <span class="number">2</span>) <span class="operator">+</span> POW(c1.longitude <span class="operator">-</span> c2.longitude, <span class="number">2</span>)) <span class="operator">&lt;</span> <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="8-多表-JOIN"><a href="#8-多表-JOIN" class="headerlink" title="8. 多表 JOIN"></a>8. 多表 JOIN</h2><h3 id="8-1-三表关联"><a href="#8-1-三表关联" class="headerlink" title="8.1 三表关联"></a>8.1 三表关联</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询学生成绩，需要关联学生、课程和成绩表</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.name,</span><br><span class="line">    c.course_name,</span><br><span class="line">    g.grade,</span><br><span class="line">    g.exam_date</span><br><span class="line"><span class="keyword">FROM</span> grades g</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> students s <span class="keyword">ON</span> g.student_id <span class="operator">=</span> s.student_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> courses c <span class="keyword">ON</span> g.course_id <span class="operator">=</span> c.course_id</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> s.name, c.course_name;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-多个-LEFT-JOIN"><a href="#8-2-多个-LEFT-JOIN" class="headerlink" title="8.2 多个 LEFT JOIN"></a>8.2 多个 LEFT JOIN</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询订单、客户、收货地址等信息</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    o.order_id,</span><br><span class="line">    o.order_no,</span><br><span class="line">    o.total_amount,</span><br><span class="line">    cust.customer_name,</span><br><span class="line">    cust.email,</span><br><span class="line">    addr.province,</span><br><span class="line">    addr.city,</span><br><span class="line">    addr.address</span><br><span class="line"><span class="keyword">FROM</span> orders o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> customers cust <span class="keyword">ON</span> o.customer_id <span class="operator">=</span> cust.customer_id</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> addresses addr <span class="keyword">ON</span> o.address_id <span class="operator">=</span> addr.address_id</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> payments pay <span class="keyword">ON</span> o.order_id <span class="operator">=</span> pay.order_id</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> o.order_date <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-混合-JOIN"><a href="#8-3-混合-JOIN" class="headerlink" title="8.3 混合 JOIN"></a>8.3 混合 JOIN</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 同时使用 INNER JOIN 和 LEFT JOIN</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    o.order_id,</span><br><span class="line">    o.order_no,</span><br><span class="line">    oi.product_id,</span><br><span class="line">    p.product_name,</span><br><span class="line">    oi.quantity,</span><br><span class="line">    oi.unit_price,</span><br><span class="line">    <span class="built_in">COALESCE</span>(d.discount, <span class="number">0</span>) <span class="keyword">AS</span> discount</span><br><span class="line"><span class="keyword">FROM</span> orders o</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> order_items oi <span class="keyword">ON</span> o.order_id <span class="operator">=</span> oi.order_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> products p <span class="keyword">ON</span> oi.product_id <span class="operator">=</span> p.product_id</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> discounts d <span class="keyword">ON</span> p.product_id <span class="operator">=</span> d.product_id</span><br><span class="line"><span class="keyword">WHERE</span> o.order_date <span class="operator">&gt;</span> <span class="string">&#x27;2026-01-01&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9-JOIN-条件和过滤"><a href="#9-JOIN-条件和过滤" class="headerlink" title="9. JOIN 条件和过滤"></a>9. JOIN 条件和过滤</h2><h3 id="9-1-ON-条件"><a href="#9-1-ON-条件" class="headerlink" title="9.1 ON 条件"></a>9.1 ON 条件</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- ON 子句定义表间的关系</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 支持多个条件</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c </span><br><span class="line">    <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id </span><br><span class="line">    <span class="keyword">AND</span> s.status <span class="operator">=</span> <span class="string">&#x27;active&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 支持复杂条件</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c </span><br><span class="line">    <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id </span><br><span class="line">    <span class="keyword">AND</span> <span class="keyword">YEAR</span>(s.registration_date) <span class="operator">=</span> <span class="keyword">YEAR</span>(c.created_date);</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-WHERE-条件"><a href="#9-2-WHERE-条件" class="headerlink" title="9.2 WHERE 条件"></a>9.2 WHERE 条件</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- WHERE 用于过滤结果，在 JOIN 之后执行</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.name,</span><br><span class="line">    c.class_name,</span><br><span class="line">    <span class="built_in">AVG</span>(g.grade) <span class="keyword">AS</span> avg_grade</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> grades g <span class="keyword">ON</span> s.student_id <span class="operator">=</span> g.student_id</span><br><span class="line"><span class="keyword">WHERE</span> g.exam_date <span class="operator">&gt;</span> <span class="string">&#x27;2026-01-01&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s.student_id, c.class_id</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">AVG</span>(g.grade) <span class="operator">&gt;</span> <span class="number">80</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-JOIN-性能优化"><a href="#10-JOIN-性能优化" class="headerlink" title="10. JOIN 性能优化"></a>10. JOIN 性能优化</h2><h3 id="10-1-添加索引"><a href="#10-1-添加索引" class="headerlink" title="10.1 添加索引"></a>10.1 添加索引</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 在 JOIN 的关键列上创建索引</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_student_class_id <span class="keyword">ON</span> students(class_id);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_grade_student_id <span class="keyword">ON</span> grades(student_id);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_grade_course_id <span class="keyword">ON</span> grades(course_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 之后的 JOIN 查询会使用这些索引，性能大幅提升</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="10-2-查看-JOIN-执行计划"><a href="#10-2-查看-JOIN-执行计划" class="headerlink" title="10.2 查看 JOIN 执行计划"></a>10.2 查看 JOIN 执行计划</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用 EXPLAIN 查看 JOIN 的执行计划</span></span><br><span class="line">EXPLAIN <span class="keyword">SELECT</span> </span><br><span class="line">    s.name,</span><br><span class="line">    g.grade,</span><br><span class="line">    c.course_name</span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> grades g <span class="keyword">ON</span> s.student_id <span class="operator">=</span> g.student_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> courses c <span class="keyword">ON</span> g.course_id <span class="operator">=</span> c.course_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-3-JOIN-顺序优化"><a href="#10-3-JOIN-顺序优化" class="headerlink" title="10.3 JOIN 顺序优化"></a>10.3 JOIN 顺序优化</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 通常先关联最小的表或有最多限制条件的表</span></span><br><span class="line"><span class="comment">-- 优化前</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> grades g <span class="keyword">ON</span> s.student_id <span class="operator">=</span> g.student_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> courses c <span class="keyword">ON</span> g.course_id <span class="operator">=</span> c.course_id</span><br><span class="line"><span class="keyword">WHERE</span> c.course_id <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化后（先过滤课程）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> courses c</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> grades g <span class="keyword">ON</span> c.course_id <span class="operator">=</span> g.course_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> students s <span class="keyword">ON</span> g.student_id <span class="operator">=</span> s.student_id</span><br><span class="line"><span class="keyword">WHERE</span> c.course_id <span class="operator">=</span> <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="11-常见错误"><a href="#11-常见错误" class="headerlink" title="11. 常见错误"></a>11. 常见错误</h2><h3 id="11-1-遗漏-JOIN-条件"><a href="#11-1-遗漏-JOIN-条件" class="headerlink" title="11.1 遗漏 JOIN 条件"></a>11.1 遗漏 JOIN 条件</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 错误：导致笛卡尔积</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> students s, classes c;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 正确：明确指定 JOIN 条件</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-2-使用错误的-JOIN-类型"><a href="#11-2-使用错误的-JOIN-类型" class="headerlink" title="11.2 使用错误的 JOIN 类型"></a>11.2 使用错误的 JOIN 类型</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 如果需要查找&quot;没有班级的学生&quot;，用 LEFT JOIN</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id</span><br><span class="line"><span class="keyword">WHERE</span> c.class_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 不能用 INNER JOIN（会返回空结果）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id</span><br><span class="line"><span class="keyword">WHERE</span> c.class_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;  <span class="comment">-- 这个条件永远不满足</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="11-3-JOIN-中的-NULL-处理"><a href="#11-3-JOIN-中的-NULL-处理" class="headerlink" title="11.3 JOIN 中的 NULL 处理"></a>11.3 JOIN 中的 NULL 处理</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 注意：NULL = NULL 返回 FALSE</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id <span class="keyword">AND</span> s.class_id <span class="keyword">IS</span> <span class="keyword">NOT NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 检查 NULL 值</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> students s</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> s.class_id <span class="operator">=</span> c.class_id</span><br><span class="line"><span class="keyword">WHERE</span> s.class_id <span class="keyword">IS</span> <span class="keyword">NULL</span> <span class="keyword">OR</span> c.class_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="12-小结"><a href="#12-小结" class="headerlink" title="12. 小结"></a>12. 小结</h2><p>本章介绍了 MySQL 中各种 JOIN 类型：</p>
+<ul>
+<li><strong>INNER JOIN</strong>：只返回匹配的记录</li>
+<li><strong>LEFT JOIN</strong>：返回左表的所有记录</li>
+<li><strong>RIGHT JOIN</strong>：返回右表的所有记录</li>
+<li><strong>FULL OUTER JOIN</strong>：返回所有记录（通过 UNION 实现）</li>
+<li><strong>CROSS JOIN</strong>：笛卡尔积</li>
+<li><strong>自连接</strong>：表与自身的关联</li>
+<li><strong>多表 JOIN</strong>：同时关联多个表</li>
+</ul>
+<p>JOIN 是 SQL 中最重要的操作之一，掌握 JOIN 能够构建复杂的多表查询。接下来，我们将学习子查询，进一步增强查询能力。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+              <a href="/tags/JOIN/" rel="tag"># JOIN</a>
+              <a href="/tags/%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2/" rel="tag"># 多表查询</a>
+              <a href="/tags/%E5%85%B3%E8%81%94/" rel="tag"># 关联</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/MySQL/10_UNION%E5%92%8C%E9%9B%86%E5%90%88%E6%93%8D%E4%BD%9C/" rel="prev" title="UNION 和集合操作">
+      <i class="fa fa-chevron-left"></i> UNION 和集合操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/MySQL/09_%E5%AD%90%E6%9F%A5%E8%AF%A2%E5%92%8C%E5%A4%8D%E6%9D%82%E6%9F%A5%E8%AF%A2/" rel="next" title="子查询和复杂查询">
+      子查询和复杂查询 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JOIN-%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="nav-text">JOIN 关联查询</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-JOIN-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-text">1. JOIN 的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%A1%A8%E9%97%B4%E5%85%B3%E7%B3%BB"><span class="nav-text">1.1 表间关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-INNER-JOIN-%E5%86%85%E8%BF%9E%E6%8E%A5"><span class="nav-text">2. INNER JOIN 内连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-INNER-JOIN-%E8%AF%AD%E6%B3%95"><span class="nav-text">2.1 INNER JOIN 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="nav-text">2.2 基本示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-INNER-JOIN-%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">2.3 INNER JOIN 的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-LEFT-JOIN-%E5%B7%A6%E8%BF%9E%E6%8E%A5"><span class="nav-text">3. LEFT JOIN 左连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-LEFT-JOIN-%E8%AF%AD%E6%B3%95"><span class="nav-text">3.1 LEFT JOIN 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="nav-text">3.2 基本示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-LEFT-JOIN-%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">3.3 LEFT JOIN 的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-RIGHT-JOIN-%E5%8F%B3%E8%BF%9E%E6%8E%A5"><span class="nav-text">4. RIGHT JOIN 右连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-RIGHT-JOIN-%E8%AF%AD%E6%B3%95"><span class="nav-text">4.1 RIGHT JOIN 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="nav-text">4.2 基本示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-RIGHT-JOIN-vs-LEFT-JOIN"><span class="nav-text">4.3 RIGHT JOIN vs LEFT JOIN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-FULL-OUTER-JOIN"><span class="nav-text">5. FULL OUTER JOIN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E4%BD%BF%E7%94%A8-UNION-%E5%AE%9E%E7%8E%B0-FULL-OUTER-JOIN"><span class="nav-text">5.1 使用 UNION 实现 FULL OUTER JOIN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-CROSS-JOIN-%E7%AC%9B%E5%8D%A1%E5%B0%94%E7%A7%AF"><span class="nav-text">6. CROSS JOIN 笛卡尔积</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-CROSS-JOIN-%E8%AF%AD%E6%B3%95"><span class="nav-text">6.1 CROSS JOIN 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="nav-text">6.2 基本示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">6.3 应用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E8%87%AA%E8%BF%9E%E6%8E%A5%EF%BC%88Self-Join%EF%BC%89"><span class="nav-text">7. 自连接（Self Join）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E8%87%AA%E8%BF%9E%E6%8E%A5%E5%9F%BA%E7%A1%80"><span class="nav-text">7.1 自连接基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E8%87%AA%E8%BF%9E%E6%8E%A5%E7%A4%BA%E4%BE%8B"><span class="nav-text">7.2 自连接示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%A4%9A%E8%A1%A8-JOIN"><span class="nav-text">8. 多表 JOIN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E4%B8%89%E8%A1%A8%E5%85%B3%E8%81%94"><span class="nav-text">8.1 三表关联</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E5%A4%9A%E4%B8%AA-LEFT-JOIN"><span class="nav-text">8.2 多个 LEFT JOIN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E6%B7%B7%E5%90%88-JOIN"><span class="nav-text">8.3 混合 JOIN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-JOIN-%E6%9D%A1%E4%BB%B6%E5%92%8C%E8%BF%87%E6%BB%A4"><span class="nav-text">9. JOIN 条件和过滤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-ON-%E6%9D%A1%E4%BB%B6"><span class="nav-text">9.1 ON 条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-WHERE-%E6%9D%A1%E4%BB%B6"><span class="nav-text">9.2 WHERE 条件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-JOIN-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-text">10. JOIN 性能优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E6%B7%BB%E5%8A%A0%E7%B4%A2%E5%BC%95"><span class="nav-text">10.1 添加索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-%E6%9F%A5%E7%9C%8B-JOIN-%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="nav-text">10.2 查看 JOIN 执行计划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-3-JOIN-%E9%A1%BA%E5%BA%8F%E4%BC%98%E5%8C%96"><span class="nav-text">10.3 JOIN 顺序优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF"><span class="nav-text">11. 常见错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-1-%E9%81%97%E6%BC%8F-JOIN-%E6%9D%A1%E4%BB%B6"><span class="nav-text">11.1 遗漏 JOIN 条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-2-%E4%BD%BF%E7%94%A8%E9%94%99%E8%AF%AF%E7%9A%84-JOIN-%E7%B1%BB%E5%9E%8B"><span class="nav-text">11.2 使用错误的 JOIN 类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-3-JOIN-%E4%B8%AD%E7%9A%84-NULL-%E5%A4%84%E7%90%86"><span class="nav-text">11.3 JOIN 中的 NULL 处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E5%B0%8F%E7%BB%93"><span class="nav-text">12. 小结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">240</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">876k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">20:51</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

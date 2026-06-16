@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="介绍 MySQL 高级查询技巧，包括公共表表达式（CTE）、窗口函数、递归查询等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高级查询技巧">
+<meta property="og:url" content="https://yanxianan.github.io/MySQL/11_%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2%E6%8A%80%E5%B7%A7/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="介绍 MySQL 高级查询技巧，包括公共表表达式（CTE）、窗口函数、递归查询等。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-15T09:47:40.212Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="CTE">
+<meta property="article:tag" content="窗口函数">
+<meta property="article:tag" content="高级查询">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/MySQL/11_%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2%E6%8A%80%E5%B7%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>高级查询技巧 | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/MySQL/11_%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2%E6%8A%80%E5%B7%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高级查询技巧
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-06-15 00:00:00 / 修改时间：17:47:40" itemprop="dateCreated datePublished" datetime="2026-06-15T00:00:00+08:00">2026-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+            <div class="post-description">介绍 MySQL 高级查询技巧，包括公共表表达式（CTE）、窗口函数、递归查询等。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="高级查询技巧"><a href="#高级查询技巧" class="headerlink" title="高级查询技巧"></a>高级查询技巧</h1><h2 id="1-公共表表达式（CTE）"><a href="#1-公共表表达式（CTE）" class="headerlink" title="1. 公共表表达式（CTE）"></a>1. 公共表表达式（CTE）</h2><h3 id="1-1-WITH-子句基础"><a href="#1-1-WITH-子句基础" class="headerlink" title="1.1 WITH 子句基础"></a>1.1 WITH 子句基础</h3><p>CTE（Common Table Expression）是一个命名的临时结果集，可以在 SELECT、INSERT、UPDATE、DELETE 语句中使用。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 基础语法</span></span><br><span class="line"><span class="keyword">WITH</span> cte_name <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> column1, column2, ...</span><br><span class="line">    <span class="keyword">FROM</span> table_name</span><br><span class="line">    <span class="keyword">WHERE</span> <span class="keyword">condition</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> cte_name;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-简单-CTE-示例"><a href="#1-2-简单-CTE-示例" class="headerlink" title="1.2 简单 CTE 示例"></a>1.2 简单 CTE 示例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建一个 CTE，查询年龄大于 20 的学生</span></span><br><span class="line"><span class="keyword">WITH</span> adult_students <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> student_id, name, age, class_id</span><br><span class="line">    <span class="keyword">FROM</span> students</span><br><span class="line">    <span class="keyword">WHERE</span> age <span class="operator">&gt;</span> <span class="number">20</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> adult_students;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用 CTE 计算班级统计</span></span><br><span class="line"><span class="keyword">WITH</span> class_stats <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        class_id,</span><br><span class="line">        <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> student_count,</span><br><span class="line">        <span class="built_in">AVG</span>(age) <span class="keyword">AS</span> avg_age</span><br><span class="line">    <span class="keyword">FROM</span> students</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> class_id</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    c.class_name,</span><br><span class="line">    cs.student_count,</span><br><span class="line">    cs.avg_age</span><br><span class="line"><span class="keyword">FROM</span> class_stats cs</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> classes c <span class="keyword">ON</span> cs.class_id <span class="operator">=</span> c.class_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-多个-CTE"><a href="#1-3-多个-CTE" class="headerlink" title="1.3 多个 CTE"></a>1.3 多个 CTE</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 定义多个 CTE</span></span><br><span class="line"><span class="keyword">WITH</span> students_over_20 <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> student_id, name, age, class_id</span><br><span class="line">    <span class="keyword">FROM</span> students</span><br><span class="line">    <span class="keyword">WHERE</span> age <span class="operator">&gt;</span> <span class="number">20</span></span><br><span class="line">),</span><br><span class="line">class_sizes <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> class_id, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> size</span><br><span class="line">    <span class="keyword">FROM</span> students</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> class_id</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s.name,</span><br><span class="line">    s.age,</span><br><span class="line">    cs.size</span><br><span class="line"><span class="keyword">FROM</span> students_over_20 s</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> class_sizes cs <span class="keyword">ON</span> s.class_id <span class="operator">=</span> cs.class_id;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-递归-CTE"><a href="#2-递归-CTE" class="headerlink" title="2. 递归 CTE"></a>2. 递归 CTE</h2><h3 id="2-1-递归-CTE-基础"><a href="#2-1-递归-CTE-基础" class="headerlink" title="2.1 递归 CTE 基础"></a>2.1 递归 CTE 基础</h3><p>递归 CTE 用于处理层级或递归关系的数据。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> <span class="keyword">RECURSIVE</span> cte_name <span class="keyword">AS</span> (</span><br><span class="line">    <span class="comment">-- 初始查询（锚点成员）</span></span><br><span class="line">    <span class="keyword">SELECT</span> column1, column2, ... <span class="keyword">FROM</span> base_table <span class="keyword">WHERE</span> <span class="keyword">condition</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 递归查询（递归成员）</span></span><br><span class="line">    <span class="keyword">SELECT</span> column1, column2, ... <span class="keyword">FROM</span> cte_name <span class="keyword">WHERE</span> <span class="keyword">condition</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> cte_name;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-递归-CTE-示例：组织层级"><a href="#2-2-递归-CTE-示例：组织层级" class="headerlink" title="2.2 递归 CTE 示例：组织层级"></a>2.2 递归 CTE 示例：组织层级</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询员工及其上级关系</span></span><br><span class="line"><span class="keyword">WITH</span> <span class="keyword">RECURSIVE</span> employee_hierarchy <span class="keyword">AS</span> (</span><br><span class="line">    <span class="comment">-- 初始查询：查找所有没有上级的员工（高管）</span></span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        employee_id,</span><br><span class="line">        name,</span><br><span class="line">        manager_id,</span><br><span class="line">        <span class="number">1</span> <span class="keyword">AS</span> level</span><br><span class="line">    <span class="keyword">FROM</span> employees</span><br><span class="line">    <span class="keyword">WHERE</span> manager_id <span class="keyword">IS</span> <span class="keyword">NULL</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 递归查询：查找每个高管的下属</span></span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        e.employee_id,</span><br><span class="line">        e.name,</span><br><span class="line">        e.manager_id,</span><br><span class="line">        eh.level <span class="operator">+</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">FROM</span> employees e</span><br><span class="line">    <span class="keyword">INNER</span> <span class="keyword">JOIN</span> employee_hierarchy eh </span><br><span class="line">        <span class="keyword">ON</span> e.manager_id <span class="operator">=</span> eh.employee_id</span><br><span class="line">    <span class="keyword">WHERE</span> eh.level <span class="operator">&lt;</span> <span class="number">10</span>  <span class="comment">-- 限制递归深度</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> employee_hierarchy</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> level, employee_id;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-递归-CTE-示例：数字序列"><a href="#2-3-递归-CTE-示例：数字序列" class="headerlink" title="2.3 递归 CTE 示例：数字序列"></a>2.3 递归 CTE 示例：数字序列</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 生成 1 到 100 的数字序列</span></span><br><span class="line"><span class="keyword">WITH</span> <span class="keyword">RECURSIVE</span> numbers <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">AS</span> num</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">SELECT</span> num <span class="operator">+</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">FROM</span> numbers</span><br><span class="line">    <span class="keyword">WHERE</span> num <span class="operator">&lt;</span> <span class="number">100</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> numbers;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用数字序列生成日期列表</span></span><br><span class="line"><span class="keyword">WITH</span> <span class="keyword">RECURSIVE</span> date_range <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="type">DATE</span>(<span class="string">&#x27;2026-01-01&#x27;</span>) <span class="keyword">AS</span> <span class="type">date</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">SELECT</span> DATE_ADD(<span class="type">date</span>, <span class="type">INTERVAL</span> <span class="number">1</span> <span class="keyword">DAY</span>)</span><br><span class="line">    <span class="keyword">FROM</span> date_range</span><br><span class="line">    <span class="keyword">WHERE</span> <span class="type">date</span> <span class="operator">&lt;</span> <span class="type">DATE</span>(<span class="string">&#x27;2026-12-31&#x27;</span>)</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> date_range;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-窗口函数"><a href="#3-窗口函数" class="headerlink" title="3. 窗口函数"></a>3. 窗口函数</h2><h3 id="3-1-窗口函数基础"><a href="#3-1-窗口函数基础" class="headerlink" title="3.1 窗口函数基础"></a>3.1 窗口函数基础</h3><p>窗口函数在一行数据的周围进行计算，不会合并行（与聚合函数不同）。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 基础语法</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    column1,</span><br><span class="line">    aggregate_function() <span class="keyword">OVER</span> (</span><br><span class="line">        [<span class="keyword">PARTITION</span> <span class="keyword">BY</span> column1, column2, ...]</span><br><span class="line">        [<span class="keyword">ORDER</span> <span class="keyword">BY</span> column1, column2, ...]</span><br><span class="line">        [<span class="keyword">ROWS</span><span class="operator">/</span><span class="keyword">RANGE</span> frame]</span><br><span class="line">    ) <span class="keyword">AS</span> <span class="keyword">result</span></span><br><span class="line"><span class="keyword">FROM</span> table_name;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-排序窗口函数"><a href="#3-2-排序窗口函数" class="headerlink" title="3.2 排序窗口函数"></a>3.2 排序窗口函数</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- ROW_NUMBER：为每一行分配一个唯一的序号</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rank</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- RANK：相同值获得相同排名，后续排名有间隙</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rank</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- DENSE_RANK：相同值获得相同排名，后续排名无间隙</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="built_in">DENSE_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> dense_rank</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-聚合窗口函数"><a href="#3-3-聚合窗口函数" class="headerlink" title="3.3 聚合窗口函数"></a>3.3 聚合窗口函数</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 计算累计和</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    order_date,</span><br><span class="line">    amount,</span><br><span class="line">    <span class="built_in">SUM</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">AS</span> cumulative_sum</span><br><span class="line"><span class="keyword">FROM</span> orders</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 计算移动平均</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    order_date,</span><br><span class="line">    amount,</span><br><span class="line">    <span class="built_in">AVG</span>(amount) <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date </span><br><span class="line">        <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">2</span> PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span></span><br><span class="line">    ) <span class="keyword">AS</span> moving_avg</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 计算分组内的排名</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    department,</span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> department <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> dept_rank</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-偏移窗口函数"><a href="#3-4-偏移窗口函数" class="headerlink" title="3.4 偏移窗口函数"></a>3.4 偏移窗口函数</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- LAG：获取前一行的值</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    order_date,</span><br><span class="line">    amount,</span><br><span class="line">    <span class="built_in">LAG</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">AS</span> prev_amount,</span><br><span class="line">    amount <span class="operator">-</span> <span class="built_in">LAG</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">AS</span> amount_change</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- LEAD：获取后一行的值</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    order_date,</span><br><span class="line">    amount,</span><br><span class="line">    <span class="built_in">LEAD</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">AS</span> next_amount</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- FIRST_VALUE 和 LAST_VALUE</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    department,</span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="built_in">FIRST_VALUE</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> department <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> highest_salary,</span><br><span class="line">    <span class="built_in">LAST_VALUE</span>(salary) <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">PARTITION</span> <span class="keyword">BY</span> department </span><br><span class="line">        <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span> </span><br><span class="line">        <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> UNBOUNDED PRECEDING <span class="keyword">AND</span> UNBOUNDED FOLLOWING</span><br><span class="line">    ) <span class="keyword">AS</span> lowest_salary</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-窗口函数应用示例"><a href="#4-窗口函数应用示例" class="headerlink" title="4. 窗口函数应用示例"></a>4. 窗口函数应用示例</h2><h3 id="4-1-查找每个部门工资最高的员工"><a href="#4-1-查找每个部门工资最高的员工" class="headerlink" title="4.1 查找每个部门工资最高的员工"></a>4.1 查找每个部门工资最高的员工</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> employee_rank <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        department,</span><br><span class="line">        name,</span><br><span class="line">        salary,</span><br><span class="line">        <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> department <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rank</span><br><span class="line">    <span class="keyword">FROM</span> employees</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> employee_rank</span><br><span class="line"><span class="keyword">WHERE</span> rank <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-计算销售累计"><a href="#4-2-计算销售累计" class="headerlink" title="4.2 计算销售累计"></a>4.2 计算销售累计</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    DATE_FORMAT(order_date, <span class="string">&#x27;%Y-%m&#x27;</span>) <span class="keyword">AS</span> <span class="keyword">month</span>,</span><br><span class="line">    <span class="built_in">SUM</span>(total_amount) <span class="keyword">AS</span> monthly_sales,</span><br><span class="line">    <span class="built_in">SUM</span>(<span class="built_in">SUM</span>(total_amount)) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> DATE_FORMAT(order_date, <span class="string">&#x27;%Y-%m&#x27;</span>)) <span class="keyword">AS</span> cumulative_sales</span><br><span class="line"><span class="keyword">FROM</span> orders</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> DATE_FORMAT(order_date, <span class="string">&#x27;%Y-%m&#x27;</span>)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">month</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-查找连续增长"><a href="#4-3-查找连续增长" class="headerlink" title="4.3 查找连续增长"></a>4.3 查找连续增长</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    order_date,</span><br><span class="line">    amount,</span><br><span class="line">    <span class="built_in">LAG</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">AS</span> prev_amount,</span><br><span class="line">    <span class="keyword">CASE</span> </span><br><span class="line">        <span class="keyword">WHEN</span> amount <span class="operator">&gt;</span> <span class="built_in">LAG</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">THEN</span> <span class="string">&#x27;Growth&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> amount <span class="operator">&lt;</span> <span class="built_in">LAG</span>(amount) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> order_date) <span class="keyword">THEN</span> <span class="string">&#x27;Decline&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;Same&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> trend</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-CASE-表达式"><a href="#5-CASE-表达式" class="headerlink" title="5. CASE 表达式"></a>5. CASE 表达式</h2><h3 id="5-1-简单-CASE"><a href="#5-1-简单-CASE" class="headerlink" title="5.1 简单 CASE"></a>5.1 简单 CASE</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 简单 CASE：条件匹配</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    age,</span><br><span class="line">    <span class="keyword">CASE</span> age</span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">18</span> <span class="keyword">THEN</span> <span class="string">&#x27;Eighteen&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">19</span> <span class="keyword">THEN</span> <span class="string">&#x27;Nineteen&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">20</span> <span class="keyword">THEN</span> <span class="string">&#x27;Twenty&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;Other&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> age_name</span><br><span class="line"><span class="keyword">FROM</span> students;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-搜索-CASE"><a href="#5-2-搜索-CASE" class="headerlink" title="5.2 搜索 CASE"></a>5.2 搜索 CASE</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 搜索 CASE：复杂条件</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    salary,</span><br><span class="line">    <span class="keyword">CASE</span></span><br><span class="line">        <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">10000</span> <span class="keyword">THEN</span> <span class="string">&#x27;Senior&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">5000</span> <span class="keyword">THEN</span> <span class="string">&#x27;Middle&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">3000</span> <span class="keyword">THEN</span> <span class="string">&#x27;Junior&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;Intern&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> level</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-CASE-在聚合中的应用"><a href="#5-3-CASE-在聚合中的应用" class="headerlink" title="5.3 CASE 在聚合中的应用"></a>5.3 CASE 在聚合中的应用</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 统计不同级别的员工数</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">CASE</span> <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">10000</span> <span class="keyword">THEN</span> <span class="number">1</span> <span class="keyword">END</span>) <span class="keyword">AS</span> senior_count,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">CASE</span> <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">5000</span> <span class="keyword">AND</span> salary <span class="operator">&lt;</span> <span class="number">10000</span> <span class="keyword">THEN</span> <span class="number">1</span> <span class="keyword">END</span>) <span class="keyword">AS</span> middle_count,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">CASE</span> <span class="keyword">WHEN</span> salary <span class="operator">&lt;</span> <span class="number">5000</span> <span class="keyword">THEN</span> <span class="number">1</span> <span class="keyword">END</span>) <span class="keyword">AS</span> junior_count</span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-复杂查询实例"><a href="#6-复杂查询实例" class="headerlink" title="6. 复杂查询实例"></a>6. 复杂查询实例</h2><h3 id="6-1-销售分析"><a href="#6-1-销售分析" class="headerlink" title="6.1 销售分析"></a>6.1 销售分析</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 按产品和月份分析销售趋势</span></span><br><span class="line"><span class="keyword">WITH</span> monthly_sales <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        DATE_FORMAT(order_date, <span class="string">&#x27;%Y-%m&#x27;</span>) <span class="keyword">AS</span> <span class="keyword">month</span>,</span><br><span class="line">        product_id,</span><br><span class="line">        product_name,</span><br><span class="line">        <span class="built_in">SUM</span>(quantity) <span class="keyword">AS</span> total_qty,</span><br><span class="line">        <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> total_sales</span><br><span class="line">    <span class="keyword">FROM</span> orders</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> DATE_FORMAT(order_date, <span class="string">&#x27;%Y-%m&#x27;</span>), product_id, product_name</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="keyword">month</span>,</span><br><span class="line">    product_id,</span><br><span class="line">    product_name,</span><br><span class="line">    total_qty,</span><br><span class="line">    total_sales,</span><br><span class="line">    <span class="built_in">SUM</span>(total_sales) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">month</span>) <span class="keyword">AS</span> cumulative_sales,</span><br><span class="line">    <span class="built_in">LAG</span>(total_sales) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">month</span>) <span class="keyword">AS</span> prev_month_sales,</span><br><span class="line">    total_sales <span class="operator">-</span> <span class="built_in">LAG</span>(total_sales) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">month</span>) <span class="keyword">AS</span> sales_change</span><br><span class="line"><span class="keyword">FROM</span> monthly_sales</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> product_id, <span class="keyword">month</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-学生成绩排名"><a href="#6-2-学生成绩排名" class="headerlink" title="6.2 学生成绩排名"></a>6.2 学生成绩排名</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> student_grades <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        s.name,</span><br><span class="line">        c.course_name,</span><br><span class="line">        g.grade,</span><br><span class="line">        <span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> c.course_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> g.grade <span class="keyword">DESC</span>) <span class="keyword">AS</span> course_rank,</span><br><span class="line">        <span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> g.grade <span class="keyword">DESC</span>) <span class="keyword">AS</span> overall_rank</span><br><span class="line">    <span class="keyword">FROM</span> grades g</span><br><span class="line">    <span class="keyword">INNER</span> <span class="keyword">JOIN</span> students s <span class="keyword">ON</span> g.student_id <span class="operator">=</span> s.student_id</span><br><span class="line">    <span class="keyword">INNER</span> <span class="keyword">JOIN</span> courses c <span class="keyword">ON</span> g.course_id <span class="operator">=</span> c.course_id</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> student_grades</span><br><span class="line"><span class="keyword">WHERE</span> course_rank <span class="operator">&lt;=</span> <span class="number">3</span>;  <span class="comment">-- 每门课程的前 3 名</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-常见高级技巧"><a href="#7-常见高级技巧" class="headerlink" title="7. 常见高级技巧"></a>7. 常见高级技巧</h2><h3 id="7-1-条件判断和转换"><a href="#7-1-条件判断和转换" class="headerlink" title="7.1 条件判断和转换"></a>7.1 条件判断和转换</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用 COALESCE 处理 NULL</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    <span class="built_in">COALESCE</span>(phone, mobile, <span class="string">&#x27;No contact&#x27;</span>) <span class="keyword">AS</span> contact_info</span><br><span class="line"><span class="keyword">FROM</span> customers;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用 IF 函数</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    IF(age <span class="operator">&gt;=</span> <span class="number">18</span>, <span class="string">&#x27;Adult&#x27;</span>, <span class="string">&#x27;Minor&#x27;</span>) <span class="keyword">AS</span> age_group</span><br><span class="line"><span class="keyword">FROM</span> students;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-字符串和日期函数组合"><a href="#7-2-字符串和日期函数组合" class="headerlink" title="7.2 字符串和日期函数组合"></a>7.2 字符串和日期函数组合</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 组合字符串和函数</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    CONCAT(</span><br><span class="line">        DATE_FORMAT(registration_date, <span class="string">&#x27;%Y&#x27;</span>),</span><br><span class="line">        <span class="string">&#x27;-&#x27;</span>,</span><br><span class="line">        <span class="built_in">UPPER</span>(<span class="built_in">SUBSTRING</span>(name, <span class="number">1</span>, <span class="number">3</span>))</span><br><span class="line">    ) <span class="keyword">AS</span> student_code</span><br><span class="line"><span class="keyword">FROM</span> students;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 日期和时间计算</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    registration_date,</span><br><span class="line">    DATEDIFF(NOW(), registration_date) <span class="keyword">AS</span> days_since_registration,</span><br><span class="line">    <span class="keyword">YEAR</span>(NOW()) <span class="operator">-</span> <span class="keyword">YEAR</span>(birth_date) <span class="keyword">AS</span> age_calculated</span><br><span class="line"><span class="keyword">FROM</span> students;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="8-性能优化建议"><a href="#8-性能优化建议" class="headerlink" title="8. 性能优化建议"></a>8. 性能优化建议</h2><h3 id="8-1-选择合适的工具"><a href="#8-1-选择合适的工具" class="headerlink" title="8.1 选择合适的工具"></a>8.1 选择合适的工具</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用窗口函数而不是自连接</span></span><br><span class="line"><span class="comment">-- 不推荐：自连接性能差</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    s1.name,</span><br><span class="line">    (<span class="keyword">SELECT</span> <span class="built_in">AVG</span>(age) <span class="keyword">FROM</span> students s2 <span class="keyword">WHERE</span> s2.class_id <span class="operator">=</span> s1.class_id)</span><br><span class="line"><span class="keyword">FROM</span> students s1;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 推荐：使用窗口函数</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    name,</span><br><span class="line">    <span class="built_in">AVG</span>(age) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> class_id) <span class="keyword">AS</span> class_avg_age</span><br><span class="line"><span class="keyword">FROM</span> students;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-避免过度嵌套"><a href="#8-2-避免过度嵌套" class="headerlink" title="8.2 避免过度嵌套"></a>8.2 避免过度嵌套</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 不推荐：深层嵌套</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">        <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">            <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table1</span><br><span class="line">        ) t1</span><br><span class="line">    ) t2</span><br><span class="line">) t3;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 推荐：使用 CTE</span></span><br><span class="line"><span class="keyword">WITH</span> step1 <span class="keyword">AS</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table1),</span><br><span class="line">     step2 <span class="keyword">AS</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> step1),</span><br><span class="line">     step3 <span class="keyword">AS</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> step2)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> step3;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9-小结"><a href="#9-小结" class="headerlink" title="9. 小结"></a>9. 小结</h2><p>本章介绍了 MySQL 的高级查询技巧：</p>
+<ul>
+<li><strong>CTE</strong>：公共表表达式，提高查询可读性</li>
+<li><strong>递归 CTE</strong>：处理层级关系</li>
+<li><strong>窗口函数</strong>：在窗口内进行计算，不聚合行</li>
+<li><strong>CASE 表达式</strong>：条件判断</li>
+<li><strong>复杂组合</strong>：实现复杂业务逻辑</li>
+</ul>
+<p>这些高级技巧使你能够编写更高效、更可读的 SQL 查询。接下来，我们进入阶段 3，学习数据库设计和优化。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+              <a href="/tags/CTE/" rel="tag"># CTE</a>
+              <a href="/tags/%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0/" rel="tag"># 窗口函数</a>
+              <a href="/tags/%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/" rel="tag"># 高级查询</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/MySQL/14_%E6%9F%A5%E8%AF%A2%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="prev" title="查询性能优化">
+      <i class="fa fa-chevron-left"></i> 查询性能优化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/MySQL/13_%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E5%92%8C%E4%BD%BF%E7%94%A8/" rel="next" title="索引原理和使用">
+      索引原理和使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2%E6%8A%80%E5%B7%A7"><span class="nav-text">高级查询技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%85%AC%E5%85%B1%E8%A1%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%88CTE%EF%BC%89"><span class="nav-text">1. 公共表表达式（CTE）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-WITH-%E5%AD%90%E5%8F%A5%E5%9F%BA%E7%A1%80"><span class="nav-text">1.1 WITH 子句基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E7%AE%80%E5%8D%95-CTE-%E7%A4%BA%E4%BE%8B"><span class="nav-text">1.2 简单 CTE 示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E5%A4%9A%E4%B8%AA-CTE"><span class="nav-text">1.3 多个 CTE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%80%92%E5%BD%92-CTE"><span class="nav-text">2. 递归 CTE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E9%80%92%E5%BD%92-CTE-%E5%9F%BA%E7%A1%80"><span class="nav-text">2.1 递归 CTE 基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%80%92%E5%BD%92-CTE-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E7%BB%84%E7%BB%87%E5%B1%82%E7%BA%A7"><span class="nav-text">2.2 递归 CTE 示例：组织层级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%80%92%E5%BD%92-CTE-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%95%B0%E5%AD%97%E5%BA%8F%E5%88%97"><span class="nav-text">2.3 递归 CTE 示例：数字序列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="nav-text">3. 窗口函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%9F%BA%E7%A1%80"><span class="nav-text">3.1 窗口函数基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%8E%92%E5%BA%8F%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="nav-text">3.2 排序窗口函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%81%9A%E5%90%88%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="nav-text">3.3 聚合窗口函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%81%8F%E7%A7%BB%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="nav-text">3.4 偏移窗口函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-text">4. 窗口函数应用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%9F%A5%E6%89%BE%E6%AF%8F%E4%B8%AA%E9%83%A8%E9%97%A8%E5%B7%A5%E8%B5%84%E6%9C%80%E9%AB%98%E7%9A%84%E5%91%98%E5%B7%A5"><span class="nav-text">4.1 查找每个部门工资最高的员工</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%AE%A1%E7%AE%97%E9%94%80%E5%94%AE%E7%B4%AF%E8%AE%A1"><span class="nav-text">4.2 计算销售累计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%9F%A5%E6%89%BE%E8%BF%9E%E7%BB%AD%E5%A2%9E%E9%95%BF"><span class="nav-text">4.3 查找连续增长</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-CASE-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-text">5. CASE 表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%AE%80%E5%8D%95-CASE"><span class="nav-text">5.1 简单 CASE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E6%90%9C%E7%B4%A2-CASE"><span class="nav-text">5.2 搜索 CASE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-CASE-%E5%9C%A8%E8%81%9A%E5%90%88%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">5.3 CASE 在聚合中的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%A4%8D%E6%9D%82%E6%9F%A5%E8%AF%A2%E5%AE%9E%E4%BE%8B"><span class="nav-text">6. 复杂查询实例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%94%80%E5%94%AE%E5%88%86%E6%9E%90"><span class="nav-text">6.1 销售分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%AD%A6%E7%94%9F%E6%88%90%E7%BB%A9%E6%8E%92%E5%90%8D"><span class="nav-text">6.2 学生成绩排名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%B8%B8%E8%A7%81%E9%AB%98%E7%BA%A7%E6%8A%80%E5%B7%A7"><span class="nav-text">7. 常见高级技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD%E5%92%8C%E8%BD%AC%E6%8D%A2"><span class="nav-text">7.1 条件判断和转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%92%8C%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0%E7%BB%84%E5%90%88"><span class="nav-text">7.2 字符串和日期函数组合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="nav-text">8. 性能优化建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="nav-text">8.1 选择合适的工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E9%81%BF%E5%85%8D%E8%BF%87%E5%BA%A6%E5%B5%8C%E5%A5%97"><span class="nav-text">8.2 避免过度嵌套</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E5%B0%8F%E7%BB%93"><span class="nav-text">9. 小结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">240</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">876k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">20:51</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>

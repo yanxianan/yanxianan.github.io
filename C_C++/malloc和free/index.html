@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanxianan.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文详细介绍malloc和free。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="malloc和free">
+<meta property="og:url" content="https://yanxianan.github.io/C_C++/malloc%E5%92%8Cfree/index.html">
+<meta property="og:site_name" content="蛋的博客">
+<meta property="og:description" content="本文详细介绍malloc和free。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-20T02:10:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T02:07:45.691Z">
+<meta property="article:author" content="Yxa">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="free">
+<meta property="article:tag" content="malloc">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://yanxianan.github.io/C_C++/malloc%E5%92%8Cfree/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>malloc和free | 蛋的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">蛋的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里是蛋的学习记录</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/malloc%E5%92%8Cfree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          malloc和free
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-05-20 10:10:00 / 修改时间：10:07:45" itemprop="dateCreated datePublished" datetime="2026-05-20T10:10:00+08:00">2026-05-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">本文详细介绍malloc和free。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="1-malloc-出来的内存在哪？"><a href="#1-malloc-出来的内存在哪？" class="headerlink" title="1. malloc 出来的内存在哪？"></a>1. malloc 出来的内存在哪？</h3><p>简单说：<strong>在堆（heap）上</strong>。</p>
+<p>我们可以从程序的内存布局来理解。一个典型的 C 程序在虚拟内存中大致分为这几个区域：</p>
+<ul>
+<li><strong>栈</strong>：存放局部变量、函数参数、返回地址等，由编译器自动管理。</li>
+<li><strong>堆</strong>：由 <code>malloc</code> &#x2F; <code>calloc</code> &#x2F; <code>realloc</code> 等动态分配的内存块就在这里，需要程序员手动用 <code>free</code> 释放。</li>
+<li><strong>数据段</strong>：全局变量、静态变量等。</li>
+<li><strong>代码段</strong>：存放可执行指令。</li>
+</ul>
+<p>当你调用 <code>malloc(100)</code> 时，它会从堆中找一块足够大的、未被使用的连续地址空间，返回这块空间的首地址。堆向上增长（通常），而栈向下增长。</p>
+<hr>
+<h3 id="2-free-之后指针要不要置-NULL？为什么？"><a href="#2-free-之后指针要不要置-NULL？为什么？" class="headerlink" title="2. free 之后指针要不要置 NULL？为什么？"></a>2. free 之后指针要不要置 NULL？为什么？</h3><p><strong>强烈建议置 NULL</strong>，但这并不能解决所有问题，要先理解它的作用和局限。</p>
+<h4 id="如果不置-NULL，会有什么问题？"><a href="#如果不置-NULL，会有什么问题？" class="headerlink" title="如果不置 NULL，会有什么问题？"></a>如果不置 NULL，会有什么问题？</h4><p>调用 <code>free(p)</code> 后，内存被归还给堆管理器，但<strong>指针 <code>p</code> 本身还保存着原来的地址</strong>。这时 <code>p</code> 就变成了一个<strong>悬垂指针</strong>，也就是指向已经释放内存的指针。</p>
+<p>有两个典型危害：</p>
+<ol>
+<li><p><strong>误用（解引用悬垂指针）</strong><br>继续通过 <code>p</code> 读写数据，属于未定义行为。这块内存可能已被分配给其他变量，你可能会破坏他人数据，或者读到脏数据。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">*p = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">free</span>(p);</span><br><span class="line">*p = <span class="number">20</span>;  <span class="comment">// 危险！未定义行为</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>重复释放</strong><br>不小心对同一个地址再次调用 <code>free</code> 会导致 <strong>double free</strong>，这通常会破坏堆的内部结构，引发崩溃或安全漏洞。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">free</span>(p);</span><br><span class="line"><span class="comment">// ... 很多代码后忘记了</span></span><br><span class="line"><span class="built_in">free</span>(p);  <span class="comment">// 重复释放！程序大概率崩溃</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="置-NULL-的好处"><a href="#置-NULL-的好处" class="headerlink" title="置 NULL 的好处"></a>置 NULL 的好处</h4><p>只要执行 <code>p = NULL;</code>，就能避免上述两个问题：</p>
+<ul>
+<li><strong>误用会立马暴露</strong>：解引用空指针通常会导致段错误，让错误立刻浮现，便于调试（比静默地破坏内存要好得多）。</li>
+<li><strong>重复释放变安全</strong>：C 标准规定 <code>free(NULL)</code> 是安全的，什么都不做。所以多次 <code>free(NULL)</code> 不会引发 double free 问题。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">free</span>(p);</span><br><span class="line">p = <span class="literal">NULL</span>;   <span class="comment">// 好习惯</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="built_in">free</span>(p);    <span class="comment">// 安全，什么也不做</span></span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    *p = <span class="number">100</span>; <span class="comment">// 不会执行，安全</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="置-NULL-的局限：指针别名"><a href="#置-NULL-的局限：指针别名" class="headerlink" title="置 NULL 的局限：指针别名"></a>置 NULL 的局限：指针别名</h4><p>置 NULL 只能保护<strong>这一个</strong>指针变量。如果有多个指针指向同一块内存，只把其中一个置 NULL，其它的指针依然指向已释放的内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p1 = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="type">int</span> *p2 = p1;   <span class="comment">// p2 也指向同一块内存</span></span><br><span class="line"><span class="built_in">free</span>(p1);</span><br><span class="line">p1 = <span class="literal">NULL</span>;      <span class="comment">// 只置空了 p1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// p2 现在仍然是悬垂指针！</span></span><br><span class="line">*p2 = <span class="number">10</span>;       <span class="comment">// 同样危险</span></span><br></pre></td></tr></table></figure>
+
+<p>所以核心是要<strong>在逻辑上彻底结束所有对该内存的引用</strong>。置 NULL 能防止从某个变量误用，但对多指针情况需要更严格的生命周期管理。</p>
+<hr>
+<h3 id="实践建议"><a href="#实践建议" class="headerlink" title="实践建议"></a>实践建议</h3><ol>
+<li><strong><code>free</code> 后紧接着置 NULL</strong>，特别是对全局指针、结构体成员指针，或者函数返回后还存在的指针。</li>
+<li>如果指针是函数的局部变量，且 <code>free</code> 后马上退出函数，不置 NULL 也问题不大（因为指针本身随栈帧销毁）。但为了统一防御习惯，很多团队规定一律置 NULL。</li>
+<li>对于多指针情况，最好明确“谁持有所有权”来释放，其他指针只读并不再使用。</li>
+</ol>
+<p>一句话总结：<strong><code>malloc</code> 的内存来自堆；<code>free</code> 后把指针置 NULL 可以防误用、防重复释放，是一个低成本高收益的安全习惯。</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/free/" rel="tag"># free</a>
+              <a href="/tags/malloc/" rel="tag"># malloc</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/C_C++/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E5%92%8C%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0/" rel="prev" title="函数指针和指针函数">
+      <i class="fa fa-chevron-left"></i> 函数指针和指针函数
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/MySQL/24_%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%92%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" rel="next" title="常见问题和最佳实践">
+      常见问题和最佳实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-malloc-%E5%87%BA%E6%9D%A5%E7%9A%84%E5%86%85%E5%AD%98%E5%9C%A8%E5%93%AA%EF%BC%9F"><span class="nav-text">1. malloc 出来的内存在哪？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-free-%E4%B9%8B%E5%90%8E%E6%8C%87%E9%92%88%E8%A6%81%E4%B8%8D%E8%A6%81%E7%BD%AE-NULL%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">2. free 之后指针要不要置 NULL？为什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E4%B8%8D%E7%BD%AE-NULL%EF%BC%8C%E4%BC%9A%E6%9C%89%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">如果不置 NULL，会有什么问题？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%AE-NULL-%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="nav-text">置 NULL 的好处</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%AE-NULL-%E7%9A%84%E5%B1%80%E9%99%90%EF%BC%9A%E6%8C%87%E9%92%88%E5%88%AB%E5%90%8D"><span class="nav-text">置 NULL 的局限：指针别名</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="nav-text">实践建议</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yxa"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Yxa</p>
+  <div class="site-description" itemprop="description">DO SOMETHING COOL！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">240</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yanxianan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yanxianan" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yanxiaoan429@163.com" title="E-Mail → mailto:yanxiaoan429@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yxa</span>
+
+  <!-- 运行时间显示 - 带内联样式的代码 -->
+  <span class="post-meta-divider">|</span>
+  <span id="sitetime" style="color: #888; margin: 0 10px; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s;">
+    本站已运行：<span id="timeDisplay" style="color: #4caf50; font-weight: bold; font-size: 14px; letter-spacing: 0.5px;"></span>
+  </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">876k</span>
+
+  <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">20:51</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+<!-- 运行时间计算脚本 -->
+<script>
+  function showRunTime() {
+    // 修改为您的建站日期（格式：YYYY-MM-DDTHH:MM:SS）
+    var birthDay = new Date("2023-01-01T00:00:00");
+    var today = new Date();
+    var totalSeconds = Math.floor((today - birthDay) / 1000);
+    
+    var days = Math.floor(totalSeconds / 86400);
+    totalSeconds %= 86400;
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    
+    document.getElementById("timeDisplay").innerText = 
+      days + " 天 " + hours + " 小时 " + minutes + " 分钟 " + seconds + " 秒";
+    
+    // 每秒更新一次
+    setTimeout(showRunTime, 1000);
+  }
+  // 页面加载后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    showRunTime();
+  });
+</script>
+
+<!-- 运行时间动画样式 -->
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  #timeDisplay {
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 阅读时间动画效果 */
+  .post-meta-item-text, .post-meta-item-icon, .post-meta-item-text + span {
+    transition: all 0.3s ease;
+  }
+  
+  .post-meta-item-icon:hover {
+    color: #45a049;
+    transform: rotate(10deg);
+  }
+  
+  .post-meta-item-text:hover, .post-meta-item-text + span:hover {
+    color: #45a049;
+    transform: scale(1.05);
+  }
+</style>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- ҳ����С���� --> <script type="text/javascript" src="/js/clicklove.js"></script>
