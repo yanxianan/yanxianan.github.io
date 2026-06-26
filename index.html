@@ -329,10 +329,14 @@ p::before {
 
 /* 首页区域样式 */
 .hero {
-    min-height: 100vh;
+    min-height: 90vh;
     position: relative;
     padding-top: 80px;
+    padding-bottom: 60px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* 多层渐变背景 */
@@ -400,6 +404,24 @@ p::before {
     filter: blur(3px);
 }
 
+/* 滚动提示 */
+.scroll-hint {
+    text-align: center;
+    margin-top: 40px;
+    color: rgba(44, 62, 80, 0.5);
+    font-size: 0.85rem;
+    animation: bounceHint 2s ease-in-out infinite;
+}
+.scroll-hint i {
+    display: block;
+    font-size: 1.2rem;
+    margin-top: 4px;
+}
+@keyframes bounceHint {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(8px); opacity: 1; }
+}
+
 @keyframes morphing {
     0%, 100% {
         border-radius: 50% 20% 50% 20%;
@@ -448,9 +470,11 @@ p::before {
 
 .highlight {
     display: inline;
-    color: inherit;
-    font-weight: inherit;
+    font-size: 1.3em;
+    font-weight: 800;
     margin-left: 0.18em;
+    color: #1a1a2e;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* 艺术性社交链接 */
@@ -1480,7 +1504,7 @@ footer .container,
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#home">我的简历</a>
+            <a class="navbar-brand" href="#home">闫晓安</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -1504,12 +1528,11 @@ footer .container,
         <div class="hero-shape-1"></div>
         <div class="hero-shape-2"></div>
         <div class="container">
-            <div class="row align-items-center min-vh-100">
+            <div class="row align-items-center">
                 <div class="col-lg-6">
                     <div class="hero-content">
-                        <h1 class="display-4 fw-bold mb-4">您好，我是<span class="highlight">yxa</span></h1>
-                        <h2 class="mb-4">计算机科学与技术专业应届毕业生</h2>
-                        <p class="lead mb-4">热爱编程，善于解决问题，具有扎实的专业基础和实践经验</p>
+                        <h1 class="display-4 fw-bold mb-4">您好，我是<span class="highlight">闫晓安</span></h1>
+                        <p class="lead mb-4">电子科技大学本硕，仪器科学与技术专业。专注嵌入式软件与底层系统开发，熟悉Linux内核、驱动移植及软硬件协同调试。在ZYNQ等嵌入式平台项目中曾担任开发负责人，独立完成系统移植、协议设计及复杂任务并发处理。乐于钻研底层原理，善于系统性解决软硬件协同难题。</p>
                         <div class="social-links mb-4">
                             <!-- 社交链接已移除 -->
                         </div>
@@ -1522,6 +1545,10 @@ footer .container,
                     </div>
                 </div>
             </div>
+            <div class="scroll-hint">
+                <span>向下滚动</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
         </div>
     </section>
 
@@ -1532,24 +1559,25 @@ footer .container,
             <div class="row">
                 <div class="col-md-6">
                     <div class="education-card">
-                        <h4>某某大学</h4>
-                        <h5>计算机科学与技术 | 本科</h5>
+                        <h4>电子科技大学【985、双一流】</h4>
+                        <h5>仪器科学与技术 | 硕士</h5>
+                        <p class="text-muted">2024年9月 - 2027年6月</p>
+                    </div>
+                    <div class="education-card mt-4">
+                        <h4>电子科技大学【985、双一流】</h4>
+                        <h5>测控技术与仪器 | 学士</h5>
                         <p class="text-muted">2020年9月 - 2024年6月</p>
-                        <ul>
-                            <li>GPA: 3.8/4.0 (专业排名前10%)</li>
-                            <li>主修课程: 数据结构、算法分析、操作系统、计算机网络、数据库系统</li>
-                            <li>获得校级优秀学生奖学金</li>
-                        </ul>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="education-card">
                         <h4>荣誉与证书</h4>
                         <ul>
-                            <li>全国大学生计算机设计大赛二等奖</li>
-                            <li>蓝桥杯程序设计竞赛省级一等奖</li>
-                            <li>英语六级证书</li>
-                            <li>计算机技术与软件专业技术资格（软件设计师）</li>
+                            <li>2025年研究生二等奖学金、优秀研究生</li>
+                            <li>2024年研究生入学奖学金</li>
+                            <li>2021年山西省数学建模竞赛三等奖</li>
+                            <li>2020-2024年多次校级奖学金</li>
+                            <li>大学英语六级（CET-6）证书</li>
                         </ul>
                     </div>
                 </div>
@@ -1563,33 +1591,33 @@ footer .container,
             <h2 class="text-center mb-5">专业技能</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <h4>编程语言</h4>
+                    <h4>编程与构建</h4>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 90%">Java</div>
+                        <div class="progress-bar" style="width: 95%">C/C++</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 85%">Python</div>
+                        <div class="progress-bar" style="width: 85%">数据结构与算法</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 80%">JavaScript</div>
+                        <div class="progress-bar" style="width: 90%">Makefile/CMake</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 75%">C++</div>
+                        <div class="progress-bar" style="width: 90%">Git 多人协作</div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <h4>技术栈</h4>
+                    <h4>嵌入式Linux</h4>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 85%">Spring Boot</div>
+                        <div class="progress-bar" style="width: 90%">Linux内核/驱动开发</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 80%">React</div>
+                        <div class="progress-bar" style="width: 85%">U-Boot/设备树(DTS)</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 75%">MySQL</div>
+                        <div class="progress-bar" style="width: 80%">多线程/进程调度/IPC</div>
                     </div>
                     <div class="progress mb-3">
-                        <div class="progress-bar" style="width: 70%">Redis</div>
+                        <div class="progress-bar" style="width: 85%">GDB/Valgrind调试</div>
                     </div>
                 </div>
             </div>
@@ -1597,14 +1625,14 @@ footer .container,
                 <div class="col-md-12">
                     <h4>其他技能</h4>
                     <div class="skill-tags">
-                        <span class="badge bg-primary me-2 mb-2">Git</span>
-                        <span class="badge bg-primary me-2 mb-2">Docker</span>
-                        <span class="badge bg-primary me-2 mb-2">Linux</span>
-                        <span class="badge bg-primary me-2 mb-2">RESTful API</span>
-                        <span class="badge bg-primary me-2 mb-2">微服务架构</span>
-                        <span class="badge bg-primary me-2 mb-2">数据结构</span>
-                        <span class="badge bg-primary me-2 mb-2">算法设计</span>
-                        <span class="badge bg-primary me-2 mb-2">系统设计</span>
+                        <span class="badge bg-primary me-2 mb-2">UART/I2C/SPI</span>
+                        <span class="badge bg-primary me-2 mb-2">TCP/IP</span>
+                        <span class="badge bg-primary me-2 mb-2">AXI总线</span>
+                        <span class="badge bg-primary me-2 mb-2">ZYNQ/FPGA</span>
+                        <span class="badge bg-primary me-2 mb-2">LwIP协议栈</span>
+                        <span class="badge bg-primary me-2 mb-2">Ftrace/Kprobe</span>
+                        <span class="badge bg-primary me-2 mb-2">示波器/频谱仪</span>
+                        <span class="badge bg-primary me-2 mb-2">原理图阅读</span>
                     </div>
                 </div>
             </div>
@@ -1619,72 +1647,54 @@ footer .container,
                 <div class="col-md-6 mb-4">
                     <div class="project-card">
                         <div class="project-header">
-                            <h4>电商平台系统</h4>
-                            <span class="project-date">2023.06 - 2023.12</span>
+                            <h4>某型号雷达目标模拟器</h4>
+                            <span class="project-date">2026.02 - 至今</span>
                         </div>
-                        <p class="project-role">项目负责人</p>
+                        <p class="project-role">嵌入式Linux开发负责人</p>
                         <p class="project-description">
-                            基于Spring Boot和React开发的全栈电商平台，包含商品管理、订单处理、用户认证等功能。使用Redis实现缓存，MySQL存储数据，日均处理订单1000+。
+                            基于ZYNQ RFSoC（FPGA+四核ARM Cortex A53）设计雷达信号综合测试系统，实现400MHz~18GHz频段复杂雷达目标信号模拟。基于Linux 6.1.30进行系统移植与驱动开发，完成上位机控制指令解析与基带/射频硬件控制。
                         </p>
                         <div class="project-tech">
-                            <span class="tech-tag">Spring Boot</span>
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">MySQL</span>
-                            <span class="tech-tag">Redis</span>
+                            <span class="tech-tag">ZYNQ RFSoC</span>
+                            <span class="tech-tag">Linux驱动</span>
+                            <span class="tech-tag">AXI-DMA</span>
+                            <span class="tech-tag">TCP/IP</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 mb-4">
                     <div class="project-card">
                         <div class="project-header">
-                            <h4>智能推荐系统</h4>
-                            <span class="project-date">2023.03 - 2023.05</span>
+                            <h4>某型号便携式被动源</h4>
+                            <span class="project-date">2025.12 - 2026.02</span>
                         </div>
-                        <p class="project-role">核心开发者</p>
+                        <p class="project-role">嵌入式Linux开发负责人</p>
                         <p class="project-description">
-                            基于协同过滤算法和机器学习技术的个性化推荐系统，为用户提供商品推荐。准确率达到85%，提升用户点击率30%。
+                            基于ZYNQ7030平台开发裸机固件程序，通过自定义通信协议与上位机协同，控制被动源输出F0~FX频段射频信号。在ARM裸机环境下移植LwIP协议栈，配置以太网中断与DDR3共享内存，实现通信零丢包验证。
                         </p>
                         <div class="project-tech">
-                            <span class="tech-tag">Python</span>
-                            <span class="tech-tag">TensorFlow</span>
-                            <span class="tech-tag">Flask</span>
-                            <span class="tech-tag">PostgreSQL</span>
+                            <span class="tech-tag">ZYNQ7030</span>
+                            <span class="tech-tag">LwIP</span>
+                            <span class="tech-tag">裸机开发</span>
+                            <span class="tech-tag">自定义协议</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 mb-4">
                     <div class="project-card">
                         <div class="project-header">
-                            <h4>任务管理系统</h4>
-                            <span class="project-date">2022.09 - 2022.12</span>
+                            <h4>多功能模拟信号测试模块</h4>
+                            <span class="project-date">2025.06 - 2025.12</span>
                         </div>
-                        <p class="project-role">前端开发</p>
+                        <p class="project-role">软件开发负责人</p>
                         <p class="project-description">
-                            基于Vue.js开发的企业级任务管理系统，支持任务分配、进度跟踪、团队协作等功能。使用Element UI构建界面，支持移动端访问。
+                            以FPGA为核心架构，设计多功能模拟信号测试软件，包含数字化仪、任意波发生器、频率计和多功能数字IO等测试功能。采用分层解耦架构设计，利用CVI高并发线程池实现波形实时采集与频率计读取，基于DDS原理生成各类波形。
                         </p>
                         <div class="project-tech">
-                            <span class="tech-tag">Vue.js</span>
-                            <span class="tech-tag">Element UI</span>
-                            <span class="tech-tag">Node.js</span>
-                            <span class="tech-tag">MongoDB</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="project-card">
-                        <div class="project-header">
-                            <h4>数据可视化平台</h4>
-                            <span class="project-date">2022.03 - 2022.06</span>
-                        </div>
-                        <p class="project-role">全栈开发</p>
-                        <p class="project-description">
-                            企业级数据可视化平台，提供丰富的图表组件和自定义仪表板。支持实时数据更新，帮助企业进行数据分析和决策。
-                        </p>
-                        <div class="project-tech">
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">ECharts</span>
-                            <span class="tech-tag">Spring Boot</span>
-                            <span class="tech-tag">WebSocket</span>
+                            <span class="tech-tag">FPGA</span>
+                            <span class="tech-tag">CVI</span>
+                            <span class="tech-tag">DDS</span>
+                            <span class="tech-tag">多线程</span>
                         </div>
                     </div>
                 </div>
@@ -1700,31 +1710,42 @@ footer .container,
                 <div class="col-md-12">
                     <div class="timeline">
                         <div class="timeline-item">
-                            <div class="timeline-date">2024.03 - 2024.06</div>
+                            <div class="timeline-date">2026.02 - 至今</div>
                             <div class="timeline-content">
-                                <h4>某互联网公司 - Java 后端开发实习生</h4>
-                                <p><strong>实习内容：</strong></p>
+                                <h4>成都菁汇科技有限公司 · 嵌入式Linux开发负责人</h4>
+                                <p><strong>某型号雷达目标模拟器</strong></p>
+                                <p>基于ZYNQ RFSoC（FPGA+四核ARM Cortex A53）硬件平台，设计雷达信号综合测试系统，实现400MHz~18GHz频段复杂雷达目标信号的模拟。基于Linux 6.1.30进行系统移植与驱动开发。</p>
                                 <ul>
-                                    <li>参与后台管理系统的接口开发，负责用户、权限和操作日志等基础模块的编码与联调。</li>
-                                    <li>根据产品需求编写接口文档，使用 Postman 完成接口自测，并配合前端排查联调问题。</li>
-                                    <li>优化部分列表查询逻辑，补充分页、条件筛选和异常提示，提升页面数据加载稳定性。</li>
-                                    <li>参与日常代码评审和版本发布，熟悉从需求评审、开发、自测到上线的完整协作流程。</li>
+                                    <li>系统移植：基于Ubuntu和petalinux搭建ZYNQ RFSoC开发平台，进行Linux操作系统移植与部署。</li>
+                                    <li>驱动开发：负责字符设备驱动开发，包括RFDC驱动、I2C接口驱动、SPI接口驱动、AXI-DMA驱动，实现PS与PL通信，寄存器读写速率在100MHz时钟下可达30MB/s。</li>
+                                    <li>功能实现：基于TCP/IP设计"生产者-消费者"模型的多线程并发服务器，有效防止高并发下的数据丢包，提升系统响应速度。</li>
                                 </ul>
-                                <p><strong>技术栈：</strong> Java, Spring Boot, MyBatis, MySQL, Redis</p>
+                                <p><strong>技术栈：</strong> C/C++, Linux内核, 设备驱动, ZYNQ RFSoC, TCP/IP, AXI-DMA</p>
                             </div>
                         </div>
                         <div class="timeline-item">
-                            <div class="timeline-date">2023.07 - 2023.09</div>
+                            <div class="timeline-date">2025.12 - 2026.02</div>
                             <div class="timeline-content">
-                                <h4>某科技公司 - Web 前端开发实习生</h4>
-                                <p><strong>实习内容：</strong></p>
+                                <h4>成都菁汇科技有限公司 · 嵌入式Linux开发负责人</h4>
+                                <p><strong>某型号便携式被动源</strong></p>
+                                <p>基于ZYNQ7030平台开发裸机固件程序，通过自定义通信协议与上位机协同，控制被动源输出F0~FX频段单通道射频信号，实现频率跳变、信号调制、宽频段大动态功率调节等功能。</p>
                                 <ul>
-                                    <li>根据设计稿完成业务页面开发，包含列表、表单、详情弹窗和基础数据展示组件。</li>
-                                    <li>封装常用请求和表单校验逻辑，减少重复代码，提升页面维护效率。</li>
-                                    <li>处理移动端适配和浏览器兼容问题，保证主要页面在不同屏幕下显示正常。</li>
-                                    <li>整理页面修改说明和组件使用方式，方便后续同学继续维护。</li>
+                                    <li>裸机开发：在ZYNQ7030 ARM裸机环境下移植LwIP协议栈，配置以太网中断与DDR3共享内存，建立底层通信与数据缓存框架。</li>
+                                    <li>功能实现：设计自定义通信协议状态机，通过中断实时响应处理20余条控制指令（频率跳变、自检复位等），实现通信零丢包验证。</li>
                                 </ul>
-                                <p><strong>技术栈：</strong> Vue.js, JavaScript, Element UI, Axios</p>
+                                <p><strong>技术栈：</strong> C, ZYNQ7030, LwIP, 裸机开发, 自定义通信协议, DDR3</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">2025.06 - 2025.12</div>
+                            <div class="timeline-content">
+                                <h4>成都菁汇科技有限公司 · 软件开发负责人</h4>
+                                <p><strong>多功能模拟信号测试模块</strong></p>
+                                <p>以FPGA为核心架构，设计一套多功能模拟信号测试软件，包括数字化仪、任意波发生器、频率计和多功能数字IO等测试功能。</p>
+                                <ul>
+                                    <li>功能实现：主导测试软件分层解耦架构设计，通过窗口管理绑定任务，利用CVI高并发线程池实现波形实时采集与频率计读取，并基于DDS原理生成常规、调幅及调制波形，有效提升系统可维护性与多任务执行效率。</li>
+                                </ul>
+                                <p><strong>技术栈：</strong> C/C++, FPGA, CVI, DDS, 多线程, 信号处理</p>
                             </div>
                         </div>
                     </div>
@@ -1741,7 +1762,7 @@ footer .container,
                     <i class="fas fa-blog me-2"></i>访问我的博客
                 </a>
             </div>
-            <p>&copy; yxa个人简历. 保留所有权利.</p>
+            <p>&copy; 闫晓安个人简历. 保留所有权利.</p>
         </div>
     </footer>
 
