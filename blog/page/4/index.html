@@ -191,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/ZYNQ/ZYNQ%E7%A8%8B%E5%BA%8F%E5%9B%BA%E5%8C%96bug/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -205,7 +205,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/ZYNQ/ZYNQ%E7%A8%8B%E5%BA%8F%E5%9B%BA%E5%8C%96bug/" class="post-title-link" itemprop="url">未命名</a>
+            <a href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/" class="post-title-link" itemprop="url">5多数元素</a>
         </h2>
 
         <div class="post-meta">
@@ -216,198 +216,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-05-14 15:09:55 / 修改时间：15:10:53" itemprop="dateCreated datePublished" datetime="2026-05-14T15:09:55+08:00">2026-05-14</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="【ZYNQ开发踩坑记录】程序JTAG调试正常，固化到Flash断电后不运行的排查与解决"><a href="#【ZYNQ开发踩坑记录】程序JTAG调试正常，固化到Flash断电后不运行的排查与解决" class="headerlink" title="【ZYNQ开发踩坑记录】程序JTAG调试正常，固化到Flash断电后不运行的排查与解决"></a>【ZYNQ开发踩坑记录】程序JTAG调试正常，固化到Flash断电后不运行的排查与解决</h1><p>在 ZYNQ 的嵌入式开发（Bare-metal 或 FreeRTOS）过程中，你是否遇到过这种“幽灵”现象：程序在 Vitis &#x2F; SDK 中通过 JTAG 下载调试时一切完美，可一旦打包成 <code>BOOT.bin</code> 烧写到 QSPI Flash，断电重启后板子就像死机了一样毫无反应？但神奇的是，如果你此时用 Vitis 的 “Attach to running target” 连上去，程序又奇迹般地开始往下跑了？</p>
-<p>如果你也遇到了这个症状，别怀疑芯片坏了，这大概率是 <strong>标准输出（stdout）配置</strong> 给你挖的坑。本文将详细复盘该问题的现象、根本原因及两种解决办法。</p>
-<hr>
-<h2 id="🐞-现象描述"><a href="#🐞-现象描述" class="headerlink" title="🐞 现象描述"></a>🐞 现象描述</h2><ul>
-<li><strong>JTAG 在线调试模式：</strong> 程序正常运行，逻辑完美。</li>
-<li><strong>QSPI Flash 固化启动模式：</strong> 烧写成功后，断电重启，程序毫无反应，LED 不闪，外设不工作。</li>
-<li><strong>关键线索：</strong> 在 Flash 启动“死机”的状态下，打开 Vitis 的 Debug 功能，选择 <strong>Attach to running targets</strong>（仅连接不复位下载），连接上的瞬间，程序突然“活”了过来，开始正常执行。</li>
-</ul>
-<h2 id="🔍-根本原因分析：被-printf-与-coresight-堵死的-CPU"><a href="#🔍-根本原因分析：被-printf-与-coresight-堵死的-CPU" class="headerlink" title="🔍 根本原因分析：被 printf 与 coresight 堵死的 CPU"></a>🔍 根本原因分析：被 <code>printf</code> 与 <code>coresight</code> 堵死的 CPU</h2><p>这个现象的罪魁祸首，通常是代码中使用了 <code>printf</code> 打印函数，并且 Board Support Package (BSP) 中的标准输入输出被配置为了半主机模式（Semihosting）。</p>
-<p><strong>深层逻辑如下：</strong></p>
-<ol>
-<li><strong>Vitis 的默认行为：</strong> 如果你在 Vivado 的 Block Design 中<strong>没有使能</strong> ZYNQ PS 端的物理串口（UART0 或 UART1），Vitis 导出硬件后，会发现没有物理串口可用。为了让你依然能使用 <code>printf</code> 调试，BSP 会默认将 <code>stdin</code> 和 <code>stdout</code> 映射到一个叫 <strong><code>coresight</code></strong> 的虚拟通道上。</li>
-<li><strong>JTAG 模式下的工作状态：</strong> 当通过 JTAG 调试时，<code>coresight</code> 通道畅通。处理器执行 <code>printf</code> 时，数据会通过 JTAG 传回电脑，在 Vitis 的控制台打印出来，一切看起来都很正常。</li>
-<li><strong>Flash 脱机模式下的致命堵塞：</strong> 当板子断电重启，脱离 JTAG 独立运行时，物理上根本没有 JTAG 调试器在接收这些数据。当代码执行到 <code>printf</code> 时，底层缓冲区迅速填满，<strong>处理器会一直处于阻塞（挂起）状态，死等 JTAG 调试器来把数据读走。</strong> 此时，程序在宏观上表现为“死机”。</li>
-<li><strong>为什么 Attach 后又能跑了？</strong> 当你使用 “Attach to running target” 连上板子时，JTAG 通道瞬间被打通，积压在缓冲区里的打印数据被读走，阻塞条件解除，CPU 被释放，程序自然就继续往下跑了。</li>
-</ol>
-<hr>
-<h2 id="🛠️-解决办法"><a href="#🛠️-解决办法" class="headerlink" title="🛠️ 解决办法"></a>🛠️ 解决办法</h2><p>根据你的实际需求，这里提供两种解决方案。</p>
-<h3 id="方案一：不需要串口打印（快速验证法）"><a href="#方案一：不需要串口打印（快速验证法）" class="headerlink" title="方案一：不需要串口打印（快速验证法）"></a>方案一：不需要串口打印（快速验证法）</h3><p>如果你的程序目前不需要在终端打印任何调试信息，只需要它能脱机跑起来，直接在 Vitis 中关闭标准输入输出即可。</p>
-<p><strong>操作步骤：</strong></p>
-<ol>
-<li>在 Vitis 的 Explorer 窗口中，双击打开你的 <strong>Platform 工程</strong> 中的 <code>platform.spr</code> 文件（或者直接打开 BSP 配置界面 <code>Board Support Package Settings</code>）。</li>
-<li>在左侧导航栏找到 <code>Overview</code> -&gt; <code>standalone</code>。</li>
-<li>在右侧的配置列表中，找到 <strong><code>stdin</code></strong> 和 <strong><code>stdout</code></strong>。</li>
-<li>点击下拉菜单，将它们的值从 <code>coresight</code> 修改为 <strong><code>none</code></strong>。</li>
-<li>点击 OK 保存。</li>
-<li>右键点击你的平台工程和 APP 工程，依次选择 <strong>Clean Project</strong> 和 <strong>Build Project</strong>。</li>
-<li>重新打包生成 <code>BOOT.bin</code>，烧写到 Flash。断电重启，问题解决！</li>
-</ol>
-<blockquote>
-<p><strong>注意：</strong> 此时代码中的 <code>printf</code> 实际上变成了空操作，不会引发阻塞，但你也无法看到任何打印信息。</p>
-</blockquote>
-<h3 id="方案二：需要串口打印（终极规范做法）"><a href="#方案二：需要串口打印（终极规范做法）" class="headerlink" title="方案二：需要串口打印（终极规范做法）"></a>方案二：需要串口打印（终极规范做法）</h3><p>如果你后续开发必须依赖串口打印调试信息，就需要回到硬件源头，把真实的硬件串口打开。</p>
-<p><strong>操作步骤：</strong></p>
-<ol>
-<li><strong>回到 Vivado：</strong> 打开 Block Design，双击 ZYNQ7000 处理器核。</li>
-<li><strong>使能串口：</strong> 在 <code>MIO Configuration</code> (或 Peripheral I&#x2F;O Pins) 中，根据你开发板的原理图（通常是 UART1 对应板载的 USB-TTL 芯片），勾选并使能 <strong>UART 0</strong> 或 <strong>UART 1</strong>。</li>
-<li><strong>重新生成硬件：</strong> 点击 OK，重新 <code>Generate Output Products</code> 和 <code>Generate Bitstream</code>。</li>
-<li><strong>导出硬件：</strong> <code>File -&gt; Export -&gt; Export Hardware</code>，覆盖旧的 <code>.xsa</code> 文件。</li>
-<li><strong>更新 Vitis 平台：</strong> 回到 Vitis，右键 Platform 工程，选择 <strong>Update Hardware Specification</strong>，导入最新的 <code>.xsa</code> 文件。</li>
-<li><strong>修改 BSP 设置：</strong> 再次打开 BSP 的 <code>standalone</code> 设置，此时 <code>stdin</code> 和 <code>stdout</code> 的下拉菜单中就会出现真实的物理串口（例如 <strong><code>ps7_uart_1</code></strong>）。选中它。</li>
-<li><strong>重新编译打包：</strong> Clean 并 Build 整个工程，重新生成 <code>BOOT.bin</code>。</li>
-</ol>
-<p>这才是最规范的做法。烧写后，无论是 JTAG 调试还是 Flash 脱机运行，<code>printf</code> 都会将数据发往真实的物理串口，再也不会出现挂死的问题了。</p>
-<hr>
-<p><strong>📝 总结建议：</strong></p>
-<p>在进行 ZYNQ 裸机或 RTOS 开发时，如果遇到莫名其妙的卡死问题，不妨善用 Vitis 的 <strong>Attach to running target</strong> 加上 <strong>Pause (暂停)</strong> 功能。看看 Call Stack 停在什么函数里，往往能一针见血地找到真正的病因所在！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/ZYNQ/new/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Yxa">
-      <meta itemprop="description" content="DO SOMETHING COOL！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蛋的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/ZYNQ/new/" class="post-title-link" itemprop="url">未命名</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-05-14 15:09:36" itemprop="dateCreated datePublished" datetime="2026-05-14T15:09:36+08:00">2026-05-14</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E5%B5%8C%E5%85%A5%E5%BC%8F/volatile%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Yxa">
-      <meta itemprop="description" content="DO SOMETHING COOL！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蛋的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/volatile%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/" class="post-title-link" itemprop="url">volatile的使用场景</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2026-05-12 09:40:00 / 修改时间：10:21:44" itemprop="dateCreated datePublished" datetime="2026-05-12T09:40:00+08:00">2026-05-12</time>
+              <time title="创建时间：2025-11-25 09:30:00 / 修改时间：11:25:35" itemprop="dateCreated datePublished" datetime="2025-11-25T09:30:00+08:00">2025-11-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -415,7 +224,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                  <a href="/categories/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">面试经典150题</span></a>
                 </span>
             </span>
 
@@ -444,10 +253,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文详细介绍volatile的几个经典使用场景。</p>
+          <p>本文为面试经典150题中的第5题：多数元素。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/volatile%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/">
+              <a class="btn" href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/5%E5%A4%9A%E6%95%B0%E5%85%83%E7%B4%A0/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -471,7 +280,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/3%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -485,7 +294,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/" class="post-title-link" itemprop="url">整型提升</a>
+            <a href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/3%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/" class="post-title-link" itemprop="url">3删除有序数组中的重复项</a>
         </h2>
 
         <div class="post-meta">
@@ -496,7 +305,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-05-12 09:10:00 / 修改时间：10:24:06" itemprop="dateCreated datePublished" datetime="2026-05-12T09:10:00+08:00">2026-05-12</time>
+              <time title="创建时间：2025-11-14 15:30:00 / 修改时间：15:20:49" itemprop="dateCreated datePublished" datetime="2025-11-14T15:30:00+08:00">2025-11-14</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -504,7 +313,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
+                  <a href="/categories/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">面试经典150题</span></a>
                 </span>
             </span>
 
@@ -514,7 +323,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -533,10 +342,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文详细介绍C和C++中的整型提升。</p>
+          <p>本文为面试经典150题中的第3题：删除有序数组中的重复项。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/C_C++/%E6%95%B4%E5%9E%8B%E6%8F%90%E5%8D%87/">
+              <a class="btn" href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/3%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -560,7 +369,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E5%B5%8C%E5%85%A5%E5%BC%8F/NAND%20Flash%E4%B8%8ENOR%20Flash%E7%9A%84%E5%BC%82%E5%90%8C/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/4%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9II/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -574,7 +383,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/NAND%20Flash%E4%B8%8ENOR%20Flash%E7%9A%84%E5%BC%82%E5%90%8C/" class="post-title-link" itemprop="url">NAND Flash与NOR Flash的异同</a>
+            <a href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/4%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9II/" class="post-title-link" itemprop="url">4删除有序数组中的重复项II</a>
         </h2>
 
         <div class="post-meta">
@@ -583,17 +392,23 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2026-05-07 16:40:00 / 修改时间：16:10:59" itemprop="dateCreated datePublished" datetime="2026-05-07T16:40:00+08:00">2026-05-07</time>
+              <time title="创建时间：2025-11-14 15:30:00" itemprop="dateCreated datePublished" datetime="2025-11-14T15:30:00+08:00">2025-11-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-11-21 11:08:28" itemprop="dateModified" datetime="2025-11-21T11:08:28+08:00">2025-11-21</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                  <a href="/categories/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">面试经典150题</span></a>
                 </span>
             </span>
 
@@ -603,7 +418,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
+              <span>1.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -622,10 +437,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文详细介绍NAND Flash与NOR Flash的异同。</p>
+          <p>本文为面试经典150题中的第4题：删除有序数组中的重复项II。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/NAND%20Flash%E4%B8%8ENOR%20Flash%E7%9A%84%E5%BC%82%E5%90%8C/">
+              <a class="btn" href="/%E9%9D%A2%E8%AF%95%E7%BB%8F%E5%85%B8150%E9%A2%98/4%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9II/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -649,7 +464,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/ZYNQ/FSBL/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -663,7 +478,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/ZYNQ/FSBL/" class="post-title-link" itemprop="url">FSBL阶段</a>
+            <a href="/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/" class="post-title-link" itemprop="url">空指针和野指针</a>
         </h2>
 
         <div class="post-meta">
@@ -672,23 +487,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2026-05-06 11:57:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:57:00+08:00">2026-05-06</time>
+              <time title="创建时间：2025-11-13 21:30:00 / 修改时间：20:34:09" itemprop="dateCreated datePublished" datetime="2025-11-13T21:30:00+08:00">2025-11-13</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-05-11 11:38:19" itemprop="dateModified" datetime="2026-05-11T11:38:19+08:00">2026-05-11</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
                 </span>
             </span>
 
@@ -717,10 +526,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文介绍ZYNQ裸机上电的第二个阶段FSBL。</p>
+          <p>本文介绍空指针和野指针。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/ZYNQ/FSBL/">
+              <a class="btn" href="/C_C++/%E7%A9%BA%E6%8C%87%E9%92%88%E5%92%8C%E9%87%8E%E6%8C%87%E9%92%88/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -744,7 +553,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/ZYNQ/BootROM/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E5%A4%B4%E6%96%87%E4%BB%B6%E9%87%8D%E5%A4%8D%E5%8C%85%E5%90%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -758,197 +567,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/ZYNQ/BootROM/" class="post-title-link" itemprop="url">BootROM阶段</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-05-06 11:37:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:37:00+08:00">2026-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-05-11 11:30:58" itemprop="dateModified" datetime="2026-05-11T11:30:58+08:00">2026-05-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文介绍ZYNQ裸机上电的第一个阶段BootROM。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/ZYNQ/BootROM/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/ZYNQ/ZYNQ%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Yxa">
-      <meta itemprop="description" content="DO SOMETHING COOL！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蛋的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/ZYNQ/ZYNQ%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">ZYNQ裸机开发流程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-05-06 11:07:00" itemprop="dateCreated datePublished" datetime="2026-05-06T11:07:00+08:00">2026-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-05-11 11:30:33" itemprop="dateModified" datetime="2026-05-11T11:30:33+08:00">2026-05-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ZYNQ/" itemprop="url" rel="index"><span itemprop="name">ZYNQ</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文介绍ZYNQ裸机开发的流程及基础知识。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/ZYNQ/ZYNQ%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Yxa">
-      <meta itemprop="description" content="DO SOMETHING COOL！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蛋的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/" class="post-title-link" itemprop="url">嵌入式中的软链接和硬链接</a>
+            <a href="/C_C++/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E5%A4%B4%E6%96%87%E4%BB%B6%E9%87%8D%E5%A4%8D%E5%8C%85%E5%90%AB/" class="post-title-link" itemprop="url">如何防止头文件被重复引用</a>
         </h2>
 
         <div class="post-meta">
@@ -959,7 +578,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-04-28 20:07:00 / 修改时间：20:08:29" itemprop="dateCreated datePublished" datetime="2026-04-28T20:07:00+08:00">2026-04-28</time>
+              <time title="创建时间：2025-11-13 20:30:00 / 修改时间：20:27:55" itemprop="dateCreated datePublished" datetime="2025-11-13T20:30:00+08:00">2025-11-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -967,7 +586,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
                 </span>
             </span>
 
@@ -977,7 +596,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2k</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -996,10 +615,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文详解linux中的软链接和硬链接。</p>
+          <p>本文介绍如何防止头文件被重复引用。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/Linux%E4%B8%AD%E7%9A%84%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%92%8C%E7%A1%AC%E9%93%BE%E6%8E%A5/">
+              <a class="btn" href="/C_C++/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E5%A4%B4%E6%96%87%E4%BB%B6%E9%87%8D%E5%A4%8D%E5%8C%85%E5%90%AB/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1023,7 +642,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/%E5%B5%8C%E5%85%A5%E5%BC%8F/USB%E5%8D%8F%E8%AE%AE/">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -1037,7 +656,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/USB%E5%8D%8F%E8%AE%AE/" class="post-title-link" itemprop="url">USB协议</a>
+            <a href="/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/" class="post-title-link" itemprop="url">预处理器与预处理指令</a>
         </h2>
 
         <div class="post-meta">
@@ -1048,7 +667,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-04-28 11:20:00 / 修改时间：10:46:10" itemprop="dateCreated datePublished" datetime="2026-04-28T11:20:00+08:00">2026-04-28</time>
+              <time title="创建时间：2025-11-13 20:30:00 / 修改时间：20:11:01" itemprop="dateCreated datePublished" datetime="2025-11-13T20:30:00+08:00">2025-11-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1056,7 +675,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                  <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C_C++</span></a>
                 </span>
             </span>
 
@@ -1066,7 +685,102 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.8k</span>
+              <span>1.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文详细介绍预处理器与预处理指令。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/C_C++/%E9%A2%84%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/Hot100/K%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC%E9%93%BE%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Hot100/K%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC%E9%93%BE%E8%A1%A8/" class="post-title-link" itemprop="url">25. K 个一组翻转链表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 15:39:42" itemprop="dateModified" datetime="2026-02-06T15:39:42+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -1085,10 +799,295 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文详细介绍USB通信协议。</p>
+          <p>本文为力扣Hot100题中的第18题：K 个一组翻转链表。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/%E5%B5%8C%E5%85%A5%E5%BC%8F/USB%E5%8D%8F%E8%AE%AE/">
+              <a class="btn" href="/Hot100/K%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC%E9%93%BE%E8%A1%A8/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/Hot100/LRU%E7%BC%93%E5%AD%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Hot100/LRU%E7%BC%93%E5%AD%98/" class="post-title-link" itemprop="url">146. LRU 缓存</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 15:47:39" itemprop="dateModified" datetime="2026-02-06T15:47:39+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文为力扣Hot100题中的第22题：LRU 缓存。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/Hot100/LRU%E7%BC%93%E5%AD%98/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/Hot100/%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Hot100/%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/" class="post-title-link" itemprop="url">15三数之和</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 10:52:11" itemprop="dateModified" datetime="2026-02-06T10:52:11+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文为力扣Hot100题中的第六题：三数之和。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/Hot100/%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yanxianan.github.io/Hot100/%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Yxa">
+      <meta itemprop="description" content="DO SOMETHING COOL！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛋的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Hot100/%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" class="post-title-link" itemprop="url">2. 两数相加</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-13 11:30:00" itemprop="dateCreated datePublished" datetime="2025-11-13T11:30:00+08:00">2025-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-02-06 15:32:55" itemprop="dateModified" datetime="2026-02-06T15:32:55+08:00">2026-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8A%9B%E6%89%A3Hot100%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">力扣Hot100题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文为力扣Hot100题中的第15题：两数相加。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/Hot100/%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1111,7 +1110,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/20/">20</a><a class="extend next" rel="next" href="/blog/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/18/">18</a><a class="extend next" rel="next" href="/blog/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1179,20 +1178,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">197</span>
+          <span class="site-state-item-count">172</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">241</span>
+        <span class="site-state-item-count">174</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1242,14 +1241,14 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">885k</span>
+    <span title="站点总字数">762k</span>
 
   <!-- 阅读时间显示 - 新增的阅读时间功能，已优化样式 -->
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon" style="color: #4caf50; transition: all 0.3s;">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">21:04</span>
+    <span title="站点阅读时长" style="color: #4caf50; font-weight: bold; transition: all 0.3s;">18:09</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
